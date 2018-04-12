@@ -1,5 +1,7 @@
 package xyz.hyperreal.m68000
 
+import jline.console.ConsoleReader
+
 
 class StdIOChar( val start: Long ) extends SingleAddressDevice {
 	

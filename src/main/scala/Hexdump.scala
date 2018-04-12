@@ -1,4 +1,4 @@
-package xyz.hyperreal.riscv
+package xyz.hyperreal.m68000
 
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 

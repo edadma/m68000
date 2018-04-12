@@ -1,4 +1,4 @@
-package xyz.hyperreal.name
+package xyz.hyperreal.m68000
 
 
 object Main extends App {
