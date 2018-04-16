@@ -1,7 +1,7 @@
 //@
 package xyz.hyperreal.m68000
 
-import collection.mutable.{ArrayBuffer}
+import collection.mutable.ArrayBuffer
 
 
 trait Addressable {

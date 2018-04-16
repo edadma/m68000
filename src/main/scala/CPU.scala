@@ -4,15 +4,15 @@ package xyz.hyperreal.m68000
 import scala.collection.mutable.ListBuffer
 
 
-class CPU( private [riscv] val memory: Memory ) extends Registers {
+class CPU( private [m68000] val memory: Memory ) {
 
-  private [riscv] val D = new Array[Int]( 16 )
-  private [riscv] val A = new Array[Int]( 16 )
-  private [riscv] var pc = 0
-  private [riscv] var instruction = 0
-  private [riscv] val f = new Array[Double]( 32 )
-  private [riscv] var fcsr = 0
-  private [riscv] var disp = 0
+  private [m68000] val D = new Array[Int]( 16 )
+  private [m68000] val A = new Array[Int]( 16 )
+  private [m68000] var pc = 0L
+  private [m68000] var instruction = 0
+  private [m68000] val f = new Array[Double]( 16 )
+  private [m68000] var fcsr = 0
+  private [m68000] var disp = 0
 
   var counter = 0L
   var trace = false
@@ -85,11 +85,9 @@ class CPU( private [riscv] val memory: Memory ) extends Registers {
     halt
     memory.reset
 
-    for (r <- csrs if r != IllegalCSR)
-      r.init( this )
-
-    for (i <- x indices) {
-      x(i) = 0
+    for (i <- 0 until 16) {
+      D(i) = 0
+      A(i) = 0
       f(i) = 0
     }
 
@@ -109,15 +107,9 @@ class CPU( private [riscv] val memory: Memory ) extends Registers {
     val m = memory.find( pc )
     val low = m.readByte( pc )
 
-    if ((low&3) == 3) {
-      instruction = m.readInt( pc, low )
-      disp = 4
-      opcodes32(instruction&0x1FFFFFF)( this )
-    } else {
-      instruction = m.readShort( pc, low )&0xFFFF
-      disp = 2
-      opcodes16(instruction)( this )
-    }
+    instruction = m.readInt( pc, low )
+    disp = 4
+    opcodes(instruction&0x1FFFFFF)( this )
 
     pc += disp
     counter += 1
@@ -147,114 +139,27 @@ class CPU( private [riscv] val memory: Memory ) extends Registers {
 
 object CPU {
 
-  private val opcodes32 = Array.fill[Instruction]( 0x2000000 )( IllegalInstruction )
-  private var built32 = false
-  private val opcodes16 = Array.fill[Compressed]( 0x10000 )( IllegalCompressed )
-  private var built16 = false
+  private val opcodes = Array.fill[Instruction]( 0x2000000 )( IllegalInstruction )
+  private var built = false
 
-  private def populate32( pattern: String, inst: Map[Char, Int] => Instruction ) =
+  private def populate( pattern: String, inst: Map[Char, Int] => Instruction ) =
     for ((idx, m) <- generate( pattern ))
-      opcodes32(idx) = inst( m )
+      opcodes(idx) = inst( m )
 
-  private def populate32( insts: List[(String, Map[Char, Int] => Instruction)] ): Unit =
+  private def populate( insts: List[(String, Map[Char, Int] => Instruction)] ): Unit =
     for ((p, c) <- insts)
-      populate32( p, c )
+      populate( p, c )
 
-  def opcodeTable32: IndexedSeq[Instruction] = synchronized {
-    if (!built32) {
-      import RV32I._
-
-      // RV32I
-      populate32(
+  def opcodeTable: IndexedSeq[Instruction] = synchronized {
+    if (!built) {
+      populate(
         List[(String, Map[Char, Int] => Instruction)](
-          "----- ----- --- ddddd 0110111" -> LUI,
-          "----- ----- --- ddddd 0010111" -> AUIPC,
-          "----- ----- --- ddddd 1101111" -> JAL,
-          "----- aaaaa 000 ddddd 1100111" -> JALR,
-          "bbbbb aaaaa 000 ----- 1100011" -> BEQ,
-          "bbbbb aaaaa 001 ----- 1100011" -> BNE,
-          "bbbbb aaaaa 100 ----- 1100011" -> BLT,
-          "bbbbb aaaaa 101 ----- 1100011" -> BGE,
-          "bbbbb aaaaa 110 ----- 1100011" -> BLTU,
-          "bbbbb aaaaa 111 ----- 1100011" -> BGEU,
-          "----- aaaaa 000 ddddd 0000011" -> LB,
-          "----- aaaaa 001 ddddd 0000011" -> LH,
-          "----- aaaaa 010 ddddd 0000011" -> LW,
-          "----- aaaaa 100 ddddd 0000011" -> LBU,
-          "----- aaaaa 101 ddddd 0000011" -> LHU,
-          "bbbbb aaaaa 000 ----- 0100011" -> SB,
-          "bbbbb aaaaa 001 ----- 0100011" -> SH,
-          "bbbbb aaaaa 010 ----- 0100011" -> SW,
-          "----- aaaaa 000 ddddd 0010011" -> ADDI,
-          "----- aaaaa 010 ddddd 0010011" -> SLTI,
-          "----- aaaaa 011 ddddd 0010011" -> SLTIU,
-          "----- aaaaa 100 ddddd 0010011" -> XORI,
-          "----- aaaaa 110 ddddd 0010011" -> ORI,
-          "----- aaaaa 111 ddddd 0010011" -> ANDI,
-          "----- aaaaa 001 ddddd 0010011" -> SLLI,
-          "----- aaaaa 101 ddddd 0010011" -> SRI,
-          "bbbbb aaaaa 000 ddddd 0110011" -> ADD_SUB_MUL,
-          "bbbbb aaaaa 001 ddddd 0110011" -> SLL_MULH,
-          "bbbbb aaaaa 010 ddddd 0110011" -> SLT_MULHSU,
-          "bbbbb aaaaa 011 ddddd 0110011" -> SLTU_MULHU,
-          "bbbbb aaaaa 100 ddddd 0110011" -> XOR_DIV,
-          "bbbbb aaaaa 101 ddddd 0110011" -> SR_DIVU,
-          "bbbbb aaaaa 110 ddddd 0110011" -> OR_REM,
-          "bbbbb aaaaa 111 ddddd 0110011" -> AND_REMU,
-          "----- 00000 000 00000 1110011" -> ((operands: Map[Char, Int]) => new ECALL_EBREAK),
-          "----- iiiii 101 ddddd 1110011" -> ((operands: Map[Char, Int]) => new CSRRWI( operands('i'), operands('d') )),
+//          "----- ----- --- ddddd 0110111" -> LUI,
         ) )
-
-      // RV64I
-      populate32(
-        List[(String, Map[Char, Int] => Instruction)](
-          "----- aaaaa 110 ddddd 0000011" -> ((operands: Map[Char, Int]) => new LWU( operands('a'), operands('d') )),
-          "----- aaaaa 011 ddddd 0000011" -> ((operands: Map[Char, Int]) => new LD( operands('a'), operands('d') )),
-          "bbbbb aaaaa 011 ----- 0100011" -> ((operands: Map[Char, Int]) => new SD( operands('a'), operands('b') )),
-          "----- aaaaa 000 ddddd 0011011" -> ((operands: Map[Char, Int]) => new ADDIW( operands('a'), operands('d') )),
-          "sssss aaaaa 001 ddddd 0011011" -> ((operands: Map[Char, Int]) => new SLLIW( operands('s'), operands('a'), operands('d') )),
-          "sssss aaaaa 101 ddddd 0011011" -> ((operands: Map[Char, Int]) => new SRIW( operands('s'), operands('a'), operands('d') )),
-          "bbbbb aaaaa 000 ddddd 0111011" -> ((operands: Map[Char, Int]) => new ADDW_SUBW_MULW( operands('a'), operands('b'), operands('d') )),
-          "bbbbb aaaaa 001 ddddd 0111011" -> ((operands: Map[Char, Int]) => new SLLW( operands('a'), operands('b'), operands('d') )),
-          "bbbbb aaaaa 100 ddddd 0111011" -> ((operands: Map[Char, Int]) => new DIVW( operands('a'), operands('b'), operands('d') )),
-          "bbbbb aaaaa 101 ddddd 0111011" -> ((operands: Map[Char, Int]) => new SRW_DIVUW( operands('a'), operands('b'), operands('d') )),
-          "bbbbb aaaaa 110 ddddd 0111011" -> ((operands: Map[Char, Int]) => new REMW( operands('a'), operands('b'), operands('d') )),
-          "bbbbb aaaaa 111 ddddd 0111011" -> ((operands: Map[Char, Int]) => new REMUW( operands('a'), operands('b'), operands('d') )),
-        ) )
-
-      // RV32D
-      populate32(
-        List[(String, Map[Char, Int] => Instruction)](
-          "----- aaaaa 011 ddddd 0000111" -> ((operands: Map[Char, Int]) => new FLD( operands('a'), operands('d') )),
-          "bbbbb aaaaa 011 ----- 0100111" -> ((operands: Map[Char, Int]) => new FSD( operands('a'), operands('b') )),
-          "bbbbb aaaaa rrr ddddd 1000011" -> ((operands: Map[Char, Int]) => new FMADD( operands('a'), operands('b'), operands('d'), operands('r') )),
-          "bbbbb aaaaa mmm ddddd 1010011" -> ((operands: Map[Char, Int]) => new FP( operands('a'), operands('b'), operands('d'), operands('m') )),
-        ) )
-      built32 = true
+      built = true
     }
 
-    opcodes32
-  }
-
-  private def populate16( pattern: String, inst: Map[Char, Int] => Compressed ) =
-    for ((idx, m) <- generate( pattern ))
-      opcodes16(idx) = inst( m )
-
-  private def populate16( insts: List[(String, Map[Char, Int] => Compressed)] ): Unit =
-    for ((p, c) <- insts)
-      populate16( p, c )
-
-  def opcodeTable16: IndexedSeq[Compressed] = synchronized {
-    if (!built16) {
-      // RV32C
-      populate16(
-        List[(String, Map[Char, Int] => Compressed)](
-          "000 iiiiiiii ddd 00" -> ((operands: Map[Char, Int]) => new C.ADDI4SPN( operands('i'), operands('d') )),
-        ) )
-      built16 = true
-    }
-
-    opcodes16
+    opcodes
   }
 
   private def generate( pattern: String ) = {
