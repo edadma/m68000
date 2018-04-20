@@ -6,11 +6,17 @@ import scala.collection.mutable.ListBuffer
 
 class CPU( private [m68000] val memory: Memory ) {
 
-  private [m68000] val D = new Array[Int]( 16 )
-  private [m68000] val A = new Array[Int]( 16 )
+  private [m68000] val D = new Array[Int]( 8 )
+  private [m68000] val A = new Array[Int]( 8 )
   private [m68000] var pc = 0L
+  private [m68000] var C = false
+  private [m68000] var V = false
+  private [m68000] var Z = false
+  private [m68000] var N = false
+  private [m68000] var X = false
+  private [m68000] var VBR = 0
   private [m68000] var instruction = 0
-  private [m68000] val f = new Array[Double]( 16 )
+  private [m68000] val f = new Array[Double]( 8 )
   private [m68000] var fcsr = 0
   private [m68000] var disp = 0
 
