@@ -160,9 +160,9 @@ object CPU {
     if (!built) {
       populate(
         List[(String, Map[Char, Int] => Instruction)](
-          "1101 rrr ooo eee aaa" -> ADD,
-          "00000110 ss eee aaa" -> ADDI,
-          "0101 ddd 0 ss eee aaa" -> ADDQ,
+//          "1101 rrr ooo eee aaa" -> (o => ADD( ),
+//          "00000110 ss eee aaa" -> ADDI,
+          "0101 ddd 0 ss eee aaa" -> (o => new ADDQ( o('d'), o('s'), o('e'), o('a') ))
         ) )
       built = true
     }
