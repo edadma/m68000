@@ -113,9 +113,9 @@ class CPU( private [m68000] val memory: Memory ) {
     val m = memory.find( pc )
     val low = m.readByte( pc )
 
-    instruction = m.readInt( pc, low )
-    disp = 4
-    opcodes(instruction&0x1FFFFFF)( this )
+    instruction = m.readShort( pc, low )&0xFFFF
+    disp = 2
+    opcodes(instruction)( this )
 
     pc += disp
     counter += 1
@@ -145,7 +145,7 @@ class CPU( private [m68000] val memory: Memory ) {
 
 object CPU {
 
-  private val opcodes = Array.fill[Instruction]( 0x2000000 )( IllegalInstruction )
+  private val opcodes = Array.fill[Instruction]( 0x10000 )( IllegalInstruction )
   private var built = false
 
   private def populate( pattern: String, inst: Map[Char, Int] => Instruction ) =
@@ -160,7 +160,9 @@ object CPU {
     if (!built) {
       populate(
         List[(String, Map[Char, Int] => Instruction)](
-//          "----- ----- --- ddddd 0110111" -> LUI,
+          "1101 rrr ooo eee aaa" -> ADD,
+          "00000110 ss eee aaa" -> ADDI,
+          "0101 ddd 0 ss eee aaa" -> ADDQ,
         ) )
       built = true
     }

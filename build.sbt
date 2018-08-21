@@ -2,7 +2,7 @@ name := "m68000"
 
 version := "0.1"
 
-scalaVersion := "2.12.5"
+scalaVersion := "2.12.6"
 
 //crossScalaVersions := Seq( "2.11.11" )
 
@@ -42,7 +42,7 @@ libraryDependencies ++= {
 }
 
 libraryDependencies ++= Seq(
-  "jline" % "jline" % "2.14.4"
+  "jline" % "jline" % "2.14.6"
 )
 
 mainClass in (Compile, run) := Some( "xyz.hyperreal." + name.value.replace('-', '_') + ".Main" )
