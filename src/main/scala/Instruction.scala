@@ -19,19 +19,20 @@ object IllegalInstruction extends Instruction {
 
 object ALU {
 
-  def flags( cpu: CPU, overflow: Int, carry: Int, zero: Boolean ): Unit = {
-    cpu.V = (res&0xFFFFFFFF00000000L) != 0
-    cpu.C = cpu.V
+  def flags( cpu: CPU, overflow: Int, carry: Int, zero: Boolean, res: Int ): Unit = {
+    cpu.V = (overflow&0x80000000L) != 0
+    cpu.C = (carry&0x80000000L) != 0
     cpu.X = cpu.C
-    cpu.Z = (res&0xFFFFFFFF) == 0
+    cpu.Z = zero
     cpu.N = res < 0
   }
 
-  def add( cpu: CPU, a: Int, b: Int ) = {
-    val res = a.asInstanceOf[Long] + b
+  def add( cpu: CPU, s: Int, d: Int, extended: Boolean ) = {
+    val r = s + d
+    val z = if (extended) r == 0 && cpu.Z else r == 0
 
-    flags( cpu, res )
-    res.asInstanceOf[Int]
+    flags( cpu, s&d&(~r)|(~s)&(~d)&r, s&d|(~r)&d|s&(~r), z, r )
+    r
   }
 
 }
@@ -39,7 +40,7 @@ object ALU {
 class ADDQ( data: Int, size: Int, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-
+    ALU.add( cpu, )
   }
 
   def disassemble( cpu: CPU ) = "ADDQ"
