@@ -141,6 +141,54 @@ class CPU( private [m68000] val memory: Memory ) {
 
   memory.problem = problem
 
+  //
+  // addressing
+  //
+
+  def cast( v: Int, size: Int ) =
+    size match {
+      case 0 => v.asInstanceOf[Byte].asInstanceOf[Int]
+      case 1 => v.asInstanceOf[Short].asInstanceOf[Int]
+      case 2 => v
+    }
+
+  def read( mode: Int, reg: Int, size: Int ) = {
+    val value =
+      mode match {
+        // Data Register Direct
+        case 0 => cast( D(reg), size )
+        // Address Register Direct
+        case 1 => cast( A(reg), size )
+        // Address Register Indirect
+        case 2 =>
+          size match {
+            case 0 => memory.readByte( A(reg) )
+            case 1 => memory.readShort( A(reg) )
+            case 2 => memory.readInt( A(reg) )
+          }
+      }
+  }
+
+  //
+  // ALU
+  //
+
+  def flags( overflow: Int, carry: Int, zero: Boolean, res: Int ): Unit = {
+    V = (overflow&0x80000000L) != 0
+    C = (carry&0x80000000L) != 0
+    X = C
+    Z = zero
+    N = res < 0
+  }
+
+  def add( s: Int, d: Int, extended: Boolean ) = {
+    val r = s + d
+    val z = if (extended) r == 0 && Z else r == 0
+
+    flags( s&d&(~r)|(~s)&(~d)&r, s&d|(~r)&d|s&(~r), z, r )
+    r
+  }
+
 }
 
 object CPU {
@@ -162,7 +210,7 @@ object CPU {
         List[(String, Map[Char, Int] => Instruction)](
 //          "1101 rrr ooo eee aaa" -> (o => ADD( ),
 //          "00000110 ss eee aaa" -> ADDI,
-          "0101 ddd 0 ss eee aaa" -> (o => new ADDQ( o('d'), o('s'), o('e'), o('a') ))
+          "0101 ddd 0 ss eee aaa" -> (o => new ADDQ( o('d') + 1, o('s'), o('e'), o('a') ))
         ) )
       built = true
     }
