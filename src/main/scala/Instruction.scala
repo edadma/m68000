@@ -20,9 +20,17 @@ object IllegalInstruction extends Instruction {
 class ADDQ( data: Int, size: Int, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.add( )
+    cpu.write( cpu.add(cpu.read(mode, reg, size), data, false), mode, reg, size )
   }
 
   def disassemble( cpu: CPU ) = "ADDQ"
+
+}
+
+class BKPT( vector: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = cpu.breakpoint( vector )
+
+  def disassemble( cpu: CPU ) = "BKPT"
 
 }

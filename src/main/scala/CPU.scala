@@ -4,11 +4,30 @@ package xyz.hyperreal.m68k
 import scala.collection.mutable.ListBuffer
 
 
-class CPU( private [m68k] val memory: Memory ) {
+trait AddressModes {
+
+  val DataRegisterDirect = 0
+  val AddressRegisterDirect = 1
+  val AddressRegisterIndirect = 2
+  val OtherModes = 7
+
+  val ImmediateData = 4
+
+}
+
+trait Sizes {
+
+  val ByteSize = 0
+  val WordSize = 1
+  val LongSize = 2
+
+}
+
+class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int => Unit ) extends AddressModes with Sizes {
 
   private [m68k] val D = new Array[Int]( 8 )
-  private [m68k] val A = new Array[Int]( 8 )
-  private [m68k] var pc = 0L
+  private [m68k] val A = new Array[Long]( 8 )
+  private [m68k] var PC = 0L
   private [m68k] var C = false
   private [m68k] var V = false
   private [m68k] var Z = false
@@ -80,7 +99,7 @@ class CPU( private [m68k] val memory: Memory ) {
 
   def problem( error: String ) = {
     registers
-    sys.error( s"error at ${pc.toHexString} (${"%08x".format(instruction)}): $error" )
+    sys.error( s"error at ${PC.toHexString} (${"%08x".format(instruction)}): $error" )
   }
 
   def halt: Unit = {
@@ -97,12 +116,12 @@ class CPU( private [m68k] val memory: Memory ) {
       f(i) = 0
     }
 
-    pc = memory.code
+    PC = memory.code
     running = false
     fcsr = 0
   }
 
-  def fetch: Unit = instruction = memory.find( pc ).readInt( pc )
+  def fetch: Unit = instruction = memory.find( PC ).readInt( PC )
 
   def execute: Unit = {
     if (trace) {
@@ -110,14 +129,14 @@ class CPU( private [m68k] val memory: Memory ) {
       registers
     }
 
-    val m = memory.find( pc )
-    val low = m.readByte( pc )
+    val m = memory.find( PC )
+    val low = m.readByte( PC )
 
-    instruction = m.readShort( pc, low )&0xFFFF
+    instruction = m.readShort( PC, low )&0xFFFF
     disp = 2
     opcodes(instruction)( this )
 
-    pc += disp
+    PC += disp
     counter += 1
   }
 
@@ -152,21 +171,53 @@ class CPU( private [m68k] val memory: Memory ) {
       case 2 => v
     }
 
+  def memoryRead( address: Long, size: Int, aligned: Boolean ) =
+    size match {
+      case ByteSize if aligned => memory.readShort( address ).asInstanceOf[Byte].asInstanceOf[Int]
+      case ByteSize => memory.readByte( address )
+      case WordSize => memory.readShort( address )
+      case LongSize => memory.readInt( address )
+    }
+
+  def memoryWrite( data: Int, address: Long, size: Int, aligned: Boolean ) =
+    size match {
+      case ByteSize if aligned => memory.writeShort( address, data )
+      case ByteSize => memory.writeByte( address, data )
+      case WordSize => memory.writeShort( address, data )
+      case LongSize => memory.writeInt( address, data )
+    }
+
+  def width( size: Int, aligned: Boolean ) =
+    size match {
+      case ByteSize if aligned => 2
+      case ByteSize => 1
+      case WordSize => 2
+      case LongSize => 4
+    }
+
   def read( mode: Int, reg: Int, size: Int ) = {
-    val value =
-      mode match {
-        // Data Register Direct
-        case 0 => cast( D(reg), size )
-        // Address Register Direct
-        case 1 => cast( A(reg), size )
-        // Address Register Indirect
-        case 2 =>
-          size match {
-            case 0 => memory.readByte( A(reg) )
-            case 1 => memory.readShort( A(reg) )
-            case 2 => memory.readInt( A(reg) )
-          }
-      }
+    mode match {
+      case DataRegisterDirect => cast( D(reg), size )
+      case AddressRegisterDirect => cast( A(reg).asInstanceOf[Int], size )
+      case AddressRegisterIndirect => memoryRead( A(reg), size, false )
+      case OtherModes =>
+        reg match {
+          case ImmediateData =>
+            disp += width( size, true )
+            memoryRead( PC + 2, size, true )
+        }
+    }
+  }
+
+  def write( data: Int, mode: Int, reg: Int, size: Int ) {
+    mode match {
+      case DataRegisterDirect => D(reg) = cast( data, size )
+      case AddressRegisterDirect => A(reg) = cast( data, size )&0xFFFFFFFFL
+      case AddressRegisterIndirect => memoryWrite( data, A(reg), size, false )
+      case OtherModes =>
+//        reg match {
+//        }
+    }
   }
 
   //
@@ -210,7 +261,8 @@ object CPU {
         List[(String, Map[Char, Int] => Instruction)](
 //          "1101 rrr ooo eee aaa" -> (o => ADD( ),
 //          "00000110 ss eee aaa" -> ADDI,
-          "0101 ddd 0 ss eee aaa" -> (o => new ADDQ( o('d') + 1, o('s'), o('e'), o('a') ))
+          "0101 ddd 0 ss eee aaa" -> (o => new ADDQ( o('d') + 1, o('s'), o('e'), o('a') )),
+          "0100100001001 vvv" -> (o => new BKPT( o('v') ))
         ) )
       built = true
     }
