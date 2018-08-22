@@ -4,7 +4,7 @@ package xyz.hyperreal.m68k
 import scala.collection.mutable.ListBuffer
 
 
-trait AddressModes {
+trait Addressing {
 
   val DataRegisterDirect = 0
   val AddressRegisterDirect = 1
@@ -13,17 +13,13 @@ trait AddressModes {
 
   val ImmediateData = 4
 
-}
-
-trait Sizes {
-
   val ByteSize = 0
-  val WordSize = 1
-  val LongSize = 2
+  val ShortSize = 1
+  val IntSize = 2
 
 }
 
-class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int => Unit ) extends AddressModes with Sizes {
+class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int => Unit = _ => {} ) extends Addressing {
 
   private [m68k] val D = new Array[Int]( 8 )
   private [m68k] val A = new Array[Long]( 8 )
@@ -37,7 +33,7 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
   private [m68k] var instruction = 0
   private [m68k] val f = new Array[Double]( 8 )
   private [m68k] var fcsr = 0
-  private [m68k] var disp = 0
+  private [m68k] var prog: Addressable = _
 
   var counter = 0L
   var trace = false
@@ -45,6 +41,13 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
 	protected var running = false
 
   private val opcodes = CPU.opcodeTable
+
+  jump( 0L )
+
+  def jump( address: Long ): Unit = {
+    prog = memory.find( address )
+    PC = address
+  }
 
 	def isRunning = running
 
@@ -116,12 +119,10 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
       f(i) = 0
     }
 
-    PC = memory.code
+    jump( memory.code )
     running = false
     fcsr = 0
   }
-
-  def fetch: Unit = instruction = memory.find( PC ).readInt( PC )
 
   def execute: Unit = {
     if (trace) {
@@ -129,15 +130,25 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
       registers
     }
 
-    val m = memory.find( PC )
-    val low = m.readByte( PC )
-
-    instruction = m.readShort( PC, low )&0xFFFF
-    disp = 2
+    instruction = fetchShort&0xFFFF
     opcodes(instruction)( this )
-
-    PC += disp
     counter += 1
+  }
+
+  def fetchByte = fetchShort.asInstanceOf[Byte].asInstanceOf[Int]
+
+  def fetchShort = {
+    val res = prog.readShort( PC )
+
+    PC += 2
+    res
+  }
+
+  def fetchInt = {
+    val res = prog.readInt( PC )
+
+    PC += 4
+    res
   }
 
 	def step =
@@ -175,24 +186,24 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
     size match {
       case ByteSize if aligned => memory.readShort( address ).asInstanceOf[Byte].asInstanceOf[Int]
       case ByteSize => memory.readByte( address )
-      case WordSize => memory.readShort( address )
-      case LongSize => memory.readInt( address )
+      case ShortSize => memory.readShort( address )
+      case IntSize => memory.readInt( address )
     }
 
   def memoryWrite( data: Int, address: Long, size: Int, aligned: Boolean ) =
     size match {
       case ByteSize if aligned => memory.writeShort( address, data )
       case ByteSize => memory.writeByte( address, data )
-      case WordSize => memory.writeShort( address, data )
-      case LongSize => memory.writeInt( address, data )
+      case ShortSize => memory.writeShort( address, data )
+      case IntSize => memory.writeInt( address, data )
     }
 
   def width( size: Int, aligned: Boolean ) =
     size match {
       case ByteSize if aligned => 2
       case ByteSize => 1
-      case WordSize => 2
-      case LongSize => 4
+      case ShortSize => 2
+      case IntSize => 4
     }
 
   def read( mode: Int, reg: Int, size: Int ) = {
@@ -203,8 +214,11 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
       case OtherModes =>
         reg match {
           case ImmediateData =>
-            disp += width( size, true )
-            memoryRead( PC + 2, size, true )
+            size match {
+              case ByteSize => fetchByte
+              case ShortSize => fetchShort
+              case IntSize => fetchInt
+            }
         }
     }
   }
