@@ -1,4 +1,4 @@
-package xyz.hyperreal.m68000
+package xyz.hyperreal.m68k
 
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 

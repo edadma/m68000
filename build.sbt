@@ -1,4 +1,4 @@
-name := "m68000"
+name := "m68k"
 
 version := "0.1"
 

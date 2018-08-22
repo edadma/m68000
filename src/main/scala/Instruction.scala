@@ -1,4 +1,4 @@
-package xyz.hyperreal.m68000
+package xyz.hyperreal.m68k
 
 
 abstract class Instruction extends (CPU => Unit) {

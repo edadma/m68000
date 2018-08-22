@@ -3,7 +3,7 @@ package xyz.hyperreal
 import java.io.ByteArrayOutputStream
 
 
-package object m68000 {
+package object m68k {
 
 	def boolean2int( b: Boolean ) = if (b) 1 else 0
 

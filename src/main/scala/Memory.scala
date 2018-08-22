@@ -1,5 +1,5 @@
 //@
-package xyz.hyperreal.m68000
+package xyz.hyperreal.m68k
 
 import collection.mutable.ArrayBuffer
 
