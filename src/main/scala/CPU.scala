@@ -4,21 +4,6 @@ package xyz.hyperreal.m68k
 import scala.collection.mutable.ListBuffer
 
 
-trait Addressing {
-
-  val DataRegisterDirect = 0
-  val AddressRegisterDirect = 1
-  val AddressRegisterIndirect = 2
-  val OtherModes = 7
-
-  val ImmediateData = 4
-
-  val ByteSize = 0
-  val ShortSize = 1
-  val IntSize = 2
-
-}
-
 class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int => Unit = _ => {} ) extends Addressing {
 
   private [m68k] val D = new Array[Int]( 8 )
@@ -175,14 +160,14 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
   // addressing
   //
 
-  def cast( v: Int, size: Int ) =
+  def cast( v: Int, size: Size ) =
     size match {
-      case 0 => v.asInstanceOf[Byte].asInstanceOf[Int]
-      case 1 => v.asInstanceOf[Short].asInstanceOf[Int]
-      case 2 => v
+      case ByteSize => v.asInstanceOf[Byte].asInstanceOf[Int]
+      case ShortSize => v.asInstanceOf[Short].asInstanceOf[Int]
+      case IntSize => v
     }
 
-  def memoryRead( address: Long, size: Int, aligned: Boolean ) =
+  def memoryRead( address: Long, size: Size, aligned: Boolean ) =
     size match {
       case ByteSize if aligned => memory.readShort( address ).asInstanceOf[Byte].asInstanceOf[Int]
       case ByteSize => memory.readByte( address )
@@ -190,7 +175,7 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
       case IntSize => memory.readInt( address )
     }
 
-  def memoryWrite( data: Int, address: Long, size: Int, aligned: Boolean ) =
+  def memoryWrite( data: Int, address: Long, size: Size, aligned: Boolean ) =
     size match {
       case ByteSize if aligned => memory.writeShort( address, data )
       case ByteSize => memory.writeByte( address, data )
@@ -198,7 +183,7 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
       case IntSize => memory.writeInt( address, data )
     }
 
-  def width( size: Int, aligned: Boolean ) =
+  def width( size: Size, aligned: Boolean ) =
     size match {
       case ByteSize if aligned => 2
       case ByteSize => 1
@@ -206,7 +191,7 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
       case IntSize => 4
     }
 
-  def read( mode: Int, reg: Int, size: Int ) = {
+  def read( mode: Int, reg: Int, size: Size ) = {
     mode match {
       case DataRegisterDirect => cast( D(reg), size )
       case AddressRegisterDirect => cast( A(reg).asInstanceOf[Int], size )
@@ -223,10 +208,17 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
     }
   }
 
-  def write( data: Int, mode: Int, reg: Int, size: Int ) {
+  def regwrite( data: Int, regcur: Int, size: Size ) =
+    size match {
+      case ByteSize => regcur&0xFFFFFF00 | data&0xFF
+      case ShortSize => regcur&0xFFFF0000 | data&0xFFFF
+      case IntSize => data
+    }
+
+  def write( data: Int, mode: Int, reg: Int, size: Size ) {
     mode match {
-      case DataRegisterDirect => D(reg) = cast( data, size )
-      case AddressRegisterDirect => A(reg) = cast( data, size )&0xFFFFFFFFL
+      case DataRegisterDirect => D(reg) = regwrite( data, D(reg), size )
+      case AddressRegisterDirect => A(reg) = regwrite( data, A(reg).asInstanceOf[Int], size )&0xFFFFFFFFL
       case AddressRegisterIndirect => memoryWrite( data, A(reg), size, false )
       case OtherModes =>
 //        reg match {
@@ -238,20 +230,22 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
   // ALU
   //
 
-  def flags( overflow: Int, carry: Int, zero: Boolean, res: Int ): Unit = {
+  def flags( overflow: Int, carry: Int, extended: Boolean, res: Int, x: Boolean ) = {
     V = (overflow&0x80000000L) != 0
     C = (carry&0x80000000L) != 0
-    X = C
-    Z = zero
+
+    if (x)
+      X = C
+
+    Z = if (extended) res == 0 && Z else res == 0
     N = res < 0
+    res
   }
 
   def add( s: Int, d: Int, extended: Boolean ) = {
     val r = s + d
-    val z = if (extended) r == 0 && Z else r == 0
 
-    flags( s&d&(~r)|(~s)&(~d)&r, s&d|(~r)&d|s&(~r), z, r )
-    r
+    flags( s&d&(~r)|(~s)&(~d)&r, s&d|(~r)&d|s&(~r), extended, r, true )
   }
 
 }
@@ -269,13 +263,29 @@ object CPU {
     for ((p, c) <- insts)
       populate( p, c )
 
+  def addqsize( operands: Map[Char, Int] ) =
+    operands('s') match {
+      case 0 => ByteSize
+      case 1 => ShortSize
+      case 2 => IntSize
+    }
+
+  def movesize( operands: Map[Char, Int] ) =
+    operands('s') match {
+      case 1 => ByteSize
+      case 3 => ShortSize
+      case 2 => IntSize
+    }
+
   def opcodeTable: IndexedSeq[Instruction] = synchronized {
     if (!built) {
       populate(
         List[(String, Map[Char, Int] => Instruction)](
 //          "1101 rrr ooo eee aaa" -> (o => ADD( ),
 //          "00000110 ss eee aaa" -> ADDI,
-          "0101 ddd 0 ss eee aaa" -> (o => new ADDQ( o('d') + 1, o('s'), o('e'), o('a') )),
+          "0101 ddd 0 ss eee aaa" -> (o => new ADDQ( o('d') + 1, addqsize(o), o('e'), o('a') )),
+          "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
+          "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "0100100001001 vvv" -> (o => new BKPT( o('v') ))
         ) )
       built = true
