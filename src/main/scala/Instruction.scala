@@ -54,3 +54,16 @@ class BKPT( vector: Int ) extends Instruction {
   def disassemble( cpu: CPU ) = "BKPT"
 
 }
+
+class TRAP( vector: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    //cpu.SSP -= 2
+    cpu.SSP -= 4
+    cpu.memoryWrite( cpu.PC.asInstanceOf[Int], cpu.SSP, IntSize, true )
+    cpu.jump( cpu.VBR + (vector<<5) )
+  }
+
+  def disassemble( cpu: CPU ) = "TRAP"
+
+}

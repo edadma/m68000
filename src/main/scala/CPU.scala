@@ -4,20 +4,26 @@ package xyz.hyperreal.m68k
 import scala.collection.mutable.ListBuffer
 
 
-class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int => Unit = _ => {} ) extends Addressing {
+class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int => Unit = _ => {} )
+  extends Addressing with SRBits {
 
   private [m68k] val D = new Array[Int]( 8 )
-  private [m68k] val A = new Array[Long]( 8 )
+  private [m68k] val A = new Array[Long]( 7 )
   private [m68k] var PC = 0L
+  private [m68k] var SP = 0L
+  private [m68k] var SSP = 0L
+  private [m68k] var MSP = 0L
   private [m68k] var C = false
   private [m68k] var V = false
   private [m68k] var Z = false
   private [m68k] var N = false
   private [m68k] var X = false
+  private [m68k] var SR = 0
   private [m68k] var VBR = 0
   private [m68k] var instruction = 0
-  private [m68k] val f = new Array[Double]( 8 )
-  private [m68k] var fcsr = 0
+  private [m68k] val FP = new Array[Double]( 8 )
+  private [m68k] var FPCR = 0
+  private [m68k] var FPSR = 0
   private [m68k] var prog: Addressable = _
 
   var counter = 0L
@@ -32,6 +38,12 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
   def jump( address: Long ): Unit = {
     prog = memory.find( address )
     PC = address
+  }
+
+  def bit( b: Int, set: Boolean )
+
+  def sr = {
+    SR |
   }
 
 	def isRunning = running
@@ -98,15 +110,17 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
     halt
     memory.reset
 
-    for (i <- 0 until 16) {
+    for (i <- 0 until 8) {
       D(i) = 0
-      A(i) = 0
-      f(i) = 0
+      FP(i) = 0
     }
+
+    for (i <- 0 until 7)
+      A(i) = 0
 
     jump( memory.code )
     running = false
-    fcsr = 0
+    FPCR = 0
   }
 
   def execute: Unit = {
@@ -191,10 +205,26 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
       case IntSize => 4
     }
 
+  def readA( reg: Int ) =
+    reg match {
+      case 7 if (SR&(S|M)) != 0 => MSP
+      case 7 if (SR&S) != 0 => SSP
+      case 7 => SP
+      case _ => A(reg)
+    }
+
+  def writeA( data: Long, reg: Int ) =
+    reg match {
+      case 7 if (SR&(S|M)) != 0 => MSP = data
+      case 7 if (SR&S) != 0 => SSP = data
+      case 7 => SP = data
+      case _ => A(reg) = data
+    }
+
   def read( mode: Int, reg: Int, size: Size ) = {
     mode match {
       case DataRegisterDirect => cast( D(reg), size )
-      case AddressRegisterDirect => cast( A(reg).asInstanceOf[Int], size )
+      case AddressRegisterDirect => cast( readA(reg).asInstanceOf[Int], size )
       case AddressRegisterIndirect => memoryRead( A(reg), size, false )
       case OtherModes =>
         reg match {
@@ -218,7 +248,7 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
   def write( data: Int, mode: Int, reg: Int, size: Size ) {
     mode match {
       case DataRegisterDirect => D(reg) = regwrite( data, D(reg), size )
-      case AddressRegisterDirect => A(reg) = regwrite( data, A(reg).asInstanceOf[Int], size )&0xFFFFFFFFL
+      case AddressRegisterDirect => writeA( regwrite(data, readA(reg).asInstanceOf[Int], size)&0xFFFFFFFFL, reg )
       case AddressRegisterIndirect => memoryWrite( data, A(reg), size, false )
       case OtherModes =>
 //        reg match {
@@ -284,9 +314,10 @@ object CPU {
 //          "1101 rrr ooo eee aaa" -> (o => ADD( ),
 //          "00000110 ss eee aaa" -> ADDI,
           "0101 ddd 0 ss eee aaa" -> (o => new ADDQ( o('d') + 1, addqsize(o), o('e'), o('a') )),
+          "0100100001001 vvv" -> (o => new BKPT( o('v') )),
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
-          "0100100001001 vvv" -> (o => new BKPT( o('v') ))
+          "010011100100 vvvv" -> (o => new TRAP( o('v') ))
         ) )
       built = true
     }
