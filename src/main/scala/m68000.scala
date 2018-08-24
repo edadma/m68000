@@ -44,4 +44,11 @@ package object m68k {
 
   def clearBit( data: Int, bit: Int ) = data&(~(1<<bit))
 
+  def cast( v: Int, size: Size ) =
+    size match {
+      case BitSize|ByteSize => v.asInstanceOf[Byte].asInstanceOf[Int]
+      case ShortSize => v.asInstanceOf[Short].asInstanceOf[Int]
+      case IntSize => v
+    }
+
 }

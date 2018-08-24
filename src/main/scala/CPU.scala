@@ -174,33 +174,26 @@ class CPU( private [m68k] val memory: Memory,
   // addressing
   //
 
-  def cast( v: Int, size: Size ) =
-    size match {
-      case ByteSize => v.asInstanceOf[Byte].asInstanceOf[Int]
-      case ShortSize => v.asInstanceOf[Short].asInstanceOf[Int]
-      case IntSize => v
-    }
-
   def memoryRead( address: Long, size: Size, aligned: Boolean ) =
     size match {
-      case ByteSize if aligned => memory.readShort( address ).asInstanceOf[Byte].asInstanceOf[Int]
-      case ByteSize => memory.readByte( address )
+      case BitSize|ByteSize if aligned => memory.readShort( address ).asInstanceOf[Byte].asInstanceOf[Int]
+      case BitSize|ByteSize => memory.readByte( address )
       case ShortSize => memory.readShort( address )
       case IntSize => memory.readInt( address )
     }
 
   def memoryWrite( data: Int, address: Long, size: Size, aligned: Boolean ) =
     size match {
-      case ByteSize if aligned => memory.writeShort( address, data )
-      case ByteSize => memory.writeByte( address, data )
+      case BitSize|ByteSize if aligned => memory.writeShort( address, data )
+      case BitSize|ByteSize => memory.writeByte( address, data )
       case ShortSize => memory.writeShort( address, data )
       case IntSize => memory.writeInt( address, data )
     }
 
   def width( size: Size, aligned: Boolean ) =
     size match {
-      case ByteSize if aligned => 2
-      case ByteSize => 1
+      case BitSize|ByteSize if aligned => 2
+      case BitSize|ByteSize => 1
       case ShortSize => 2
       case IntSize => 4
     }
@@ -223,6 +216,7 @@ class CPU( private [m68k] val memory: Memory,
 
   def read( mode: Int, reg: Int, size: Size ) = {
     mode match {
+      case DataRegisterDirect if size == BitSize => D(reg)
       case DataRegisterDirect => cast( D(reg), size )
       case AddressRegisterDirect => cast( readA(reg).asInstanceOf[Int], size )
       case AddressRegisterIndirect => memoryRead( A(reg), size, false )

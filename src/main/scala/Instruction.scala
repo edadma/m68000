@@ -62,14 +62,18 @@ class Bcc( cond: Int, disp: Int ) extends Instruction {
 
 }
 
-class BCHG( bit: Option[Int], mode: Int, reg: Int ) extends Instruction {
+class BCHG( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val data = cpu.read( )
-    testBit( )bit match {
-      case None => cpu.fetchByte
-      case Some( b ) => b
-    }
+    val data = cpu.read( mode, reg, BitSize )
+    val bit =
+      breg match {
+        case None => cpu.fetchByte
+        case Some( b ) => b
+      }
+
+    cpu.Z = testBit( data, bit )
+    cpu.write( flipBit(data, bit), mode, reg, BitSize )
   }
 
   def disassemble( cpu: CPU ) = "Bcc"
