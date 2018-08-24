@@ -47,6 +47,29 @@ class ADDQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
 }
 
+class Bcc( cond: Int, disp: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    if (cpu.test( cond ))
+      cpu.jump( disp match {
+        case 0 => cpu.fetchShort
+        case -1 => cpu.fetchInt//020
+        case _ => disp
+      } )
+  }
+
+  def disassemble( cpu: CPU ) = "Bcc"
+
+}
+
+class BKPT( vector: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = cpu.breakpoint( vector )
+
+  def disassemble( cpu: CPU ) = "BKPT"
+
+}
+
 class MOVE( size: Size, dreg: Int, dmode: Int, smode: Int, sreg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
@@ -64,14 +87,6 @@ class MOVEQ( reg: Int, data: Int ) extends Instruction {
   }
 
   def disassemble( cpu: CPU ) = "MOVEQ"
-
-}
-
-class BKPT( vector: Int ) extends Instruction {
-
-  def apply( cpu: CPU ): Unit = cpu.breakpoint( vector )
-
-  def disassemble( cpu: CPU ) = "BKPT"
 
 }
 

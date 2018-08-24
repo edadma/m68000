@@ -344,6 +344,7 @@ object CPU {
           "1101 rrr ooo eee aaa" -> (o => new ADDA( addasize(o), o('e'), o('a'), o('r') )),
           "00000110 ss eee aaa" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
           "0101 ddd 0 ss eee aaa" -> (o => new ADDQ( o('d') + 1, addqsize(o), o('e'), o('a') )),
+          "0110 cccc dddddddd" -> (o => new Bcc( o('c'), o('d') )),
           "0100100001001 vvv" -> (o => new BKPT( o('v') )),
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
