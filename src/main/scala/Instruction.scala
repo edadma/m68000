@@ -17,6 +17,26 @@ object IllegalInstruction extends Instruction {
 
 }
 
+class ADDA( size: Size, mode: Int, reg: Int, areg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.writeA( cpu.read(mode, reg, size), areg )
+  }
+
+  def disassemble( cpu: CPU ) = "ADDA"
+
+}
+
+class ADDI( size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.write( cpu.add(cpu.read(mode, reg, size), cpu.immediate(size), false), mode, reg, size )
+  }
+
+  def disassemble( cpu: CPU ) = "ADDI"
+
+}
+
 class ADDQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
@@ -59,9 +79,11 @@ class TRAP( vector: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
     //cpu.SSP -= 2
-    cpu.SSP -= 4
-    cpu.memoryWrite( cpu.PC.asInstanceOf[Int], cpu.SSP, IntSize, true )
-    cpu.jump( cpu.VBR + (vector<<5) )
+    if (!cpu.trap( vector )) {
+      cpu.SSP -= 4
+      cpu.memoryWrite( cpu.PC.asInstanceOf[Int], cpu.SSP, IntSize, true )
+      cpu.jump( cpu.VBR + (vector<<5) )
+    }
   }
 
   def disassemble( cpu: CPU ) = "TRAP"

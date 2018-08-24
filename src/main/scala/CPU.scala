@@ -4,8 +4,10 @@ package xyz.hyperreal.m68k
 import scala.collection.mutable.ListBuffer
 
 
-class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int => Unit = _ => {} )
-  extends Addressing with SRBits {
+class CPU( private [m68k] val memory: Memory,
+           private [m68k] val breakpoint: Int => Unit = _ => {},
+           private [m68k] val trap: Int => Boolean = _ => false )
+  extends Addressing {
 
   private [m68k] val D = new Array[Int]( 8 )
   private [m68k] val A = new Array[Long]( 7 )
@@ -40,10 +42,8 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
     PC = address
   }
 
-  def bit( b: Int, set: Boolean )
-
   def sr = {
-    SR |
+    SR
   }
 
 	def isRunning = running
@@ -207,16 +207,16 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
 
   def readA( reg: Int ) =
     reg match {
-      case 7 if (SR&(S|M)) != 0 => MSP
-      case 7 if (SR&S) != 0 => SSP
+      case 7 if (SR&(SRBit.S|SRBit.M)) != 0 => MSP
+      case 7 if (SR&SRBit.S) != 0 => SSP
       case 7 => SP
       case _ => A(reg)
     }
 
   def writeA( data: Long, reg: Int ) =
     reg match {
-      case 7 if (SR&(S|M)) != 0 => MSP = data
-      case 7 if (SR&S) != 0 => SSP = data
+      case 7 if (SR&(SRBit.S|SRBit.M)) != 0 => MSP = data
+      case 7 if (SR&SRBit.S) != 0 => SSP = data
       case 7 => SP = data
       case _ => A(reg) = data
     }
@@ -228,12 +228,7 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
       case AddressRegisterIndirect => memoryRead( A(reg), size, false )
       case OtherModes =>
         reg match {
-          case ImmediateData =>
-            size match {
-              case ByteSize => fetchByte
-              case ShortSize => fetchShort
-              case IntSize => fetchInt
-            }
+          case ImmediateData => immediate( size )
         }
     }
   }
@@ -278,6 +273,13 @@ class CPU( private [m68k] val memory: Memory, private [m68k] val breakpoint: Int
     flags( s&d&(~r)|(~s)&(~d)&r, s&d|(~r)&d|s&(~r), extended, r, true )
   }
 
+  def immediate( size: Size ) =
+    size match {
+      case ByteSize => fetchByte
+      case ShortSize => fetchShort
+      case IntSize => fetchInt
+    }
+
 }
 
 object CPU {
@@ -300,6 +302,12 @@ object CPU {
       case 2 => IntSize
     }
 
+  def addasize( operands: Map[Char, Int] ) =
+    operands('s') match {
+      case 3 => ShortSize
+      case 7 => IntSize
+    }
+
   def movesize( operands: Map[Char, Int] ) =
     operands('s') match {
       case 1 => ByteSize
@@ -313,6 +321,8 @@ object CPU {
         List[(String, Map[Char, Int] => Instruction)](
 //          "1101 rrr ooo eee aaa" -> (o => ADD( ),
 //          "00000110 ss eee aaa" -> ADDI,
+          "1101 rrr ooo eee aaa" -> (o => new ADDA( addasize(o), o('e'), o('a'), o('r') )),
+          "00000110 ss eee aaa" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
           "0101 ddd 0 ss eee aaa" -> (o => new ADDQ( o('d') + 1, addqsize(o), o('e'), o('a') )),
           "0100100001001 vvv" -> (o => new BKPT( o('v') )),
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
