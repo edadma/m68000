@@ -280,6 +280,26 @@ class CPU( private [m68k] val memory: Memory,
       case IntSize => fetchInt
     }
 
+  def test( cond: Int ) =
+    cond match {
+      case Conditional.True => true
+      case Conditional.False => false
+      case Conditional.High => !C && !Z
+      case Conditional.LowSame => C || Z
+      case Conditional.CarryClear => !C
+      case Conditional.CarrySet => C
+      case Conditional.NotEqual => !Z
+      case Conditional.Equal => Z
+      case Conditional.OverflowClear => !V
+      case Conditional.OverflowSet => V
+      case Conditional.Plus => !N
+      case Conditional.Minus => N
+      case Conditional.GreaterEqual => N && V || !N && !V
+      case Conditional.LessThan => N && !V || !N && V
+      case Conditional.GreaterThan => N && V && !Z || !N && !V && !Z
+      case Conditional.LessEqual => Z || N && !V || !N && V
+    }
+
 }
 
 object CPU {
