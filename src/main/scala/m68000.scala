@@ -36,4 +36,12 @@ package object m68k {
 		out.toString.trim
 	}
 
+  def testBit( data: Int, bit: Int ) = (data&(1<<bit)) != 0
+
+  def flipBit( data: Int, bit: Int ) = data^(1<<bit)
+
+  def setBit( data: Int, bit: Int ) = data|(1<<bit)
+
+  def clearBit( data: Int, bit: Int ) = data&(~(1<<bit))
+
 }

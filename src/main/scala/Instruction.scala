@@ -50,12 +50,26 @@ class ADDQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class Bcc( cond: Int, disp: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    if (cpu.test( cond ))
+    if (cpu.testcc( cond ))
       cpu.jump( disp match {
         case 0 => cpu.fetchShort
         case -1 => cpu.fetchInt//020
         case _ => disp
       } )
+  }
+
+  def disassemble( cpu: CPU ) = "Bcc"
+
+}
+
+class BCHG( bit: Option[Int], mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val data = cpu.read( )
+    testBit( )bit match {
+      case None => cpu.fetchByte
+      case Some( b ) => b
+    }
   }
 
   def disassemble( cpu: CPU ) = "Bcc"

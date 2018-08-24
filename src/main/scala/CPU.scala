@@ -280,7 +280,7 @@ class CPU( private [m68k] val memory: Memory,
       case IntSize => fetchInt
     }
 
-  def test( cond: Int ) =
+  def testcc( cond: Int ) =
     cond match {
       case Conditional.True => true
       case Conditional.False => false
