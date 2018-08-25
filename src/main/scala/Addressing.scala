@@ -6,6 +6,8 @@ trait Addressing {
   val DataRegisterDirect = 0
   val AddressRegisterDirect = 1
   val AddressRegisterIndirect = 2
+  val AddressRegisterIndirectPostincrement = 3
+  val AddressRegisterIndirectPredecrement = 4
   val OtherModes = 7
 
   val ImmediateData = 4

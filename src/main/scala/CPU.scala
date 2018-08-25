@@ -206,6 +206,46 @@ class CPU( private [m68k] val memory: Memory,
       case _ => A(reg)
     }
 
+  def readAPredecrement( reg: Int, size: Size ) =
+    reg match {
+      case 7 if (SR&(SRBit.S|SRBit.M)) != 0 =>
+        MSP -= width( size, true )
+        MSP
+      case 7 if (SR&SRBit.S) != 0 =>
+        SSP -= width( size, true )
+        SSP
+      case 7 =>
+        SP -= width( size, true )
+        SP
+      case _ =>
+        A(reg) -= width( size, false )
+        A(reg)
+    }
+
+  def readAPostincrement( reg: Int, size: Size ) =
+    reg match {
+      case 7 if (SR&(SRBit.S|SRBit.M)) != 0 =>
+        val res = MSP
+
+        MSP += width( size, true )
+        res
+      case 7 if (SR&SRBit.S) != 0 =>
+        val res = SSP
+
+        SSP += width( size, true )
+        res
+      case 7 =>
+        val res = SP
+
+        SP += width( size, true )
+        res
+      case _ =>
+        val res = A(reg)
+
+        A(reg) += width( size, false )
+        res
+    }
+
   def writeA( data: Long, reg: Int ) =
     reg match {
       case 7 if (SR&(SRBit.S|SRBit.M)) != 0 => MSP = data
@@ -219,7 +259,9 @@ class CPU( private [m68k] val memory: Memory,
       case DataRegisterDirect if size == BitSize => D(reg)
       case DataRegisterDirect => cast( D(reg), size )
       case AddressRegisterDirect => cast( readA(reg).asInstanceOf[Int], size )
-      case AddressRegisterIndirect => memoryRead( A(reg), size, false )
+      case AddressRegisterIndirect => memoryRead( readA(reg), size, false )
+      case AddressRegisterIndirectPostincrement => memoryRead( readAPostincrement(reg, size), size, reg == 7 )
+      case AddressRegisterIndirectPredecrement => memoryRead( readAPredecrement(reg, size), size, reg == 7 )
       case OtherModes =>
         reg match {
           case ImmediateData => immediate( size )
@@ -238,12 +280,20 @@ class CPU( private [m68k] val memory: Memory,
     mode match {
       case DataRegisterDirect => D(reg) = regwrite( data, D(reg), size )
       case AddressRegisterDirect => writeA( regwrite(data, readA(reg).asInstanceOf[Int], size)&0xFFFFFFFFL, reg )
-      case AddressRegisterIndirect => memoryWrite( data, A(reg), size, false )
+      case AddressRegisterIndirect => memoryWrite( data, readA(reg), size, false )
+      case AddressRegisterIndirectPostincrement =>
+        memoryWrite( data, readAPostincrement(reg, size), size, reg == 7 )
+      case AddressRegisterIndirectPredecrement =>
+        memoryWrite( data, readAPredecrement(reg, size), size, reg == 7 )
       case OtherModes =>
 //        reg match {
 //        }
     }
   }
+
+  def push( data: Int, size: Size ) = memoryWrite( data, readAPredecrement(7, size), size, true )
+
+//  def pop( size: Size ) = memoryRead( )
 
   //
   // ALU
