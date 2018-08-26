@@ -42,9 +42,7 @@ class CPU( private [m68k] val memory: Memory,
     PC = address
   }
 
-  def sr = {
-    SR
-  }
+  def sr = SR | bit( X, 4 ) | bit( N, 3 ) | bit( Z, 2 ) | bit( N, 1 ) | bit( C, 0 )
 
 	def isRunning = running
 
