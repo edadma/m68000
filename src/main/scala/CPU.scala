@@ -293,7 +293,7 @@ class CPU( private [m68k] val memory: Memory,
 
   def push( data: Int, size: Size ) = memoryWrite( data, readAPredecrement(7, size), size, true )
 
-//  def pop( size: Size ) = memoryRead( )
+  def pop( size: Size ) = memoryRead( readAPostincrement(7, size), size, true )
 
   //
   // ALU

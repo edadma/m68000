@@ -98,6 +98,14 @@ class BCLR( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 
 }
 
+class BKPT( vector: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = cpu.breakpoint( vector )
+
+  def disassemble( cpu: CPU ) = "BKPT"
+
+}
+
 class BSET( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
@@ -116,11 +124,21 @@ class BSET( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 
 }
 
-class BKPT( vector: Int ) extends Instruction {
+class BSR( disp: Int ) extends Instruction {
 
-  def apply( cpu: CPU ): Unit = cpu.breakpoint( vector )
+  def apply( cpu: CPU ): Unit = {
+    val jump =
+      disp match {
+        case 0 => cpu.fetchShort
+        case -1 => cpu.fetchInt//020
+        case _ => disp
+      }
 
-  def disassemble( cpu: CPU ) = "BKPT"
+    cpu.push( cpu.PC.asInstanceOf[Int], IntSize )
+    cpu.jump( jump )
+  }
+
+  def disassemble( cpu: CPU ) = "BSR"
 
 }
 
