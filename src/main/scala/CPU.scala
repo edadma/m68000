@@ -396,6 +396,9 @@ object CPU {
           "0100100001001 vvv" -> (o => new BKPT( o('v') )),
           "0000 rrr 111 eee aaa" -> (o => new BSET( Some(o('r')), o('e'), o('a') )),
           "0000100011 eee aaa" -> (o => new BSET( None, o('e'), o('a') )),
+          "01100001 dddddddd" -> (o => new BSR( o('d') )),
+          "0000 rrr 100 eee aaa" -> (o => new BTST( Some(o('r')), o('e'), o('a') )),
+          "0000100000 eee aaa" -> (o => new BTST( None, o('e'), o('a') )),
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') ))

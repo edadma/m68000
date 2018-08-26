@@ -142,6 +142,23 @@ class BSR( disp: Int ) extends Instruction {
 
 }
 
+class BTST( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val data = cpu.read( mode, reg, BitSize )
+    val bit =
+      breg match {
+        case None => cpu.fetchByte
+        case Some( b ) => b
+      }
+
+    cpu.Z = testBit( data, bit )
+  }
+
+  def disassemble( cpu: CPU ) = "BTST"
+
+}
+
 class MOVE( size: Size, dreg: Int, dmode: Int, smode: Int, sreg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
