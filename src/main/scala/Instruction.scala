@@ -1,3 +1,4 @@
+//@
 package xyz.hyperreal.m68k
 
 
@@ -64,8 +65,10 @@ class ADDQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class Bcc( cond: Int, disp: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
+    val pc = cpu.PC
+
     if (cpu.testcc( cond ))
-      cpu.jump( disp match {
+      cpu.jump( pc + disp match {
         case 0 => cpu.fetchShort
         case -1 => cpu.fetchInt//020
         case _ => disp
@@ -177,7 +180,7 @@ class CHK( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
     val upper = cpu.read( mode, reg, size )
-    val d = cast( cpu.D(dreg), size )
+    val d = cpu.readD( reg, size )
 
     if (d < 0) {
       cpu.N = true
@@ -242,6 +245,29 @@ class CMPM( size: Size, rx: Int, ry: Int ) extends Instruction with Addressing {
   }
 
   def disassemble( cpu: CPU ) = s"CMPM"
+
+}
+
+class DBcc( cond: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val pc = cpu.PC
+
+    if (cpu.testcc( cond ))
+      cpu.PC += 2
+    else {
+      val res = cpu.readD( reg, ShortSize ) - 1
+
+      cpu.dregwrite( res, reg, ShortSize )
+
+      if (res == -1)
+        cpu.PC += 2
+      else
+        cpu.jump( pc + cpu.fetchShort )
+    }
+  }
+
+  def disassemble( cpu: CPU ) = s"DBcc"
 
 }
 

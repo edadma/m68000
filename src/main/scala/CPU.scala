@@ -252,10 +252,12 @@ class CPU( private [m68k] val memory: Memory,
       case _ => A(reg) = data
     }
 
+  def readD( reg: Int, size: Size ) = cast( D(reg), size )
+
   def read( mode: Int, reg: Int, size: Size ) = {
     mode match {
       case DataRegisterDirect if size == BitSize => D(reg)
-      case DataRegisterDirect => cast( D(reg), size )
+      case DataRegisterDirect => readD( reg, size )
       case AddressRegisterDirect => cast( readA(reg).asInstanceOf[Int], size )
       case AddressRegisterIndirect => memoryRead( readA(reg), size, false )
       case AddressRegisterIndirectPostincrement => memoryRead( readAPostincrement(reg, size), size, reg == 7 )
