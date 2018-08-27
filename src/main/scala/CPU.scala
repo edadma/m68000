@@ -401,8 +401,8 @@ object CPU {
     if (!built) {
       populate(
         List[(String, Map[Char, Int] => Instruction)](
-          "1101 rrr d ss eee aaa" -> (o => new ADD( o('r'), o('d'), addqsize(o), o('e'), o('a') )),
-          "1101 rrr ooo eee aaa" -> (o => new ADDA( o('r'), addasize(o), o('e'), o('a') )),
+          "1101 rrr d ss eee aaa; s:0-2" -> (o => new ADD( o('r'), o('d'), addqsize(o), o('e'), o('a') )),
+          "1101 rrr ooo eee aaa; o:3,7" -> (o => new ADDA( o('r'), addasize(o), o('e'), o('a') )),
           "00000110 ss eee aaa" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
           "0101 ddd 0 ss eee aaa" -> (o => new ADDQ( o('d') + 1, addqsize(o), o('e'), o('a') )),
           "0110 cccc dddddddd" -> (o => new Bcc( o('c'), o('d') )),
@@ -418,8 +418,8 @@ object CPU {
           "0000100000 eee aaa" -> (o => new BTST( None, o('e'), o('a') )),
           "0100 rrr ss 0 eee aaa" -> (o => new CHK( o('r'), chksize(o), o('e'), o('a') )),
           "01000010 ss eee aaa" -> (o => new CLR( addqsize(o), o('e'), o('a') )),
-          "1011 rrr ooo eee aaa" -> (o => new CMP( o('r'), addqsize(o), o('e'), o('a') )),
-          "1011 rrr ooo eee aaa" -> (o => new CMPA( o('r'), addasize(o), o('e'), o('a') )),
+          "1011 rrr ooo eee aaa; o:0-2" -> (o => new CMP( o('r'), addqsize(o), o('e'), o('a') )),
+          "1011 rrr ooo eee aaa; o:3,7" -> (o => new CMPA( o('r'), addasize(o), o('e'), o('a') )),
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') ))
@@ -433,7 +433,7 @@ object CPU {
   private def generate( pattern: String ) = {
     case class Variable( v: Char, seq: collection.Seq[Int], bits: List[Int] )
 
-    val Range = "([a-zA-Z]):([0-9]+)-([0-9]+)"r
+    val Range = "([a-zA-Z]):(?:([0-9]+)-([0-9]+)|([0-9]+(?:,[0-9]+)*)"r
     val p = pattern replace (" ", "") split ";"
 
     require( p.nonEmpty, "empty pattern" )
@@ -443,7 +443,10 @@ object CPU {
     require( bits.length > 0, "pattern should comprise at least one bit" )
     require( bits.forall(c => c == '0' || c == '1' || c.isLetter || c == '-'), "pattern should comprise only 0's, 1's, letters or -'s" )
 
-    val ranges = Map[Char, collection.Seq[Int]]( (p drop 1 map {case Range( v, l, u ) => v.head -> (l.toInt to u.toInt)}): _* )
+    val ranges = Map[Char, collection.Seq[Int]]( p drop 1 map {
+      case Range( v, lower, upper, null ) => v.head -> (lower.toInt to upper.toInt)
+      case Range( v, null, null, list ) => v.head -> (list split "," map (_.toInt)).toSeq
+    }: _* )
 
     val (constant, variables) = {
       def scan( acc: Int, pos: Int, chars: List[Char], vars: Map[Char, List[Int]] ): (Int, Map[Char,List[Int]]) =
