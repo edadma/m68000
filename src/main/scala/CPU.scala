@@ -342,6 +342,12 @@ class CPU( private [m68k] val memory: Memory,
       case Conditional.LessEqual => Z || N && !V || !N && V
     }
 
+  def exception( vector: Int ): Unit = {
+    push( sr, ShortSize )
+    push( PC.asInstanceOf[Int], IntSize )
+    jump( memoryRead(VBR + vector, IntSize, false) )
+  }
+
 }
 
 object CPU {
@@ -368,6 +374,12 @@ object CPU {
     operands('s') match {
       case 3 => ShortSize
       case 7 => IntSize
+    }
+
+  def chksize( operands: Map[Char, Int] ) =
+    operands('s') match {
+      case 3 => ShortSize
+      case 2 => IntSize
     }
 
   def movesize( operands: Map[Char, Int] ) =
@@ -397,6 +409,7 @@ object CPU {
           "01100001 dddddddd" -> (o => new BSR( o('d') )),
           "0000 rrr 100 eee aaa" -> (o => new BTST( Some(o('r')), o('e'), o('a') )),
           "0000100000 eee aaa" -> (o => new BTST( None, o('e'), o('a') )),
+          "0100 rrr ss 0 eee aaa" -> (o => new CHK ( o('r'), chksize(o), o('e'), o('a') )),
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') ))
