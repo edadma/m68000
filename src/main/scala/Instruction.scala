@@ -215,6 +215,16 @@ class CMP( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
 }
 
+class CMPA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.subtract( cpu.readA(areg).asInstanceOf[Int], cpu.read(mode, reg, size), false )
+  }
+
+  def disassemble( cpu: CPU ) = "CMPA"
+
+}
+
 class MOVE( size: Size, dreg: Int, dmode: Int, smode: Int, sreg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
