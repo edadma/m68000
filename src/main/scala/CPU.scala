@@ -420,6 +420,8 @@ object CPU {
           "01000010 ss eee aaa" -> (o => new CLR( addqsize(o), o('e'), o('a') )),
           "1011 rrr ooo eee aaa; o:0-2" -> (o => new CMP( o('r'), addqsize(o), o('e'), o('a') )),
           "1011 rrr ooo eee aaa; o:3,7" -> (o => new CMPA( o('r'), addasize(o), o('e'), o('a') )),
+          "00001100 ss eee aaa" -> (o => new CMPI( addqsize(o), o('e'), o('a') )),
+          "1011 xxx 1 ss 001 yyy" -> (o => new CMPM( addqsize(o), o('x'), o('y') )),
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') ))

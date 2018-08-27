@@ -27,7 +27,7 @@ class ADD( dreg: Int, dest: Int, size: Size, mode: Int, reg: Int ) extends Instr
 
   }
 
-  def disassemble( cpu: CPU ) = "ADD"
+  def disassemble( cpu: CPU ) = s"ADD"
 
 }
 
@@ -37,7 +37,7 @@ class ADDA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.writeA( cpu.add(cpu.read(mode, reg, size), cpu.readA(areg).asInstanceOf[Int], false), areg )
   }
 
-  def disassemble( cpu: CPU ) = "ADDA"
+  def disassemble( cpu: CPU ) = s"ADDA"
 
 }
 
@@ -47,7 +47,7 @@ class ADDI( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.write( cpu.add(cpu.read(mode, reg, size), cpu.immediate(size), false), mode, reg, size )
   }
 
-  def disassemble( cpu: CPU ) = "ADDI"
+  def disassemble( cpu: CPU ) = s"ADDI"
 
 }
 
@@ -57,7 +57,7 @@ class ADDQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.write( cpu.add(cpu.read(mode, reg, size), data, false), mode, reg, size )
   }
 
-  def disassemble( cpu: CPU ) = "ADDQ"
+  def disassemble( cpu: CPU ) = s"ADDQ"
 
 }
 
@@ -72,7 +72,7 @@ class Bcc( cond: Int, disp: Int ) extends Instruction {
       } )
   }
 
-  def disassemble( cpu: CPU ) = "Bcc"
+  def disassemble( cpu: CPU ) = s"Bcc"
 
 }
 
@@ -90,7 +90,7 @@ class BCHG( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
     cpu.write( flipBit(data, bit), mode, reg, BitSize )
   }
 
-  def disassemble( cpu: CPU ) = "BCHG"
+  def disassemble( cpu: CPU ) = s"BCHG"
 
 }
 
@@ -108,7 +108,7 @@ class BCLR( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
     cpu.write( clearBit(data, bit), mode, reg, BitSize )
   }
 
-  def disassemble( cpu: CPU ) = "BCLR"
+  def disassemble( cpu: CPU ) = s"BCLR"
 
 }
 
@@ -116,7 +116,7 @@ class BKPT( vector: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = cpu.breakpoint( vector )
 
-  def disassemble( cpu: CPU ) = "BKPT"
+  def disassemble( cpu: CPU ) = s"BKPT"
 
 }
 
@@ -134,7 +134,7 @@ class BSET( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
     cpu.write( setBit(data, bit), mode, reg, BitSize )
   }
 
-  def disassemble( cpu: CPU ) = "BSET"
+  def disassemble( cpu: CPU ) = s"BSET"
 
 }
 
@@ -152,7 +152,7 @@ class BSR( disp: Int ) extends Instruction {
     cpu.jump( jump )
   }
 
-  def disassemble( cpu: CPU ) = "BSR"
+  def disassemble( cpu: CPU ) = s"BSR"
 
 }
 
@@ -169,7 +169,7 @@ class BTST( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
     cpu.Z = testBit( data, bit )
   }
 
-  def disassemble( cpu: CPU ) = "BTST"
+  def disassemble( cpu: CPU ) = s"BTST"
 
 }
 
@@ -187,7 +187,7 @@ class CHK( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = "CHK"
+  def disassemble( cpu: CPU ) = s"CHK"
 
 }
 
@@ -201,17 +201,17 @@ class CLR( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.C = false
   }
 
-  def disassemble( cpu: CPU ) = "CLR"
+  def disassemble( cpu: CPU ) = s"CLR"
 
 }
 
 class CMP( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.subtract( cpu.read(mode, reg, size), cpu.immediate(size), false )
+    cpu.subtract( cast(cpu.D(reg), size), cpu.read(mode, reg, size), false )
   }
 
-  def disassemble( cpu: CPU ) = "CMP"
+  def disassemble( cpu: CPU ) = s"CMP"
 
 }
 
@@ -221,7 +221,27 @@ class CMPA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.subtract( cpu.readA(areg).asInstanceOf[Int], cpu.read(mode, reg, size), false )
   }
 
-  def disassemble( cpu: CPU ) = "CMPA"
+  def disassemble( cpu: CPU ) = s"CMPA"
+
+}
+
+class CMPI( size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.add( cpu.immediate(size), cpu.read(mode, reg, size), false )
+  }
+
+  def disassemble( cpu: CPU ) = s"CMPI"
+
+}
+
+class CMPM( size: Size, rx: Int, ry: Int ) extends Instruction with Addressing {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.add( cpu.read(AddressRegisterIndirectPostincrement, rx, size), cpu.read(AddressRegisterIndirectPostincrement, ry, size), false )
+  }
+
+  def disassemble( cpu: CPU ) = s"CMPM"
 
 }
 
@@ -231,7 +251,7 @@ class MOVE( size: Size, dreg: Int, dmode: Int, smode: Int, sreg: Int ) extends I
     cpu.write( cpu.flags(0, 0, false, cpu.read(smode, sreg, size), false), dmode, dreg, size )
   }
 
-  def disassemble( cpu: CPU ) = "MOVE"
+  def disassemble( cpu: CPU ) = s"MOVE"
 
 }
 
@@ -241,7 +261,7 @@ class MOVEQ( reg: Int, data: Int ) extends Instruction {
     cpu.D(reg) = cpu.flags( 0, 0, false, data, false )
   }
 
-  def disassemble( cpu: CPU ) = "MOVEQ"
+  def disassemble( cpu: CPU ) = s"MOVEQ"
 
 }
 
@@ -256,6 +276,6 @@ class TRAP( vector: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = "TRAP"
+  def disassemble( cpu: CPU ) = s"TRAP"
 
 }
