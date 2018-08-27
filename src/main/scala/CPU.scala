@@ -431,7 +431,7 @@ object CPU {
   }
 
   private def generate( pattern: String ) = {
-    case class Variable( v: Char, lower: Int, upper: Int, bits: List[Int] )
+    case class Variable( v: Char, seq: collection.Seq[Int], bits: List[Int] )
 
     val Range = "([a-zA-Z]):([0-9]+)-([0-9]+)"r
     val p = pattern replace (" ", "") split ";"
@@ -443,9 +443,7 @@ object CPU {
     require( bits.length > 0, "pattern should comprise at least one bit" )
     require( bits.forall(c => c == '0' || c == '1' || c.isLetter || c == '-'), "pattern should comprise only 0's, 1's, letters or -'s" )
 
-    val ranges = Map( (p drop 1 map {case Range( v, l, u ) => v(0) -> (l.toInt, u.toInt)}): _* )
-
-    require( ranges forall {case (_, (l, u)) => 0 <= l && l <= u}, "first value of range must be less than or equal to second and be non-negative" )
+    val ranges = Map[Char, collection.Seq[Int]]( (p drop 1 map {case Range( v, l, u ) => v.head -> (l.toInt to u.toInt)}): _* )
 
     val (constant, variables) = {
       def scan( acc: Int, pos: Int, chars: List[Char], vars: Map[Char, List[Int]] ): (Int, Map[Char,List[Int]]) =
@@ -466,7 +464,7 @@ object CPU {
       vars match {
         case Nil => enumeration += ((acc, vals))
         case v :: t =>
-          for (i <- v.lower to v.upper)
+          for (i <- v.seq)
             enumerate( acc|int2bits(0, i, v.bits), t, vals + (v.v -> i) )
       }
 
@@ -480,10 +478,10 @@ object CPU {
     enumerate( constant, variables.toList map {
       case (v, b) =>
         if (ranges contains v) {
-          require( ranges(v)._2 < (1 << b.length), "second value of range must be less than 2^#bits" )
-          Variable( v, ranges(v)._1, ranges(v)._2, b )
+          require( ranges(v).last < (1 << b.length), "second value of range must be less than 2^#bits" )
+          Variable( v, ranges(v), b )
         } else
-          Variable( v, 0, (1 << b.length) - 1, b )
+          Variable( v, 0 until (1 << b.length), b )
       }, Map() )
     enumeration.toList
   }
