@@ -180,15 +180,11 @@ class CHK( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class CLR( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val upper = cpu.read( mode, reg, size )
-    val d = cast( cpu.D(dreg), size )
-
-    if (d < 0) {
-      cpu.N = true
-      cpu.exception( VectorTable.CHKInstruction )
-    } else if (d > upper) {
-      cpu.N = false
-    }
+    cpu.write( 0, mode, reg, size )
+    cpu.Z = true
+    cpu.N = false
+    cpu.V = false
+    cpu.C = false
   }
 
   def disassemble( cpu: CPU ) = "CLR"
