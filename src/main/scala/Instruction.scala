@@ -191,6 +191,16 @@ class CLR( size: Size, mode: Int, reg: Int ) extends Instruction {
 
 }
 
+class CMP( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.subtract( cpu.read(mode, reg, size), cpu.immediate(size), false )
+  }
+
+  def disassemble( cpu: CPU ) = "CMP"
+
+}
+
 class MOVE( size: Size, dreg: Int, dmode: Int, smode: Int, sreg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
