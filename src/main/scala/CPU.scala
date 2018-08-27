@@ -274,9 +274,11 @@ class CPU( private [m68k] val memory: Memory,
       case IntSize => data
     }
 
+  def dregwrite( data: Int, reg: Int, size: Size ) = D(reg) = regwrite( data, D(reg), size )
+
   def write( data: Int, mode: Int, reg: Int, size: Size ) {
     mode match {
-      case DataRegisterDirect => D(reg) = regwrite( data, D(reg), size )
+      case DataRegisterDirect => dregwrite( data, reg, size )
       case AddressRegisterDirect => writeA( regwrite(data, readA(reg).asInstanceOf[Int], size)&0xFFFFFFFFL, reg )
       case AddressRegisterIndirect => memoryWrite( data, readA(reg), size, false )
       case AddressRegisterIndirectPostincrement =>
@@ -399,9 +401,8 @@ object CPU {
     if (!built) {
       populate(
         List[(String, Map[Char, Int] => Instruction)](
-//          "1101 rrr ooo eee aaa" -> (o => ADD( ),
-//          "00000110 ss eee aaa" -> ADDI,
-          "1101 rrr ooo eee aaa" -> (o => new ADDA( addasize(o), o('e'), o('a'), o('r') )),
+          "1101 rrr d ss eee aaa" -> (o => new ADD( o('r'), o('d'), addqsize(o), o('e'), o('a') )),
+          "1101 rrr ooo eee aaa" -> (o => new ADDA( o('r'), addasize(o), o('e'), o('a') )),
           "00000110 ss eee aaa" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
           "0101 ddd 0 ss eee aaa" -> (o => new ADDQ( o('d') + 1, addqsize(o), o('e'), o('a') )),
           "0110 cccc dddddddd" -> (o => new Bcc( o('c'), o('d') )),

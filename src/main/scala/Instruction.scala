@@ -17,10 +17,24 @@ object IllegalInstruction extends Instruction {
 
 }
 
-class ADDA( size: Size, mode: Int, reg: Int, areg: Int ) extends Instruction {
+class ADD( dreg: Int, dest: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.writeA( cpu.read(mode, reg, size), areg )
+    if (dest == 0)
+      cpu.dregwrite( cpu.add(cpu.read(mode, reg, size), cast(cpu.D(dreg), size), false), reg, size )
+    else
+      cpu.write( cpu.add(cpu.read(mode, reg, size), cast(cpu.D(dreg), size), false), mode, reg, size )
+
+  }
+
+  def disassemble( cpu: CPU ) = "ADD"
+
+}
+
+class ADDA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.writeA( cpu.add(cpu.read(mode, reg, size), cpu.readA(areg).asInstanceOf[Int], false), areg )
   }
 
   def disassemble( cpu: CPU ) = "ADDA"
