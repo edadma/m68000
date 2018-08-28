@@ -323,6 +323,10 @@ class CPU( private [m68k] val memory: Memory,
     flags( 0, 0, false, s & d, false )
   }
 
+  def eor( s: Int, d: Int, extended: Boolean ) = {
+    flags( 0, 0, false, s ^ d, false )
+  }
+
   def subtract( s: Int, d: Int, extended: Boolean ) = {
     val r = d - s
 
@@ -403,6 +407,13 @@ object CPU {
       case 2 => IntSize
     }
 
+  def eorsize( operands: Map[Char, Int] ) =
+    operands('s') match {
+      case 4 => ByteSize
+      case 5 => ShortSize
+      case 6 => IntSize
+    }
+
   def opcodeTable: IndexedSeq[Instruction] = synchronized {
     if (!built) {
       populate(
@@ -432,6 +443,7 @@ object CPU {
           "1011 rrr ooo eee aaa; o:3,7" -> (o => new CMPA( o('r'), addasize(o), o('e'), o('a') )),
           "00001100 ss eee aaa" -> (o => new CMPI( addqsize(o), o('e'), o('a') )),
           "1011 xxx 1 ss 001 yyy" -> (o => new CMPM( addqsize(o), o('x'), o('y') )),
+          "1011 rrr sss eee aaa; s:4-6; e:0-7-1" -> (o => new EOR( o('r'), eorsize(o), o('e'), o('a') )),
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') ))
@@ -445,7 +457,7 @@ object CPU {
   private def generate( pattern: String ) = {
     case class Variable( v: Char, seq: collection.Seq[Int], bits: List[Int] )
 
-    val Range = "([a-zA-Z]):(?:([0-9]+)-([0-9]+)|([0-9]+(?:,[0-9]+)*)"r
+    val Range = "([a-zA-Z]):(?:([0-9]+)-([0-9]+)((?:-[0-9]+)*)|([0-9]+(?:,[0-9]+)*)"r
     val p = pattern replace (" ", "") split ";"
 
     require( p.nonEmpty, "empty pattern" )
@@ -456,7 +468,11 @@ object CPU {
     require( bits.forall(c => c == '0' || c == '1' || c.isLetter || c == '-'), "pattern should comprise only 0's, 1's, letters or -'s" )
 
     val ranges = Map[Char, collection.Seq[Int]]( p drop 1 map {
-      case Range( v, lower, upper, null ) => v.head -> (lower.toInt to upper.toInt)
+      case Range( v, lower, upper, null, null ) => v.head -> (lower.toInt to upper.toInt)
+      case Range( v, lower, upper, exceptions, null ) =>
+        val remove = exceptions split "-" drop 1 map (_.toInt)
+
+        v.head -> (lower.toInt to upper.toInt).filterNot (remove contains _)
       case Range( v, null, null, list ) => v.head -> (list split "," map (_.toInt)).toSeq
     }: _* )
 

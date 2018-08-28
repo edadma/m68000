@@ -319,6 +319,16 @@ class DBcc( cond: Int, reg: Int ) extends Instruction {
 
 }
 
+class EOR( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(dreg, size), false), mode, reg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"EOR"
+
+}
+
 class MOVE( size: Size, dreg: Int, dmode: Int, smode: Int, sreg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
