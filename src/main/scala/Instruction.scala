@@ -22,7 +22,7 @@ class ADD( dreg: Int, dest: Int, size: Size, mode: Int, reg: Int ) extends Instr
 
   def apply( cpu: CPU ): Unit = {
     if (dest == 0)
-      cpu.dregwrite( cpu.add(cpu.read(mode, reg, size), cpu.readD(reg, size), false), reg, size )
+      cpu.writeD( cpu.add(cpu.read(mode, reg, size), cpu.readD(reg, size), false), reg, size )
     else
       cpu.write( cpu.add(cpu.read(mode, reg, size), cpu.readD(reg, size), false), mode, reg, size )
 
@@ -66,7 +66,7 @@ class AND( dreg: Int, dest: Int, size: Size, mode: Int, reg: Int ) extends Instr
 
   def apply( cpu: CPU ): Unit = {
     if (dest == 0)
-      cpu.dregwrite( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size), false), reg, size )
+      cpu.writeD( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size), false), reg, size )
     else
       cpu.write( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size), false), mode, reg, size )
   }
@@ -306,7 +306,7 @@ class DBcc( cond: Int, reg: Int ) extends Instruction {
     else {
       val res = cpu.readD( reg, ShortSize ) - 1
 
-      cpu.dregwrite( res, reg, ShortSize )
+      cpu.writeD( res, reg, ShortSize )
 
       if (res == -1)
         cpu.PC += 2
@@ -361,6 +361,51 @@ object EORItoCCR extends Instruction {
   }
 
   def disassemble( cpu: CPU ) = s"EORI"
+
+}
+
+class EXG( rx: Int, mode: Int, ry: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    mode match {
+      case 0x08 =>
+        val temp = cpu.D(rx)
+
+        cpu.D(rx) = cpu.D(ry)
+        cpu.D(ry) = temp
+      case 0x09 =>
+        val temp = cpu.readA(rx)
+
+        cpu.writeA( cpu.readA(ry), rx )
+        cpu.writeA( temp, ry )
+      case 0x11 =>
+        val temp = cpu.D(rx)
+
+        cpu.D(rx) = cpu.readA(ry).asInstanceOf[Int]
+        cpu.writeA( temp, ry )
+    }
+  }
+
+  def disassemble( cpu: CPU ) = s"EXG"
+
+}
+
+class EXT( size: Size, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val (res, s) =
+      size match {
+        case ByteSize => (cpu.readD( reg, ByteSize ), ShortSize)
+        case ShortSize => (cpu.readD( reg, ShortSize ), IntSize)
+        case IntSize => (cpu.readD( reg, ByteSize ), IntSize)
+      }
+
+    cpu.N = res < 0
+    cpu.Z = res == 0
+    cpu.writeD( res, reg, s )
+  }
+
+  def disassemble( cpu: CPU ) = s"EXT"
 
 }
 
