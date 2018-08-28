@@ -112,9 +112,9 @@ object ROM {
 	}
 
 	def code( name: String, start: Long, data: Seq[Int] ) = {
-		new ROM( name, start, start + data.length*4 - 1 ) {
+		new ROM( name, start, start + data.length*2 - 1 ) {
 			for ((inst, idx) <- data zipWithIndex)
-				programInt( start + idx*4, inst )
+				programInt( start + idx*2, inst )
 		}
 	}
 }

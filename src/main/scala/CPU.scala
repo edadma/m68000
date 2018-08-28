@@ -252,7 +252,7 @@ class CPU( private [m68k] val memory: Memory,
       case _ => A(reg) = data
     }
 
-  def readD( reg: Int, size: Size ) = cast( D(reg), size )
+    def readD( reg: Int, size: Size ) = cast( D(reg), size )
 
   def read( mode: Int, reg: Int, size: Size ) = {
     mode match {

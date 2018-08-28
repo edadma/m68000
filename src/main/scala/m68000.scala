@@ -36,11 +36,7 @@ package object m68k {
 		out.toString.trim
 	}
 
-  def bit( cond: Boolean, n: Int ) =
-    if (cond)
-      1<<n
-    else
-      0
+  def bit( cond: Boolean, n: Int ) = if (cond) 1<<n else 0
 
   def testBit( data: Int, bit: Int ) = (data&(1<<bit)) != 0
 
