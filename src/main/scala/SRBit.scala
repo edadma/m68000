@@ -13,3 +13,13 @@ object SRBit {
   val I_shift = 8
 
 }
+
+object CCR {
+
+  val X = 4
+  val N = 3
+  val Z = 2
+  val V = 1
+  val C = 0
+
+}

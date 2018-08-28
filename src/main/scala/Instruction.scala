@@ -22,9 +22,9 @@ class ADD( dreg: Int, dest: Int, size: Size, mode: Int, reg: Int ) extends Instr
 
   def apply( cpu: CPU ): Unit = {
     if (dest == 0)
-      cpu.dregwrite( cpu.add(cpu.read(mode, reg, size), cast(cpu.D(dreg), size), false), reg, size )
+      cpu.dregwrite( cpu.add(cpu.read(mode, reg, size), cpu.readD(reg, size), false), reg, size )
     else
-      cpu.write( cpu.add(cpu.read(mode, reg, size), cast(cpu.D(dreg), size), false), mode, reg, size )
+      cpu.write( cpu.add(cpu.read(mode, reg, size), cpu.readD(reg, size), false), mode, reg, size )
 
   }
 
@@ -59,6 +59,54 @@ class ADDQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
   }
 
   def disassemble( cpu: CPU ) = s"ADDQ"
+
+}
+
+class AND( dreg: Int, dest: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    if (dest == 0)
+      cpu.dregwrite( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size), false), reg, size )
+    else
+      cpu.write( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size), false), mode, reg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"AND"
+
+}
+
+class ANDI( size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.write( cpu.and(cpu.read(mode, reg, size), cpu.immediate(size), false), mode, reg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"ANDI"
+
+}
+
+object ANDItoCCR extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val imm = cpu.fetchByte
+
+    if (!testBit( imm, CCR.X ))
+      cpu.X = false
+
+    if (!testBit( imm, CCR.N ))
+      cpu.N = false
+
+    if (!testBit( imm, CCR.Z ))
+      cpu.Z = false
+
+    if (!testBit( imm, CCR.V ))
+      cpu.V = false
+
+    if (!testBit( imm, CCR.V ))
+      cpu.V = false
+  }
+
+  def disassemble( cpu: CPU ) = s"ANDI"
 
 }
 

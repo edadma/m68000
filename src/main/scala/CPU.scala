@@ -42,7 +42,7 @@ class CPU( private [m68k] val memory: Memory,
     PC = address
   }
 
-  def sr = SR | bit( X, 4 ) | bit( N, 3 ) | bit( Z, 2 ) | bit( N, 1 ) | bit( C, 0 )
+  def sr = SR | bit( X, CCR.X ) | bit( N, CCR.N ) | bit( Z, CCR.Z ) | bit( N, CCR.N ) | bit( C, CCR.C )
 
 	def isRunning = running
 
@@ -319,6 +319,10 @@ class CPU( private [m68k] val memory: Memory,
     flags( s&d&(~r)|(~s)&(~d)&r, s&d|(~r)&d|s&(~r), extended, r, true )
   }
 
+  def and( s: Int, d: Int, extended: Boolean ) = {
+    flags( 0, 0, false, s & d, false )
+  }
+
   def subtract( s: Int, d: Int, extended: Boolean ) = {
     val r = d - s
 
@@ -407,6 +411,10 @@ object CPU {
           "1101 rrr ooo eee aaa; o:3,7" -> (o => new ADDA( o('r'), addasize(o), o('e'), o('a') )),
           "00000110 ss eee aaa" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
           "0101 ddd 0 ss eee aaa" -> (o => new ADDQ( o('d') + 1, addqsize(o), o('e'), o('a') )),
+          "00000110 ss eee aaa" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
+          "1100 rrr d ss eee aaa; s:0-2" -> (o => new AND( o('r'), o('d'), addqsize(o), o('e'), o('a') )),
+          "00000010 ss eee aaa" -> (o => new ANDI( addqsize(o), o('e'), o('a') )),
+          "0000001000111100" -> (_ => ANDItoCCR),
           "0110 cccc dddddddd" -> (o => new Bcc( o('c'), o('d') )),
           "0000 rrr 101 eee aaa" -> (o => new BCHG( Some(o('r')), o('e'), o('a') )),
           "0000100001 eee aaa" -> (o => new BCHG( None, o('e'), o('a') )),
