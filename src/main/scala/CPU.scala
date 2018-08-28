@@ -444,6 +444,7 @@ object CPU {
           "00001100 ss eee aaa" -> (o => new CMPI( addqsize(o), o('e'), o('a') )),
           "1011 xxx 1 ss 001 yyy" -> (o => new CMPM( addqsize(o), o('x'), o('y') )),
           "1011 rrr sss eee aaa; s:4-6; e:0-7-1" -> (o => new EOR( o('r'), eorsize(o), o('e'), o('a') )),
+          "00001010 ss eee aaa" -> (o => new EORI( addqsize(o), o('e'), o('a') )),
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') ))

@@ -329,6 +329,41 @@ class EOR( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
 }
 
+class EORI( size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.immediate(size), false), mode, reg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"EORI"
+
+}
+
+object EORItoCCR extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val imm = cpu.fetchByte
+
+    if (testBit( imm, CCR.X ))
+      cpu.X ^= true
+
+    if (testBit( imm, CCR.N ))
+      cpu.N ^= true
+
+    if (testBit( imm, CCR.Z ))
+      cpu.Z ^= true
+
+    if (testBit( imm, CCR.V ))
+      cpu.V ^= true
+
+    if (testBit( imm, CCR.V ))
+      cpu.V ^= true
+  }
+
+  def disassemble( cpu: CPU ) = s"EORI"
+
+}
+
 class MOVE( size: Size, dreg: Int, dmode: Int, smode: Int, sreg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
