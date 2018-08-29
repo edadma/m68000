@@ -414,6 +414,13 @@ object CPU {
       case 6 => IntSize
     }
 
+  def extsize( operands: Map[Char, Int] ) =
+    operands('s') match {
+      case 2 => ByteSize
+      case 3 => ShortSize
+      case 7 => IntSize
+    }
+
   def opcodeTable: IndexedSeq[Instruction] = synchronized {
     if (!built) {
       populate(
@@ -446,6 +453,7 @@ object CPU {
           "1011 rrr sss eee aaa; s:4-6; e:0-7-1" -> (o => new EOR( o('r'), eorsize(o), o('e'), o('a') )),
           "00001010 ss eee aaa" -> (o => new EORI( addqsize(o), o('e'), o('a') )),
           "1100 xxx 1 ooooo yyy" -> (o => new EXG( o('x'), o('o'), o('y') )),
+          "0100100 sss 000 rrr" -> (o => new EXT( extsize(o), o('r') )),
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') ))
