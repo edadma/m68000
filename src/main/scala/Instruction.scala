@@ -409,6 +409,39 @@ class EXT( size: Size, reg: Int ) extends Instruction {
 
 }
 
+class JMP( mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.jump( cpu.read(mode, reg, IntSize) )
+  }
+
+  def disassemble( cpu: CPU ) = s"JMP"
+
+}
+
+class JSR( mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val addr = cpu.read( mode, reg, IntSize )
+
+    cpu.push( cpu.PC.asInstanceOf[Int], IntSize )
+    cpu.jump( addr )
+  }
+
+  def disassemble( cpu: CPU ) = s"JMP"
+
+}
+
+class LEA( areg: Int, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.writeA( cpu.address(mode, reg), areg )
+  }
+
+  def disassemble( cpu: CPU ) = s"LEA"
+
+}
+
 class MOVE( size: Size, dreg: Int, dmode: Int, smode: Int, sreg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {

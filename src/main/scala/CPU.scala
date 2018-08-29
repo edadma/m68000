@@ -254,6 +254,11 @@ class CPU( private [m68k] val memory: Memory,
 
     def readD( reg: Int, size: Size ) = cast( D(reg), size )
 
+  def address( mode: Int, reg: Int ) =
+    mode match {
+      case AddressRegisterIndirect => readA( reg )
+    }
+
   def read( mode: Int, reg: Int, size: Size ) = {
     mode match {
       case DataRegisterDirect if size == BitSize => D(reg)
@@ -454,6 +459,9 @@ object CPU {
           "00001010 ss eee aaa" -> (o => new EORI( addqsize(o), o('e'), o('a') )),
           "1100 xxx 1 ooooo yyy" -> (o => new EXG( o('x'), o('o'), o('y') )),
           "0100100 sss 000 rrr" -> (o => new EXT( extsize(o), o('r') )),
+          "0100111011 eee aaa" -> (o => new JMP( o('e'), o('a') )),
+          "0100111010 eee aaa" -> (o => new JSR( o('e'), o('a') )),
+          "0100 rrr 111 eee aaa" -> (o => new LEA( o('r'), o('e'), o('a') )),
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') ))
