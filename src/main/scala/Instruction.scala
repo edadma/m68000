@@ -477,6 +477,16 @@ class MOVEQ( reg: Int, data: Int ) extends Instruction {
 
 }
 
+class NEG( size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.write( cpu.neg(cpu.read(mode, reg, size), false), mode, reg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"NEG"
+
+}
+
 class TRAP( vector: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {

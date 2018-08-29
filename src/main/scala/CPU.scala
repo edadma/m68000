@@ -338,6 +338,12 @@ class CPU( private [m68k] val memory: Memory,
     flags( (~s)&d&(~r) | s&(~d)&r, s&(~d) | r&(~d) | s&r, extended, r, true )
   }
 
+  def neg( d: Int, extended: Boolean ) = {
+    val r = -d
+
+    flags( d&r, d|r, extended, r, true )
+  }
+
   def immediate( size: Size ) =
     size match {
       case ByteSize => fetchByte
@@ -451,10 +457,11 @@ object CPU {
           "0000100000 eee aaa" -> (o => new BTST( None, o('e'), o('a') )),
           "0100 rrr ss 0 eee aaa" -> (o => new CHK( o('r'), chksize(o), o('e'), o('a') )),
           "01000010 ss eee aaa" -> (o => new CLR( addqsize(o), o('e'), o('a') )),
-          "1011 rrr ooo eee aaa; o:0-2" -> (o => new CMP( o('r'), addqsize(o), o('e'), o('a') )),
-          "1011 rrr ooo eee aaa; o:3,7" -> (o => new CMPA( o('r'), addasize(o), o('e'), o('a') )),
+          "1011 rrr sss eee aaa; s:0-2" -> (o => new CMP( o('r'), addqsize(o), o('e'), o('a') )),
+          "1011 rrr sss eee aaa; s:3,7" -> (o => new CMPA( o('r'), addasize(o), o('e'), o('a') )),
           "00001100 ss eee aaa" -> (o => new CMPI( addqsize(o), o('e'), o('a') )),
           "1011 xxx 1 ss 001 yyy" -> (o => new CMPM( addqsize(o), o('x'), o('y') )),
+          "0101 cccc 11001 rrr" -> (o => new DBcc( o('c'), o('r') )),
           "1011 rrr sss eee aaa; s:4-6; e:0-7-1" -> (o => new EOR( o('r'), eorsize(o), o('e'), o('a') )),
           "00001010 ss eee aaa" -> (o => new EORI( addqsize(o), o('e'), o('a') )),
           "1100 xxx 1 ooooo yyy" -> (o => new EXG( o('x'), o('o'), o('y') )),
@@ -465,6 +472,7 @@ object CPU {
           "0100111001010 rrr" -> (o => new LINK( o('r') )),
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
+          "01000100 ss eee aaa; s:0-2" -> (o => new NEG( addqsize(o), o('e'), o('a') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') ))
         ) )
       built = true
