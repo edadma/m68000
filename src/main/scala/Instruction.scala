@@ -487,6 +487,15 @@ class NEG( size: Size, mode: Int, reg: Int ) extends Instruction {
 
 }
 
+object NOP extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+  }
+
+  def disassemble( cpu: CPU ) = s"NOP"
+
+}
+
 class TRAP( vector: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {

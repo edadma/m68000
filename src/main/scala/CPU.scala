@@ -473,6 +473,7 @@ object CPU {
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "01000100 ss eee aaa; s:0-2" -> (o => new NEG( addqsize(o), o('e'), o('a') )),
+          "0100111001110001" -> (o => NOP),
           "010011100100 vvvv" -> (o => new TRAP( o('v') ))
         ) )
       built = true
