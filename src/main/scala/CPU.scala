@@ -462,6 +462,7 @@ object CPU {
           "0100111011 eee aaa" -> (o => new JMP( o('e'), o('a') )),
           "0100111010 eee aaa" -> (o => new JSR( o('e'), o('a') )),
           "0100 rrr 111 eee aaa" -> (o => new LEA( o('r'), o('e'), o('a') )),
+          "0100111001010 rrr" -> (o => new LINK( o('r') )),
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') ))

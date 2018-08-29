@@ -442,6 +442,21 @@ class LEA( areg: Int, mode: Int, reg: Int ) extends Instruction {
 
 }
 
+class LINK( reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.push( cpu.readA(reg).asInstanceOf[Int], IntSize )
+
+    val sp = cpu.readA( 7 )
+
+    cpu.writeA( sp, reg )
+    cpu.writeA( sp + cpu.immediate(ShortSize), 7 )
+  }
+
+  def disassemble( cpu: CPU ) = s"LINK"
+
+}
+
 class MOVE( size: Size, dreg: Int, dmode: Int, smode: Int, sreg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
