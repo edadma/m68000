@@ -199,7 +199,7 @@ class BSR( disp: Int ) extends Instruction {
         case _ => disp
       }
 
-    cpu.push( cpu.PC.asInstanceOf[Int], IntSize )
+    cpu.pushAddress( cpu.PC )
     cpu.jump( jump )
   }
 
@@ -424,7 +424,7 @@ class JSR( mode: Int, reg: Int ) extends Instruction {
   def apply( cpu: CPU ): Unit = {
     val addr = cpu.read( mode, reg, IntSize )
 
-    cpu.push( cpu.PC.asInstanceOf[Int], IntSize )
+    cpu.pushAddress( cpu.PC )
     cpu.jump( addr )
   }
 
@@ -445,7 +445,7 @@ class LEA( areg: Int, mode: Int, reg: Int ) extends Instruction {
 class LINK( reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.push( cpu.readA(reg).asInstanceOf[Int], IntSize )
+    cpu.pushAddress( cpu.readA(reg) )
 
     val sp = cpu.readA( 7 )
 
@@ -499,7 +499,7 @@ object NOP extends Instruction {
 class PEA( mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.push( cpu.address(mode, reg).asInstanceOf[Int], IntSize )
+    cpu.pushAddress( cpu.address(mode, reg) )
   }
 
   def disassemble( cpu: CPU ) = s"PEA"
@@ -543,17 +543,42 @@ class SWAP( reg: Int ) extends Instruction {
 
 }
 
+class TAS( mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val v = cpu.read( mode, reg, ByteSize )
+
+    cpu.N = testBit( v, 7 )
+    cpu.Z = v == 0
+    cpu.V = false
+    cpu.C = false
+    cpu.write( v|0x80, mode, reg, ByteSize )
+  }
+
+  def disassemble( cpu: CPU ) = s"TAS"
+
+}
+
 class TRAP( vector: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    //cpu.SSP -= 2
     if (!cpu.trap( vector )) {
-      cpu.SSP -= 4
-      cpu.memoryWrite( cpu.PC.asInstanceOf[Int], cpu.SSP, IntSize, true )
-      cpu.jump( cpu.VBR + (vector<<5) )
+      cpu.exception( VectorTable.TRAPInstruction + (vector<<2) )
     }
   }
 
   def disassemble( cpu: CPU ) = s"TRAP"
+
+}
+
+object TRAPV extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    if (cpu.V) {
+      cpu.exception( VectorTable.TRAPVInstruction )
+    }
+  }
+
+  def disassemble( cpu: CPU ) = s"TRAPV"
 
 }

@@ -21,7 +21,6 @@ class CPU( private [m68k] val memory: Memory,
   private [m68k] var N = false
   private [m68k] var X = false
   private [m68k] var SR = 0
-  private [m68k] var VBR = 0
   private [m68k] var instruction = 0
   private [m68k] val FP = new Array[Double]( 8 )
   private [m68k] var FPCR = 0
@@ -35,7 +34,7 @@ class CPU( private [m68k] val memory: Memory,
 
   private val opcodes = CPU.opcodeTable
 
-  jump( 0L )
+  reset
 
   def jump( address: Long ): Unit = {
     prog = memory.find( address )
@@ -124,8 +123,9 @@ class CPU( private [m68k] val memory: Memory,
     for (i <- 0 until 7)
       A(i) = 0
 
-    jump( memory.code )
-    running = false
+    SR = SRBit.S|SRBit.I
+    SSP = memoryReadAddress( VectorTable.SSP )
+    PC = memoryReadAddress( VectorTable.PC )
     FPCR = 0
   }
 
@@ -162,7 +162,7 @@ class CPU( private [m68k] val memory: Memory,
 		else {
 			running = true
 			execute
-			running = false
+			halt
 		}
 
   def run: Unit = {
@@ -170,8 +170,6 @@ class CPU( private [m68k] val memory: Memory,
 
     while (running)
       execute
-
-    running = false
   }
 
   memory.problem = problem
@@ -179,6 +177,8 @@ class CPU( private [m68k] val memory: Memory,
   //
   // addressing
   //
+
+  def memoryReadAddress( address: Long ) = memory.readInt( address )&0xFFFFFFFFL
 
   def memoryRead( address: Long, size: Size, aligned: Boolean ) =
     size match {
@@ -308,6 +308,8 @@ class CPU( private [m68k] val memory: Memory,
 
   def push( data: Int, size: Size ) = memoryWrite( data, readAPredecrement(7, size), size, true )
 
+  def pushAddress( address: Long ) = push( address.asInstanceOf[Int], IntSize )
+
   def pop( size: Size ) = memoryRead( readAPostincrement(7, size), size, true )
 
   def popa = pop( IntSize )&0xFFFFFFFFL
@@ -383,8 +385,10 @@ class CPU( private [m68k] val memory: Memory,
 
   def exception( vector: Int ): Unit = {
     push( sr, ShortSize )
-    push( PC.asInstanceOf[Int], IntSize )
-    jump( memoryRead(VBR + vector, IntSize, false) )
+    SR |= SRBit.S
+    SR &= SRBit.NO_TRACE
+    pushAddress( PC )
+    jump( memoryRead(vector, IntSize, false) )
   }
 
 }
@@ -488,7 +492,9 @@ object CPU {
           "0100111001110111" -> (o => RTR),
           "0100111001110101" -> (o => RTS),
           "0100100001000 rrr" -> (o => new SWAP( o('r') )),
-          "010011100100 vvvv" -> (o => new TRAP( o('v') ))
+          "0100101011 eee aaa" -> (o => new TAS( o('e'), o('a') )),
+          "010011100100 vvvv" -> (o => new TRAP( o('v') )),
+          "0100111001110110" -> (o => TRAPV)
         ) )
       built = true
     }

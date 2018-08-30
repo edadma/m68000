@@ -3,12 +3,14 @@ package xyz.hyperreal.m68k
 
 object VectorTable {
 
-  val stack = 0
-  val start = 4
-  val accessFault = 8
-  val addressError = 12
-  val illegalInstruction = 0x10
-  val integerDivideByZero = 0x14
-  val CHKInstruction = 0x18
+  val SSP = 0x000
+  val PC = 0x004
+  val accessFault = 0x008
+  val addressError = 0x00C
+  val illegalInstruction = 0x010
+  val integerDivideByZero = 0x014
+  val CHKInstruction = 0x018
+  val TRAPVInstruction = 0x01C
+  val TRAPInstruction = 0x080
 
 }
