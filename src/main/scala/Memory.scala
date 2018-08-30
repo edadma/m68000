@@ -105,8 +105,8 @@ class ROM( val name: String, val start: Long, end: Long ) extends Addressable {
 }
 
 object ROM {
-	def apply( name: String, start: Long, data: String ) = {
-
+	def apply( name: String, data: String ): ROM = {
+    apply( name, 0, Hex(data) )
 	}
 
 	def apply( name: String, start: Long, data: Seq[Byte] ) = {
