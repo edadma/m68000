@@ -42,7 +42,15 @@ class CPU( private [m68k] val memory: Memory,
     PC = address
   }
 
-  def sr = SR | bit( X, CCR.X ) | bit( N, CCR.N ) | bit( Z, CCR.Z ) | bit( N, CCR.N ) | bit( C, CCR.C )
+  def sr = SR | bit( X, CCR.X ) | bit( N, CCR.N ) | bit( Z, CCR.Z ) | bit( V, CCR.V ) | bit( C, CCR.C )
+
+  def ccr( bits: Int ): Unit = {
+    X = testBit( bits, CCR.X )
+    N = testBit( bits, CCR.N )
+    Z = testBit( bits, CCR.Z )
+    V = testBit( bits, CCR.V )
+    C = testBit( bits, CCR.C )
+  }
 
 	def isRunning = running
 
@@ -302,6 +310,8 @@ class CPU( private [m68k] val memory: Memory,
 
   def pop( size: Size ) = memoryRead( readAPostincrement(7, size), size, true )
 
+  def popa = pop( IntSize )&0xFFFFFFFFL
+
   //
   // ALU
   //
@@ -474,6 +484,10 @@ object CPU {
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "01000100 ss eee aaa; s:0-2" -> (o => new NEG( addqsize(o), o('e'), o('a') )),
           "0100111001110001" -> (o => NOP),
+          "0100100001 eee aaa" -> (o => new PEA( o('e'), o('a') )),
+          "0100111001110111" -> (o => RTR),
+          "0100111001110101" -> (o => RTS),
+          "0100100001000 rrr" -> (o => new SWAP( o('r') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') ))
         ) )
       built = true

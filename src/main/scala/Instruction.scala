@@ -496,6 +496,53 @@ object NOP extends Instruction {
 
 }
 
+class PEA( mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.push( cpu.address(mode, reg).asInstanceOf[Int], IntSize )
+  }
+
+  def disassemble( cpu: CPU ) = s"PEA"
+
+}
+
+object RTR extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.ccr( cpu.pop(ShortSize) )
+    cpu.jump( cpu.popa )
+  }
+
+  def disassemble( cpu: CPU ) = s"RTR"
+
+}
+
+object RTS extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.jump( cpu.popa )
+  }
+
+  def disassemble( cpu: CPU ) = s"RTS"
+
+}
+
+class SWAP( reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val v = cpu.D(reg)
+
+    cpu.D(reg) = (v<<16) | (v>>>16)
+    cpu.N = testBit( v, 15 )
+    cpu.Z = v == 0
+    cpu.V = false
+    cpu.C = false
+  }
+
+  def disassemble( cpu: CPU ) = s"SWAP"
+
+}
+
 class TRAP( vector: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
