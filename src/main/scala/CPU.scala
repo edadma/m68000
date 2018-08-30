@@ -4,10 +4,7 @@ package xyz.hyperreal.m68k
 import scala.collection.mutable.ListBuffer
 
 
-class CPU( private [m68k] val memory: Memory,
-           private [m68k] val breakpoint: Int => Unit = _ => {},
-           private [m68k] val trap: Int => Boolean = _ => false )
-  extends Addressing {
+class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   private [m68k] val D = new Array[Int]( 8 )
   private [m68k] val A = new Array[Long]( 7 )
@@ -33,6 +30,16 @@ class CPU( private [m68k] val memory: Memory,
 	protected var running = false
 
   private val opcodes = CPU.opcodeTable
+
+  def breakpoint( bkpt: Int ) = false
+
+  def illegal = false
+
+  def trap( vector: Int ) = false
+
+  def lineA = false
+
+  def lineF = false
 
   reset
 

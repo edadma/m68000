@@ -6,13 +6,13 @@ abstract class Instruction extends (CPU => Unit) {
 
   def disassemble( cpu: CPU ): String
 
-  def illegal( cpu: CPU ) = cpu.problem( "illegal instruction" )
-
 }
 
-object IllegalInstruction extends Instruction {
+object ILLEGAL extends Instruction {
 
-  def apply( cpu: CPU ) = illegal( cpu )
+  def apply( cpu: CPU ) =
+    if (!cpu.illegal)
+      cpu.exception( VectorTable.illegalInstruction )
 
   def disassemble( cpu: CPU ): String = "ILLEGAL"
 
@@ -163,9 +163,11 @@ class BCLR( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 
 }
 
-class BKPT( vector: Int ) extends Instruction {
+class BKPT( bkpt: Int ) extends Instruction {
 
-  def apply( cpu: CPU ): Unit = cpu.breakpoint( vector )
+  def apply( cpu: CPU ): Unit =
+    if (!cpu.breakpoint( bkpt ))
+      cpu.exception( VectorTable.illegalInstruction )
 
   def disassemble( cpu: CPU ) = s"BKPT"
 
@@ -445,7 +447,8 @@ class LEA( areg: Int, mode: Int, reg: Int ) extends Instruction {
 object LINEA extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.exception( VectorTable.lineA )
+    if (!cpu.lineA)
+      cpu.exception( VectorTable.lineA )
   }
 
   def disassemble( cpu: CPU ) = s"LINEA"
@@ -455,7 +458,8 @@ object LINEA extends Instruction {
 object LINEF extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.exception( VectorTable.lineF )
+    if (!cpu.lineF)
+      cpu.exception( VectorTable.lineF )
   }
 
   def disassemble( cpu: CPU ) = s"LINEF"
