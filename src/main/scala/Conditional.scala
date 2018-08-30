@@ -1,23 +1,23 @@
 package xyz.hyperreal.m68k
 
 
-object Conditional extends Enumeration {
+object Conditional {
 
-  val True = Value( "T" )
-  val False = Value( "F" )
-  val High = Value( "HI" )
-  val LowSame = Value( "LS" )
-  val CarryClear = Value( "CC(HS)" )
-  val CarrySet = Value( "CS(LO)" )
-  val NotEqual = Value( "NE" )
-  val Equal = Value( "EQ" )
-  val OverflowClear = Value( "VC" )
-  val OverflowSet = Value( "VS" )
-  val Plus = Value( "PL" )
-  val Minus = Value( "MI" )
-  val GreaterEqual = Value( "GE" )
-  val LessThan = Value( "LT" )
-  val GreaterThan = Value( "GT" )
-  val LessEqual = Value( "LE" )
+  val True = 0
+  val False = 1
+  val High = 2
+  val LowSame = 3
+  val CarryClear = 4
+  val CarrySet = 5
+  val NotEqual = 6
+  val Equal = 7
+  val OverflowClear = 8
+  val OverflowSet = 9
+  val Plus = 10
+  val Minus = 11
+  val GreaterEqual = 12
+  val LessThan = 13
+  val GreaterThan = 14
+  val LessEqual = 15
 
 }
