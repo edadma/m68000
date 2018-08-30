@@ -105,6 +105,10 @@ class ROM( val name: String, val start: Long, end: Long ) extends Addressable {
 }
 
 object ROM {
+	def apply( name: String, start: Long, data: String ) = {
+
+	}
+
 	def apply( name: String, start: Long, data: Seq[Byte] ) = {
 		new ROM( name, start, start + data.length - 1 ) {
 			data.copyToArray( mem )
@@ -114,7 +118,7 @@ object ROM {
 	def code( name: String, start: Long, data: Seq[Int] ) = {
 		new ROM( name, start, start + data.length*2 - 1 ) {
 			for ((inst, idx) <- data zipWithIndex)
-				programInt( start + idx*2, inst )
+				programShort( start + idx*2, inst )
 		}
 	}
 }
