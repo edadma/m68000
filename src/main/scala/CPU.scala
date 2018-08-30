@@ -312,7 +312,7 @@ class CPU( private [m68k] val memory: Memory,
 
   def pop( size: Size ) = memoryRead( readAPostincrement(7, size), size, true )
 
-  def popa = pop( IntSize )&0xFFFFFFFFL
+  def popAddress = pop( IntSize )&0xFFFFFFFFL
 
   //
   // ALU
@@ -496,7 +496,9 @@ object CPU {
           "0100100001000 rrr" -> (o => new SWAP( o('r') )),
           "0100101011 eee aaa" -> (o => new TAS( o('e'), o('a') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') )),
-          "0100111001110110" -> (_ => TRAPV)
+          "0100111001110110" -> (_ => TRAPV),
+          "01001010 ss eee aaa; s:0-2" -> (o => new TST( addqsize(o), o('e'), o('a') )),
+          "0100111001011 rrr" -> (o => new UNLK( o('r') )),
         ) )
       built = true
     }

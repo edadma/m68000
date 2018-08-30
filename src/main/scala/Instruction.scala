@@ -530,7 +530,7 @@ object RTR extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
     cpu.ccr( cpu.pop(ShortSize) )
-    cpu.jump( cpu.popa )
+    cpu.jump( cpu.popAddress )
   }
 
   def disassemble( cpu: CPU ) = s"RTR"
@@ -540,7 +540,7 @@ object RTR extends Instruction {
 object RTS extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.jump( cpu.popa )
+    cpu.jump( cpu.popAddress )
   }
 
   def disassemble( cpu: CPU ) = s"RTS"
@@ -600,5 +600,31 @@ object TRAPV extends Instruction {
   }
 
   def disassemble( cpu: CPU ) = s"TRAPV"
+
+}
+
+class TST( size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val v = cpu.read( mode, reg, size )
+
+    cpu.N = v < 0
+    cpu.Z = v == 0
+    cpu.V = false
+    cpu.C = false
+  }
+
+  def disassemble( cpu: CPU ) = s"TST"
+
+}
+
+class UNLK( reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.writeA( cpu.readA(reg), 7 )
+    cpu.writeA( cpu.popAddress, reg )
+  }
+
+  def disassemble( cpu: CPU ) = s"UNLK"
 
 }
