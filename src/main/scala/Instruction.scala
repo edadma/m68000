@@ -442,6 +442,26 @@ class LEA( areg: Int, mode: Int, reg: Int ) extends Instruction {
 
 }
 
+object LINEA extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.exception( VectorTable.lineA )
+  }
+
+  def disassemble( cpu: CPU ) = s"LINEA"
+
+}
+
+object LINEF extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.exception( VectorTable.lineF )
+  }
+
+  def disassemble( cpu: CPU ) = s"LINEF"
+
+}
+
 class LINK( reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {

@@ -483,18 +483,20 @@ object CPU {
           "0100111011 eee aaa" -> (o => new JMP( o('e'), o('a') )),
           "0100111010 eee aaa" -> (o => new JSR( o('e'), o('a') )),
           "0100 rrr 111 eee aaa" -> (o => new LEA( o('r'), o('e'), o('a') )),
+          "1010 xxxxxxxxxxxx" -> (_ => LINEA),
+          "1111 xxxxxxxxxxxx" -> (_ => LINEF),
           "0100111001010 rrr" -> (o => new LINK( o('r') )),
           "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "01000100 ss eee aaa; s:0-2" -> (o => new NEG( addqsize(o), o('e'), o('a') )),
-          "0100111001110001" -> (o => NOP),
+          "0100111001110001" -> (_ => NOP),
           "0100100001 eee aaa" -> (o => new PEA( o('e'), o('a') )),
-          "0100111001110111" -> (o => RTR),
-          "0100111001110101" -> (o => RTS),
+          "0100111001110111" -> (_ => RTR),
+          "0100111001110101" -> (_ => RTS),
           "0100100001000 rrr" -> (o => new SWAP( o('r') )),
           "0100101011 eee aaa" -> (o => new TAS( o('e'), o('a') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') )),
-          "0100111001110110" -> (o => TRAPV)
+          "0100111001110110" -> (_ => TRAPV)
         ) )
       built = true
     }
