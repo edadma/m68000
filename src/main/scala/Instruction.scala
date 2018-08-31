@@ -116,7 +116,7 @@ class Bcc( cond: Int, disp: Int ) extends Instruction {
     val pc = cpu.PC
 
     if (cpu.testcc( cond ))
-      cpu.jump( pc + disp match {
+      cpu.jumpto( pc + disp match {
         case 0 => cpu.fetchShort
         case -1 => cpu.fetchInt//020
         case _ => disp
@@ -202,7 +202,7 @@ class BSR( disp: Int ) extends Instruction {
       }
 
     cpu.pushAddress( cpu.PC )
-    cpu.jump( jump )
+    cpu.jumpto( jump )
   }
 
   def disassemble( cpu: CPU ) = s"BSR"
@@ -313,7 +313,7 @@ class DBcc( cond: Int, reg: Int ) extends Instruction {
       if (res == -1)
         cpu.PC += 2
       else
-        cpu.jump( pc + cpu.fetchShort )
+        cpu.jumpto( pc + cpu.fetchShort )
     }
   }
 
@@ -414,7 +414,7 @@ class EXT( size: Size, reg: Int ) extends Instruction {
 class JMP( mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.jump( cpu.read(mode, reg, IntSize) )
+    cpu.jumpto( cpu.read(mode, reg, IntSize) )
   }
 
   def disassemble( cpu: CPU ) = s"JMP"
@@ -427,7 +427,7 @@ class JSR( mode: Int, reg: Int ) extends Instruction {
     val addr = cpu.read( mode, reg, IntSize )
 
     cpu.pushAddress( cpu.PC )
-    cpu.jump( addr )
+    cpu.jumpto( addr )
   }
 
   def disassemble( cpu: CPU ) = s"JMP"
@@ -534,7 +534,7 @@ object RTR extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
     cpu.ccr( cpu.pop(ShortSize) )
-    cpu.jump( cpu.popAddress )
+    cpu.jumpto( cpu.popAddress )
   }
 
   def disassemble( cpu: CPU ) = s"RTR"
@@ -544,7 +544,7 @@ object RTR extends Instruction {
 object RTS extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.jump( cpu.popAddress )
+    cpu.jumpto( cpu.popAddress )
   }
 
   def disassemble( cpu: CPU ) = s"RTS"

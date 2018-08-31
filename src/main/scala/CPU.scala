@@ -43,7 +43,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   reset
 
-  def jump( address: Long ): Unit = {
+  def jumpto(address: Long ): Unit = {
     prog = memory.find( address )
     PC = address
   }
@@ -132,7 +132,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
     SR = SRBit.S|SRBit.I
     SSP = memoryReadAddress( VectorTable.SSP )
-    PC = memoryReadAddress( VectorTable.PC )
+    jumpto( memoryReadAddress(VectorTable.PC) )
     FPCR = 0
   }
 
@@ -395,14 +395,14 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     SR |= SRBit.S
     SR &= SRBit.NO_TRACE
     pushAddress( PC )
-    jump( memoryRead(vector, IntSize, false) )
+    jumpto( memoryRead(vector, IntSize, false) )
   }
 
 }
 
 object CPU {
 
-  private val opcodes = Array.fill[Instruction]( 0x10000 )( IllegalInstruction )
+  private val opcodes = Array.fill[Instruction]( 0x10000 )( ILLEGAL )
   private var built = false
 
   private def populate( pattern: String, inst: Map[Char, Int] => Instruction ) =
@@ -458,12 +458,12 @@ object CPU {
       populate(
         List[(String, Map[Char, Int] => Instruction)](
           "1101 rrr d ss eee aaa; s:0-2" -> (o => new ADD( o('r'), o('d'), addqsize(o), o('e'), o('a') )),
-          "1101 rrr ooo eee aaa; o:3,7" -> (o => new ADDA( o('r'), addasize(o), o('e'), o('a') )),
-          "00000110 ss eee aaa" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
-          "0101 ddd 0 ss eee aaa" -> (o => new ADDQ( o('d') + 1, addqsize(o), o('e'), o('a') )),
-          "00000110 ss eee aaa" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
+          "1101 rrr sss eee aaa; s:3,7" -> (o => new ADDA( o('r'), addasize(o), o('e'), o('a') )),
+          "00000110 ss eee aaa; s:0-2" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
+          "0101 ddd 0 ss eee aaa; s:0-2" -> (o => new ADDQ( o('d') + 1, addqsize(o), o('e'), o('a') )),
+          "00000110 ss eee aaa; s:0-2" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
           "1100 rrr d ss eee aaa; s:0-2" -> (o => new AND( o('r'), o('d'), addqsize(o), o('e'), o('a') )),
-          "00000010 ss eee aaa" -> (o => new ANDI( addqsize(o), o('e'), o('a') )),
+          "00000010 ss eee aaa; s:0-2" -> (o => new ANDI( addqsize(o), o('e'), o('a') )),
           "0000001000111100" -> (_ => ANDItoCCR),
           "0110 cccc dddddddd" -> (o => new Bcc( o('c'), o('d') )),
           "0000 rrr 101 eee aaa" -> (o => new BCHG( Some(o('r')), o('e'), o('a') )),
@@ -476,24 +476,24 @@ object CPU {
           "01100001 dddddddd" -> (o => new BSR( o('d') )),
           "0000 rrr 100 eee aaa" -> (o => new BTST( Some(o('r')), o('e'), o('a') )),
           "0000100000 eee aaa" -> (o => new BTST( None, o('e'), o('a') )),
-          "0100 rrr ss 0 eee aaa" -> (o => new CHK( o('r'), chksize(o), o('e'), o('a') )),
-          "01000010 ss eee aaa" -> (o => new CLR( addqsize(o), o('e'), o('a') )),
+          "0100 rrr ss 0 eee aaa; s:2,3" -> (o => new CHK( o('r'), chksize(o), o('e'), o('a') )),
+          "01000010 ss eee aaa; s:0-2" -> (o => new CLR( addqsize(o), o('e'), o('a') )),
           "1011 rrr sss eee aaa; s:0-2" -> (o => new CMP( o('r'), addqsize(o), o('e'), o('a') )),
           "1011 rrr sss eee aaa; s:3,7" -> (o => new CMPA( o('r'), addasize(o), o('e'), o('a') )),
-          "00001100 ss eee aaa" -> (o => new CMPI( addqsize(o), o('e'), o('a') )),
-          "1011 xxx 1 ss 001 yyy" -> (o => new CMPM( addqsize(o), o('x'), o('y') )),
+          "00001100 ss eee aaa; s:0-2" -> (o => new CMPI( addqsize(o), o('e'), o('a') )),
+          "1011 xxx 1 ss 001 yyy; s:0-2" -> (o => new CMPM( addqsize(o), o('x'), o('y') )),
           "0101 cccc 11001 rrr" -> (o => new DBcc( o('c'), o('r') )),
           "1011 rrr sss eee aaa; s:4-6; e:0-7-1" -> (o => new EOR( o('r'), eorsize(o), o('e'), o('a') )),
-          "00001010 ss eee aaa" -> (o => new EORI( addqsize(o), o('e'), o('a') )),
+          "00001010 ss eee aaa; s:0-2" -> (o => new EORI( addqsize(o), o('e'), o('a') )),
           "1100 xxx 1 ooooo yyy" -> (o => new EXG( o('x'), o('o'), o('y') )),
-          "0100100 sss 000 rrr" -> (o => new EXT( extsize(o), o('r') )),
+          "0100100 sss 000 rrr; s:2,3,7" -> (o => new EXT( extsize(o), o('r') )),
           "0100111011 eee aaa" -> (o => new JMP( o('e'), o('a') )),
           "0100111010 eee aaa" -> (o => new JSR( o('e'), o('a') )),
           "0100 rrr 111 eee aaa" -> (o => new LEA( o('r'), o('e'), o('a') )),
           "1010 xxxxxxxxxxxx" -> (_ => LINEA),
           "1111 xxxxxxxxxxxx" -> (_ => LINEF),
           "0100111001010 rrr" -> (o => new LINK( o('r') )),
-          "00 ss vvv uuu xxx yyy" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
+          "00 ss vvv uuu xxx yyy; s:1-3" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "01000100 ss eee aaa; s:0-2" -> (o => new NEG( addqsize(o), o('e'), o('a') )),
           "0100111001110001" -> (_ => NOP),
@@ -516,7 +516,7 @@ object CPU {
   private def generate( pattern: String ) = {
     case class Variable( v: Char, seq: collection.Seq[Int], bits: List[Int] )
 
-    val Range = "([a-zA-Z]):(?:([0-9]+)-([0-9]+)((?:-[0-9]+)*)|([0-9]+(?:,[0-9]+)*)"r
+    val Range = "([a-zA-Z]):(?:([0-9]+)-([0-9]+)((?:-[0-9]+)*)|([0-9]+(?:,[0-9]+)*))"r
     val p = pattern replace (" ", "") split ";"
 
     require( p.nonEmpty, "empty pattern" )
@@ -532,7 +532,7 @@ object CPU {
         val remove = exceptions split "-" drop 1 map (_.toInt)
 
         v.head -> (lower.toInt to upper.toInt).filterNot (remove contains _)
-      case Range( v, null, null, list ) => v.head -> (list split "," map (_.toInt)).toSeq
+      case Range( v, null, null, null, list ) => v.head -> (list split "," map (_.toInt)).toSeq
     }: _* )
 
     val (constant, variables) = {
