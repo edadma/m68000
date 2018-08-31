@@ -491,6 +491,16 @@ class MOVE( size: Size, dreg: Int, dmode: Int, smode: Int, sreg: Int ) extends I
 
 }
 
+class MOVEA( size: Size, areg: Int, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.writeA( cpu.read(mode, reg, size), areg )
+  }
+
+  def disassemble( cpu: CPU ) = s"MOVEA"
+
+}
+
 class MOVEQ( reg: Int, data: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
