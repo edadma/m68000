@@ -39,18 +39,14 @@ trait Addressable {
 		programInt( addr + 4, (value>>32).asInstanceOf[Int] )
 	}
 
-	def readShort( addr: Long, low: Int ) = (low&0xFF) | (readByte( addr + 1 ) << 8)
-
-	def readShort( addr: Long ): Int = readShort( addr, readByte(addr) )
+	def readShort( addr: Long) = (readByte( addr ) << 8) | readByte( addr + 1 )
 
 	def writeShort( addr: Long, value: Int ) {
 		writeByte( addr, value&0xFF )
 		writeByte( addr + 1, value>>8 )
 	}
 
-	def readInt( addr: Long, low: Int ) = (readShort( addr, low )&0xFFFF) | (readShort( addr + 2 )<<16)
-
-	def readInt( addr: Long ): Int = readInt( addr, readByte(addr) )
+	def readInt( addr: Long ) = (readShort( addr )<<16) | (readShort( addr + 2 )&0xFFFF)
 
 	def writeInt( addr: Long, value: Int ) {
 		writeShort( addr, value&0xFFFF )
@@ -170,13 +166,13 @@ abstract class Memory extends Addressable {
 			case ind => regions(ind)
 		}
 
-	var problem: String => Nothing = _
-
 	def valid( addr: Long ) = lookup( addr ) ne null
 
 	def find( addr: Long ) =
 		lookup( addr ) match {
-			case null => problem( addr.toHexString + " is not an addressable memory location" )
+			case null =>
+        println( addr )
+        sys.error( addr.toHexString + " is not an addressable memory location" )
 			case r => r
 		}
 

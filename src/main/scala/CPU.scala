@@ -179,7 +179,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       execute
   }
 
-  memory.problem = problem
+//  memory.problem = problem
 
   //
   // addressing
