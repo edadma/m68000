@@ -32,7 +32,7 @@ object Main extends App {
         vector match {
           case 15 =>
             D(0) match {
-              case 6 => print( (D(1)&0xFFFF).toChar )
+              case 6 => print( D(1).toChar )
               case _ => sys.error( s"unknown task number: ${D(0)}" )
             }
 
