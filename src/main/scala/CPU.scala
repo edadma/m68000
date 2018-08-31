@@ -498,6 +498,8 @@ object CPU {
           "0100000011 eee aaa" -> (o => new MOVEfromSR( o('e'), o('a') )),
           "0100010011 eee aaa" -> (o => new MOVEtoCCR( o('e'), o('a') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
+          "1100 rrr 111 eee aaa; e:0-7-1" -> (o => new MULS( o('r'), o('e'), o('a') )),
+          "1100 rrr 011 eee aaa; e:0-7-1" -> (o => new MULU( o('r'), o('e'), o('a') )),
           "01000100 ss eee aaa; s:0-2" -> (o => new NEG( addqsize(o), o('e'), o('a') )),
           "0100111001110001" -> (_ => NOP),
           "0100100001 eee aaa" -> (o => new PEA( o('e'), o('a') )),

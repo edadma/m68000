@@ -531,6 +531,38 @@ class MOVEQ( reg: Int, data: Int ) extends Instruction {
 
 }
 
+class MULS( dreg: Int, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val res = cpu.read( mode, reg, ShortSize ) * cpu.readD( dreg, ShortSize )
+
+    cpu.N = res < 0
+    cpu.Z = res == 0
+    cpu.V = false
+    cpu.C = false
+    cpu.D(dreg) = res
+  }
+
+  def disassemble( cpu: CPU ) = s"MULS"
+
+}
+
+class MULU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val res = (cpu.read( mode, reg, ShortSize )&0xFFFF) * (cpu.readD( dreg, ShortSize )&0xFFFF)
+
+    cpu.N = res < 0
+    cpu.Z = res == 0
+    cpu.V = false
+    cpu.C = false
+    cpu.D(dreg) = res
+  }
+
+  def disassemble( cpu: CPU ) = s"MULU"
+
+}
+
 class NEG( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
