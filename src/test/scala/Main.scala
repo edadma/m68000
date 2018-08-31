@@ -56,7 +56,17 @@ object Main extends App {
                 prt
                 println
               case 1 => prt
+              case 2 =>
+                val line = io.StdIn.readLine
+
+                for ((c, i) <- line zipWithIndex)
+                  memoryWrite( c, A(1) + i, ByteSize, false )
+
+                memoryWrite( 0, A(1) + line.length, ByteSize, false )
+                D(1) = line.length
               case 3 => print( D(1) )
+              case 4 => D(1) = io.StdIn.readInt
+              case 5 => D(1) = io.StdIn.readChar
               case 6 => print( D(1).toChar )
               case 8 => D(1) = LocalTime.now.get( ChronoField.MILLI_OF_DAY )/10
               case 9 => halt
