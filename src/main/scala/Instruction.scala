@@ -501,6 +501,26 @@ class MOVEA( size: Size, areg: Int, mode: Int, reg: Int ) extends Instruction {
 
 }
 
+class MOVEfromSR( mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.write( cpu.sr, mode, reg, ShortSize )
+  }
+
+  def disassemble( cpu: CPU ) = s"MOVE"
+
+}
+
+class MOVEtoCCR( mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.ccr( cpu.read(mode, reg, ByteSize) )
+  }
+
+  def disassemble( cpu: CPU ) = s"MOVE"
+
+}
+
 class MOVEQ( reg: Int, data: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
