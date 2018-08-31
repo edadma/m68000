@@ -321,6 +321,60 @@ class DBcc( cond: Int, reg: Int ) extends Instruction {
 
 }
 
+class DIVS( dreg: Int, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val a = cpu.D(dreg)
+    val b = cpu.read( mode, reg, ShortSize )
+
+    if (b == 0)
+      cpu.exception( VectorTable.integerDivideByZero )
+    else {
+      val q = a/b
+
+      if (q < Short.MinValue || q > Short.MaxValue)
+        cpu.V = true
+      else {
+        cpu.N = q < 0
+        cpu.Z = q == 0
+        cpu.C = false
+        cpu.V = false
+        cpu.D(dreg) = ((a%b)<<16)|(q&0xFFFF)
+      }
+    }
+  }
+
+  def disassemble( cpu: CPU ) = s"DIVS"
+
+}
+
+class DIVU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val a = cpu.D(dreg)&0xFFFFFFFFL
+    val b = cpu.read( mode, reg, ShortSize )&0xFFFF
+
+    if (b == 0)
+      cpu.exception( VectorTable.integerDivideByZero )
+    else {
+      val q = a/b
+
+      if (q < Short.MinValue || q > Short.MaxValue)
+        cpu.V = true
+      else {
+        cpu.N = q < 0
+        cpu.Z = q == 0
+        cpu.C = false
+        cpu.V = false
+        cpu.D(dreg) = ((a%b).asInstanceOf[Int]<<16)|(q.asInstanceOf[Int]&0xFFFF)
+      }
+    }
+  }
+
+  def disassemble( cpu: CPU ) = s"DIVU"
+
+}
+
 class EOR( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
