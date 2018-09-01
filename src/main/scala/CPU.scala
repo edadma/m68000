@@ -358,7 +358,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   }
 
   def neg( d: Int, extended: Boolean ) = {
-    val r = -d
+    val r = -d - (if (extended) 1 else 0)
 
     flags( d&r, d|r, extended, r, true )
   }
@@ -502,8 +502,10 @@ object CPU {
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
           "1100 rrr 111 eee aaa; e:0-7-1" -> (o => new MULS( o('r'), o('e'), o('a') )),
           "1100 rrr 011 eee aaa; e:0-7-1" -> (o => new MULU( o('r'), o('e'), o('a') )),
-          "01000100 ss eee aaa; s:0-2" -> (o => new NEG( addqsize(o), o('e'), o('a') )),
+          "01000100 ss eee aaa; s:0-2; e:0-7-1" -> (o => new NEG( addqsize(o), o('e'), o('a') )),
+          "01000000 ss eee aaa; s:0-2; e:0-7-1" -> (o => new NEGX( addqsize(o), o('e'), o('a') )),
           "0100111001110001" -> (_ => NOP),
+          "01000110 ss eee aaa; s:0-2; e:0-7-1" -> (o => new NOT( addqsize(o), o('e'), o('a') )),
           "0100100001 eee aaa" -> (o => new PEA( o('e'), o('a') )),
           "0100111001110111" -> (_ => RTR),
           "0100111001110101" -> (_ => RTS),

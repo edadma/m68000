@@ -604,13 +604,8 @@ class MULS( dreg: Int, mode: Int, reg: Int ) extends Instruction {
 class MULU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val res = (cpu.read( mode, reg, ShortSize )&0xFFFF) * (cpu.readD( dreg, ShortSize )&0xFFFF)
-
-    cpu.N = res < 0
-    cpu.Z = res == 0
-    cpu.V = false
-    cpu.C = false
-    cpu.D(dreg) = res
+    cpu.D(dreg) = cpu.flags( 0, 0, false,
+      (cpu.read( mode, reg, ShortSize )&0xFFFF)*(cpu.readD( dreg, ShortSize )&0xFFFF), false )
   }
 
   def disassemble( cpu: CPU ) = s"MULU"
@@ -627,12 +622,32 @@ class NEG( size: Size, mode: Int, reg: Int ) extends Instruction {
 
 }
 
+class NEGX( size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.write( cpu.neg(cpu.read(mode, reg, size), true), mode, reg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"NEGX"
+
+}
+
 object NOP extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
   }
 
   def disassemble( cpu: CPU ) = s"NOP"
+
+}
+
+class NOT( size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.write( cpu.flags(0, 0, false, ~cpu.read(mode, reg, size), false), mode, reg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"NOT"
 
 }
 
