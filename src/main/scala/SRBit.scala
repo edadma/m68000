@@ -3,7 +3,7 @@ package xyz.hyperreal.m68k
 
 object SRBit {
 
-  val NO_TRACE = 0x3FFF
+  val NO_TRACE_MASK = 0x3FFF
   val TRACE_ON_ANY_INSTRUCTION = 0x8000
   val TRACE_ON_CHANGE_OF_FLOW = 0x4000
   val S = 0x2000

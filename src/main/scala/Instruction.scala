@@ -558,7 +558,7 @@ class MOVEA( size: Size, areg: Int, mode: Int, reg: Int ) extends Instruction {
 class MOVEfromSR( mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.sr, mode, reg, ShortSize )
+    cpu.write( cpu.fromSR, mode, reg, ShortSize )
   }
 
   def disassemble( cpu: CPU ) = s"MOVE"
@@ -568,7 +568,7 @@ class MOVEfromSR( mode: Int, reg: Int ) extends Instruction {
 class MOVEtoCCR( mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.ccr( cpu.read(mode, reg, ByteSize) )
+    cpu.toCCR( cpu.read(mode, reg, ByteSize) )
   }
 
   def disassemble( cpu: CPU ) = s"MOVE"
@@ -661,10 +661,32 @@ class PEA( mode: Int, reg: Int ) extends Instruction {
 
 }
 
+object RESET extends Instruction {
+
+  def apply( cpu: CPU ): Unit =
+    if (cpu.supervisor)
+      cpu.resetSignal
+
+  def disassemble( cpu: CPU ) = s"RESET"
+
+}
+
+object RTE extends Instruction {
+
+  def apply( cpu: CPU ): Unit =
+    if (cpu.supervisor) {
+      cpu.toSR( cpu.pop(ShortSize) )
+      cpu.jumpto( cpu.popAddress )
+    }
+
+  def disassemble( cpu: CPU ) = s"RTE"
+
+}
+
 object RTR extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.ccr( cpu.pop(ShortSize) )
+    cpu.toCCR( cpu.pop(ShortSize) )
     cpu.jumpto( cpu.popAddress )
   }
 

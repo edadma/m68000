@@ -19,9 +19,6 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   private [m68k] var X = false
   private [m68k] var SR = 0
   private [m68k] var instruction = 0
-  private [m68k] val FP = new Array[Double]( 8 )
-  private [m68k] var FPCR = 0
-  private [m68k] var FPSR = 0
   private [m68k] var prog: Addressable = _
 
   var counter = 0L
@@ -48,9 +45,21 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     PC = address
   }
 
-  def sr = SR | bit( X, CCR.X ) | bit( N, CCR.N ) | bit( Z, CCR.Z ) | bit( V, CCR.V ) | bit( C, CCR.C )
+  def supervisor =
+    if ((SR&SRBit.S) == 0) {
+      exception( VectorTable.privilegeViolation )
+      false
+    } else
+      true
 
-  def ccr( bits: Int ): Unit = {
+  def fromSR = SR | bit( X, CCR.X ) | bit( N, CCR.N ) | bit( Z, CCR.Z ) | bit( V, CCR.V ) | bit( C, CCR.C )
+
+  def toSR( bits: Int ): Unit = {
+    SR = bits&0xFF00
+    toCCR( bits )
+  }
+
+  def toCCR( bits: Int ): Unit = {
     X = testBit( bits, CCR.X )
     N = testBit( bits, CCR.N )
     Z = testBit( bits, CCR.Z )
@@ -121,11 +130,10 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def reset: Unit = {
     halt
     memory.reset
+    resetSignal
 
-    for (i <- 0 until 8) {
+    for (i <- 0 until 8)
       D(i) = 0
-      FP(i) = 0
-    }
 
     for (i <- 0 until 7)
       A(i) = 0
@@ -133,7 +141,10 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     SR = SRBit.S|SRBit.I
     SSP = memoryReadAddress( VectorTable.SSP )
     jumpto( memoryReadAddress(VectorTable.PC) )
-    FPCR = 0
+  }
+
+  def resetSignal: Unit = {
+
   }
 
   def execute: Unit = {
@@ -391,9 +402,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     }
 
   def exception( vector: Int ): Unit = {
-    push( sr, ShortSize )
+    push( fromSR, ShortSize )
     SR |= SRBit.S
-    SR &= SRBit.NO_TRACE
+    SR &= SRBit.NO_TRACE_MASK
     pushAddress( PC )
     jumpto( memoryRead(vector, IntSize, false) )
   }
@@ -507,6 +518,8 @@ object CPU {
           "0100111001110001" -> (_ => NOP),
           "01000110 ss eee aaa; s:0-2; e:0-7-1" -> (o => new NOT( addqsize(o), o('e'), o('a') )),
           "0100100001 eee aaa" -> (o => new PEA( o('e'), o('a') )),
+          "0100111001110000" -> (_ => RESET),
+          "0100111001110011" -> (_ => RTE),
           "0100111001110111" -> (_ => RTR),
           "0100111001110101" -> (_ => RTS),
           "0100100001000 rrr" -> (o => new SWAP( o('r') )),
