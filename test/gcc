@@ -1,0 +1,1 @@
+m68k-unknown-uclinux-uclibc-gcc -m68000 -S $1
