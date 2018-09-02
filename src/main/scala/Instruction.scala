@@ -375,13 +375,10 @@ class DIVU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
 
 }
 
-class EOR( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
+class EOR( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    if (dir == 0)
-      cpu.writeD( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size), false), reg, size )
-    else
-      cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size), false), mode, reg, size )
+    cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size), false), mode, reg, size )
   }
 
   def disassemble( cpu: CPU ) = s"EOR"
@@ -651,6 +648,19 @@ class NOT( size: Size, mode: Int, reg: Int ) extends Instruction {
   }
 
   def disassemble( cpu: CPU ) = s"NOT"
+
+}
+
+class OR( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    if (dir == 0)
+      cpu.writeD( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size), false), reg, size )
+    else
+      cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size), false), mode, reg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"EOR"
 
 }
 
