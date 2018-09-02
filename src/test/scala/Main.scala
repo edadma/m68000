@@ -27,6 +27,12 @@ object Main extends App {
     }
   val cpu =
     new CPU( mem ) {
+      override def illegal = {
+        println( "illegal instruction" )
+        halt
+        true
+      }
+
       override def lineF = {
         halt
         true

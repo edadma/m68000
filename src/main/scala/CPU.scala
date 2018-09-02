@@ -450,13 +450,6 @@ object CPU {
       case 2 => IntSize
     }
 
-  def eorsize( operands: Map[Char, Int] ) =
-    operands('s') match {
-      case 4 => ByteSize
-      case 5 => ShortSize
-      case 6 => IntSize
-    }
-
   def extsize( operands: Map[Char, Int] ) =
     operands('s') match {
       case 2 => ByteSize
@@ -468,9 +461,10 @@ object CPU {
     if (!built) {
       populate(
         List[(String, Map[Char, Int] => Instruction)](
-          "1101 rrr d ss eee aaa; s:0-2" -> (o => new ADD( o('r'), o('d'), addqsize(o), o('e'), o('a') )),
+          "1101 rrr 0 ss eee aaa; s:0-2" -> (o => new ADD( o('r'), 0, addqsize(o), o('e'), o('a') )),
+          "1101 rrr 1 ss eee aaa; s:0-2; e:2-7" -> (o => new ADD( o('r'), 1, addqsize(o), o('e'), o('a') )),
           "1101 rrr sss eee aaa; s:3,7" -> (o => new ADDA( o('r'), addasize(o), o('e'), o('a') )),
-          "00000110 ss eee aaa; s:0-2" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
+          "00000110 ss eee aaa; s:0-2; e:0-7-1" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
           "0101 ddd 0 ss eee aaa; s:0-2" -> (o => new ADDQ( o('d') + 1, addqsize(o), o('e'), o('a') )),
           "00000110 ss eee aaa; s:0-2" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
           "1100 rrr d ss eee aaa; s:0-2" -> (o => new AND( o('r'), o('d'), addqsize(o), o('e'), o('a') )),
@@ -496,8 +490,10 @@ object CPU {
           "0101 cccc 11001 rrr" -> (o => new DBcc( o('c'), o('r') )),
           "1000 rrr 111 eee aaa; e:0-7-1" -> (o => new DIVS( o('r'), o('e'), o('a') )),
           "1000 rrr 011 eee aaa; e:0-7-1" -> (o => new DIVU( o('r'), o('e'), o('a') )),
-          "1011 rrr sss eee aaa; s:4-6; e:0-7-1" -> (o => new EOR( o('r'), eorsize(o), o('e'), o('a') )),
+          "1011 rrr 0 ss eee aaa; s:0-2; e:0-7-1" -> (o => new EOR( o('r'), 0, addqsize(o), o('e'), o('a') )),
+          "1011 rrr 1 ss eee aaa; s:0-2; e:2-7" -> (o => new EOR( o('r'), 1, addqsize(o), o('e'), o('a') )),
           "00001010 ss eee aaa; s:0-2" -> (o => new EORI( addqsize(o), o('e'), o('a') )),
+          "0000101000111100" -> (_ => EORItoCCR),
           "1100 xxx 1 ooooo yyy" -> (o => new EXG( o('x'), o('o'), o('y') )),
           "0100100 sss 000 rrr; s:2,3,7" -> (o => new EXT( extsize(o), o('r') )),
           "0100111011 eee aaa" -> (o => new JMP( o('e'), o('a') )),
@@ -517,6 +513,7 @@ object CPU {
           "01000000 ss eee aaa; s:0-2; e:0-7-1" -> (o => new NEGX( addqsize(o), o('e'), o('a') )),
           "0100111001110001" -> (_ => NOP),
           "01000110 ss eee aaa; s:0-2; e:0-7-1" -> (o => new NOT( addqsize(o), o('e'), o('a') )),
+          "0000000000111100" -> (_ => ORItoCCR),
           "0100100001 eee aaa" -> (o => new PEA( o('e'), o('a') )),
           "0100111001110000" -> (_ => RESET),
           "0100111001110011" -> (_ => RTE),

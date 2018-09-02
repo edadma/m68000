@@ -18,10 +18,10 @@ object ILLEGAL extends Instruction {
 
 }
 
-class ADD( dreg: Int, dest: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
+class ADD( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    if (dest == 0)
+    if (dir == 0)
       cpu.writeD( cpu.add(cpu.read(mode, reg, size), cpu.readD(reg, size), false), reg, size )
     else
       cpu.write( cpu.add(cpu.read(mode, reg, size), cpu.readD(reg, size), false), mode, reg, size )
@@ -375,10 +375,13 @@ class DIVU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
 
 }
 
-class EOR( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
+class EOR( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(dreg, size), false), mode, reg, size )
+    if (dir == 0)
+      cpu.writeD( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size), false), reg, size )
+    else
+      cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size), false), mode, reg, size )
   }
 
   def disassemble( cpu: CPU ) = s"EOR"
@@ -648,6 +651,31 @@ class NOT( size: Size, mode: Int, reg: Int ) extends Instruction {
   }
 
   def disassemble( cpu: CPU ) = s"NOT"
+
+}
+
+object ORItoCCR extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val imm = cpu.fetchByte
+
+    if (testBit( imm, CCR.X ))
+      cpu.X |= true
+
+    if (testBit( imm, CCR.N ))
+      cpu.N |= true
+
+    if (testBit( imm, CCR.Z ))
+      cpu.Z |= true
+
+    if (testBit( imm, CCR.V ))
+      cpu.V |= true
+
+    if (testBit( imm, CCR.V ))
+      cpu.V |= true
+  }
+
+  def disassemble( cpu: CPU ) = s"ORI"
 
 }
 
