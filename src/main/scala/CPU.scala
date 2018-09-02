@@ -494,7 +494,7 @@ object CPU {
           "0101 cccc 11001 rrr" -> (o => new DBcc( o('c'), o('r') )),
           "1000 rrr 111 eee aaa; e:0-7-1" -> (o => new DIVS( o('r'), o('e'), o('a') )),
           "1000 rrr 011 eee aaa; e:0-7-1" -> (o => new DIVU( o('r'), o('e'), o('a') )),
-          "1011 rrr 1 ss eee aaa; s:0-2; e:0-7-1" -> (o => new EOR( o('r'), 1, addqsize(o), o('e'), o('a') )),
+          "1011 rrr 1 ss eee aaa; s:0-2; e:0-7-1" -> (o => new EOR( o('r'), addqsize(o), o('e'), o('a') )),
           "00001010 ss eee aaa; s:0-2" -> (o => new EORI( addqsize(o), o('e'), o('a') )),
           "0000101000111100" -> (_ => EORItoCCR),
           "1100 xxx 1 ooooo yyy" -> (o => new EXG( o('x'), o('o'), o('y') )),
