@@ -664,6 +664,16 @@ class OR( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruc
 
 }
 
+class ORI( size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.write( cpu.or(cpu.read(mode, reg, size), cpu.immediate(size), false), mode, reg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"ORI"
+
+}
+
 object ORItoCCR extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
@@ -739,6 +749,19 @@ object RTS extends Instruction {
   }
 
   def disassemble( cpu: CPU ) = s"RTS"
+
+}
+
+class SUB( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    if (dir == 0)
+      cpu.writeD( cpu.subtract(cpu.read(mode, reg, size), cpu.readD(reg, size), false), reg, size )
+    else
+      cpu.write( cpu.subtract(cpu.read(mode, reg, size), cpu.readD(reg, size), false), mode, reg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"SUB"
 
 }
 
