@@ -388,15 +388,25 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     flags( s&d&(~r)|(~s)&(~d)&r, s&d|(~r)&d|s&(~r), extended, r, true )
   }
 
-  def and( s: Int, d: Int, extended: Boolean ) = {
+  def asl( r: Int, d: Int, size: Size ) = {
+    if (r == 0) {
+      flags( 0, 0, false, d, false )
+    } else {
+      val res = d << r
+
+      flags( 0, ~(d - r + 1), false, res, false )
+    }
+  }
+
+  def and( s: Int, d: Int ) = {
     flags( 0, 0, false, s & d, false )
   }
 
-  def eor( s: Int, d: Int, extended: Boolean ) = {
+  def eor( s: Int, d: Int ) = {
     flags( 0, 0, false, s ^ d, false )
   }
 
-  def or( s: Int, d: Int, extended: Boolean ) = {
+  def or( s: Int, d: Int ) = {
     flags( 0, 0, false, s | d, false )
   }
 

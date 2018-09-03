@@ -66,9 +66,9 @@ class AND( dreg: Int, dest: Int, size: Size, mode: Int, reg: Int ) extends Instr
 
   def apply( cpu: CPU ): Unit = {
     if (dest == 0)
-      cpu.writeD( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size), false), reg, size )
+      cpu.writeD( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size)), reg, size )
     else
-      cpu.write( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size), false), mode, reg, size )
+      cpu.write( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size)), mode, reg, size )
   }
 
   def disassemble( cpu: CPU ) = s"AND"
@@ -107,6 +107,19 @@ object ANDItoCCR extends Instruction {
   }
 
   def disassemble( cpu: CPU ) = s"ANDI"
+
+}
+
+class ASReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    if (dir == 0) // 0 => right; 1 => left
+      cpu.writeD( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size)), reg, size )
+    else
+      cpu.write( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size)), mode, reg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"AND"
 
 }
 
@@ -388,7 +401,7 @@ class EOR( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class EORI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.immediate(size), false), mode, reg, size )
+    cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.immediate(size)), mode, reg, size )
   }
 
   def disassemble( cpu: CPU ) = s"EORI"
@@ -655,9 +668,9 @@ class OR( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruc
 
   def apply( cpu: CPU ): Unit = {
     if (dir == 0)
-      cpu.writeD( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size), false), reg, size )
+      cpu.writeD( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size)), reg, size )
     else
-      cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size), false), mode, reg, size )
+      cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size)), mode, reg, size )
   }
 
   def disassemble( cpu: CPU ) = s"EOR"
@@ -667,7 +680,7 @@ class OR( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruc
 class ORI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.or(cpu.read(mode, reg, size), cpu.immediate(size), false), mode, reg, size )
+    cpu.write( cpu.or(cpu.read(mode, reg, size), cpu.immediate(size)), mode, reg, size )
   }
 
   def disassemble( cpu: CPU ) = s"ORI"
