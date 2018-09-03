@@ -8,6 +8,7 @@ object SRBit {
   val TRACE_ON_CHANGE_OF_FLOW = 0x4000
   val S = 0x2000
   val M = 0x1000
+  val I_shift = 8
   val I = 0x0700
 
 }

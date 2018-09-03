@@ -1,7 +1,6 @@
 //@
 package xyz.hyperreal.m68k
 
-import scala.collection.mutable
 import scala.collection.mutable.{ListBuffer, PriorityQueue}
 
 
@@ -44,10 +43,15 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def service: Unit = synchronized {
     if (interrupts nonEmpty) {
-      interrupts.dequeue match {
-        case Interrupt( level, None ) => exception( VectorTable.autoVectors + level<<2 )
-        case Interrupt( _, Some(vector) ) => exception( VectorTable.interruptVectors + vector<<2 )
-      }
+      val req = interrupts.dequeue
+
+      if (req.level == 7 || req.level > ((SR&SRBit.I)>>SRBit.I_shift))
+        req match {
+          case Interrupt( level, None ) => exception( VectorTable.autoVectors + level<<2 )
+          case Interrupt( _, Some(vector) ) => exception( VectorTable.interruptVectors + vector<<2 )
+        }
+      else
+        service
     }
 
     if (interrupts isEmpty)
