@@ -1,8 +1,13 @@
 //@
 package xyz.hyperreal.m68k
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
+import scala.collection.mutable.{ListBuffer, PriorityQueue}
 
+
+case class Interrupt( level: Int, vector: Option[Int] ) extends Ordered[Interrupt] {
+  def compare( that: Interrupt ): Int = level - that.level
+}
 
 class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
@@ -21,12 +26,33 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   private [m68k] var instruction = 0
   private [m68k] var prog: Addressable = _
 
+  private val interrupts = new PriorityQueue[Interrupt]
+  private var interruptsAvailable = false
+
   var counter = 0L
   var trace = false
 
 	protected var running = false
 
   private val opcodes = CPU.opcodeTable
+
+  def interrupt( req: Interrupt ): Unit = synchronized {
+    require( 1 <= req.level && req.level <= 7, s"interrupt level out of range: ${req.level}" )
+    interrupts enqueue req
+    interruptsAvailable = true
+  }
+
+  def service: Unit = synchronized {
+    if (interrupts nonEmpty) {
+      interrupts.dequeue match {
+        case Interrupt( level, None ) => exception( VectorTable.autoVectors + level<<2 )
+        case Interrupt( _, Some(vector) ) => exception( VectorTable.interruptVectors + vector<<2 )
+      }
+    }
+
+    if (interrupts isEmpty)
+      interruptsAvailable = false
+  }
 
   def breakpoint( bkpt: Int ) = false
 
@@ -186,8 +212,12 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def run: Unit = {
     running = true
 
-    while (running)
+    while (running) {
       execute
+
+      if (interruptsAvailable)
+        service
+    }
   }
 
 //  memory.problem = problem
