@@ -78,7 +78,7 @@ class AND( dreg: Int, dest: Int, size: Size, mode: Int, reg: Int ) extends Instr
 class ANDI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.and(cpu.read(mode, reg, size), cpu.immediate(size), false), mode, reg, size )
+    cpu.write( cpu.and(cpu.read(mode, reg, size), cpu.immediate(size)), mode, reg, size )
   }
 
   def disassemble( cpu: CPU ) = s"ANDI"
@@ -110,6 +110,18 @@ object ANDItoCCR extends Instruction {
 
 }
 
+class ASMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val operand = cpu.read( mode, reg, ShortSize )
+
+    cpu.write( if (dir == 0) cpu.asr(1, operand, ShortSize) else cpu.asl(1, operand, ShortSize), mode, reg, ShortSize )
+  }
+
+  def disassemble( cpu: CPU ) = s"AS"
+
+}
+
 class ASReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
@@ -117,18 +129,6 @@ class ASReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Inst
     val operand = cpu.readD(dreg, size)
 
     cpu.writeD( if (dir == 0) cpu.asr(c, operand, size) else cpu.asl(c, operand, size), dreg, size )
-  }
-
-  def disassemble( cpu: CPU ) = s"AS"
-
-}
-
-class ASMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
-
-  def apply( cpu: CPU ): Unit = {
-    val operand = cpu.read( mode, reg, ShortSize )
-
-    cpu.write( if (dir == 0) cpu.asr(1, operand, ShortSize) else cpu.asl(1, operand, ShortSize), mode, reg, ShortSize )
   }
 
   def disassemble( cpu: CPU ) = s"AS"
@@ -403,7 +403,7 @@ class DIVU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
 class EOR( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size), false), mode, reg, size )
+    cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size)), mode, reg, size )
   }
 
   def disassemble( cpu: CPU ) = s"EOR"
@@ -557,6 +557,31 @@ class LINK( reg: Int ) extends Instruction {
   }
 
   def disassemble( cpu: CPU ) = s"LINK"
+
+}
+
+class LSMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val operand = cpu.read( mode, reg, ShortSize )
+
+    cpu.write( if (dir == 0) cpu.asr(1, operand, ShortSize) else cpu.asl(1, operand, ShortSize), mode, reg, ShortSize )
+  }
+
+  def disassemble( cpu: CPU ) = s"LS"
+
+}
+
+class LSReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val c = if (ir == 0) count else cpu.readD( count, size )
+    val operand = cpu.readD(dreg, size)
+
+    cpu.writeD( if (dir == 0) cpu.asr(c, operand, size) else cpu.asl(c, operand, size), dreg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"LS"
 
 }
 

@@ -398,18 +398,13 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     if (r == 0)
       flags( 0, 0, false, d, false )
     else
-      flags( 0, d << (bits(size) - r), false, d >> r, false )
+      flags( 0, d << (bits(size) - r), false, d >>> r, false )
 
   def lsl( r: Int, d: Int, size: Size ) =
-    if (r == 0) {
+    if (r == 0)
       flags( 0, 0, false, d, false )
-    } else {
-      val res = d.toLong << r
-      val mask = ones( r )
-      val shifted = (res >> bits( size )).toInt & mask
-
-      flags( shifted == 0 || shifted == mask, ~(d - r + 1), false, res.toInt, false )
-    }
+    else
+      flags( 0, ~(d - r + 1), false, d << r, false )
 
   def asr( r: Int, d: Int, size: Size ) =
     if (r == 0)
@@ -570,6 +565,8 @@ object CPU {
           "1010 xxxxxxxxxxxx" -> (_ => LINEA),
           "1111 xxxxxxxxxxxx" -> (_ => LINEF),
           "0100111001010 rrr" -> (o => new LINK( o('r') )),
+          "1110001 d 11 eee aaa; e:2-7" -> (o => new LSMem( o('d'), o('e'), o('a') )),
+          "1110 ccc d ss i 01 rrr" -> (o => new LSReg( o('c'), o('d'), addqsize(o), o('i'), o('r') )),
           "00 ss vvv uuu xxx yyy; s:1-3; u:0-7-1" -> (o => new MOVE( movesize(o), o('v'), o('u'), o('x'), o('y') )),
           "00 ss rrr 001 eee aaa; s:2,3" -> (o => new MOVEA( chksize(o), o('r'), o('e'), o('a') )),
           "0100000011 eee aaa" -> (o => new MOVEfromSR( o('e'), o('a') )),
