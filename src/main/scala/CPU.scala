@@ -248,14 +248,6 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case IntSize => memory.writeInt( address, data )
     }
 
-  def width( size: Size, aligned: Boolean ) =
-    size match {
-      case BitSize|ByteSize if aligned => 2
-      case BitSize|ByteSize => 1
-      case ShortSize => 2
-      case IntSize => 4
-    }
-
   def readA( reg: Int ) =
     reg match {
       case 7 if (SR&(SRBit.S|SRBit.M)) != 0 => MSP
@@ -370,8 +362,11 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   // ALU
   //
 
-  def flags( overflow: Int, carry: Int, extended: Boolean, res: Int, x: Boolean ) = {
-    V = (overflow&0x80000000L) != 0
+  def flags( overflow: Int, carry: Int, extended: Boolean, res: Int, x: Boolean ) =
+    flags( (overflow&0x80000000L) != 0, carry, extended, res, x )
+
+  def flags( overflow: Boolean, carry: Int, extended: Boolean, res: Int, x: Boolean ) = {
+    V = overflow
     C = (carry&0x80000000L) != 0
 
     if (x)
@@ -392,9 +387,11 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     if (r == 0) {
       flags( 0, 0, false, d, false )
     } else {
-      val res = d << r
+      val res = d.toLong << r
+      val mask = ones( r )
+      val shifted = (res >> bits( size )).toInt & mask
 
-      flags( 0, ~(d - r + 1), false, res, false )
+      flags( shifted == 0 || shifted == mask, ~(d - r + 1), false, res.toInt, false )
     }
   }
 

@@ -36,6 +36,21 @@ package object m68k {
 		out.toString.trim
 	}
 
+  def width( size: Size, aligned: Boolean ) =
+    size match {
+      case BitSize|ByteSize if aligned => 2
+      case BitSize|ByteSize => 1
+      case ShortSize => 2
+      case IntSize => 4
+    }
+
+  def bits( size: Size ) =
+    size match {
+      case ByteSize => 8
+      case ShortSize => 16
+      case IntSize => 32
+    }
+
   def bit( cond: Boolean, n: Int ) = if (cond) 1<<n else 0
 
   def testBit( data: Int, bit: Int ) = (data&(1<<bit)) != 0
@@ -52,5 +67,7 @@ package object m68k {
       case ShortSize => v.asInstanceOf[Short].asInstanceOf[Int]
       case IntSize => v
     }
+
+  def ones( a: Int ) = (for (i <- 0 until a) yield 1<<i) reduce (_ | _)
 
 }

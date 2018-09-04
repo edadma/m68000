@@ -119,7 +119,7 @@ class ASReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Inst
       cpu.write( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size)), mode, reg, size )
   }
 
-  def disassemble( cpu: CPU ) = s"AND"
+  def disassemble( cpu: CPU ) = s"ASL"
 
 }
 
