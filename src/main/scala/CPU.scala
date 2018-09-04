@@ -383,7 +383,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     flags( s&d&(~r)|(~s)&(~d)&r, s&d|(~r)&d|s&(~r), extended, r, true )
   }
 
-  def asl( r: Int, d: Int, size: Size ) = {
+  def asl( r: Int, d: Int, size: Size ) =
     if (r == 0) {
       flags( 0, 0, false, d, false )
     } else {
@@ -393,14 +393,29 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
       flags( shifted == 0 || shifted == mask, ~(d - r + 1), false, res.toInt, false )
     }
-  }
 
-  def asr( r: Int, d: Int, size: Size ) =
+  def lsr( r: Int, d: Int, size: Size ) =
+    if (r == 0)
+      flags( 0, 0, false, d, false )
+    else
+      flags( 0, d << (bits(size) - r), false, d >> r, false )
+
+  def lsl( r: Int, d: Int, size: Size ) =
     if (r == 0) {
       flags( 0, 0, false, d, false )
     } else {
-      flags( 0, d << (bits(size) - r), false, d >> r, false )
+      val res = d.toLong << r
+      val mask = ones( r )
+      val shifted = (res >> bits( size )).toInt & mask
+
+      flags( shifted == 0 || shifted == mask, ~(d - r + 1), false, res.toInt, false )
     }
+
+  def asr( r: Int, d: Int, size: Size ) =
+    if (r == 0)
+      flags( 0, 0, false, d, false )
+    else
+      flags( 0, d << (bits(size) - r), false, d >> r, false )
 
   def and( s: Int, d: Int ) = {
     flags( 0, 0, false, s & d, false )
