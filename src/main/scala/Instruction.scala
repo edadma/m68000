@@ -113,10 +113,10 @@ object ANDItoCCR extends Instruction {
 class ASReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    if (dir == 0) // 0 => right; 1 => left
-      cpu.writeD( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size)), reg, size )
-    else
-      cpu.write( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size)), mode, reg, size )
+    val c = if (ir == 0) count else cpu.readD( count, size )
+    val operand = cpu.readD(dreg, size)
+
+    cpu.writeD( if (dir == 0) cpu.asr(c, operand, size) else cpu.asl(c, operand, size), dreg, size )
   }
 
   def disassemble( cpu: CPU ) = s"ASL"

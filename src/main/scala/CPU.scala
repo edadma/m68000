@@ -395,6 +395,13 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     }
   }
 
+  def asr( r: Int, d: Int, size: Size ) =
+    if (r == 0) {
+      flags( 0, 0, false, d, false )
+    } else {
+      flags( 0, d << (bits(size) - r), false, d >> r, false )
+    }
+
   def and( s: Int, d: Int ) = {
     flags( 0, 0, false, s & d, false )
   }
