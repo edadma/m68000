@@ -635,6 +635,20 @@ class MOVEQ( reg: Int, data: Int ) extends Instruction {
 
 }
 
+class MOVEUSP( dir: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    if (cpu.supervisor)
+      if (dir == 0)
+        cpu.USP = cpu.readA( reg )
+      else
+        cpu.writeA( cpu.USP, reg )
+  }
+
+  def disassemble( cpu: CPU ) = s"MOVE"
+
+}
+
 class MULS( dreg: Int, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {

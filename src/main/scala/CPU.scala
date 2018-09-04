@@ -13,7 +13,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   private [m68k] val D = new Array[Int]( 8 )
   private [m68k] val A = new Array[Long]( 7 )
   private [m68k] var PC = 0L
-  private [m68k] var SP = 0L
+  private [m68k] var USP = 0L
   private [m68k] var SSP = 0L
   private [m68k] var MSP = 0L
   private [m68k] var C = false
@@ -252,7 +252,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     reg match {
       case 7 if (SR&(SRBit.S|SRBit.M)) != 0 => MSP
       case 7 if (SR&SRBit.S) != 0 => SSP
-      case 7 => SP
+      case 7 => USP
       case _ => A(reg)
     }
 
@@ -265,8 +265,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
         SSP -= width( size, true )
         SSP
       case 7 =>
-        SP -= width( size, true )
-        SP
+        USP -= width( size, true )
+        USP
       case _ =>
         A(reg) -= width( size, false )
         A(reg)
@@ -285,9 +285,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
         SSP += width( size, true )
         res
       case 7 =>
-        val res = SP
+        val res = USP
 
-        SP += width( size, true )
+        USP += width( size, true )
         res
       case _ =>
         val res = A(reg)
@@ -300,7 +300,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     reg match {
       case 7 if (SR&(SRBit.S|SRBit.M)) != 0 => MSP = data
       case 7 if (SR&SRBit.S) != 0 => SSP = data
-      case 7 => SP = data
+      case 7 => USP = data
       case _ => A(reg) = data
     }
 
@@ -572,6 +572,7 @@ object CPU {
           "0100000011 eee aaa" -> (o => new MOVEfromSR( o('e'), o('a') )),
           "0100010011 eee aaa" -> (o => new MOVEtoCCR( o('e'), o('a') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
+          "010011100110 d rrr" -> (o => new MOVEUSP( o('d'), o('r') )),
           "1100 rrr 111 eee aaa; e:0-7-1" -> (o => new MULS( o('r'), o('e'), o('a') )),
           "1100 rrr 011 eee aaa; e:0-7-1" -> (o => new MULU( o('r'), o('e'), o('a') )),
           "01000100 ss eee aaa; s:0-2; e:0-7-1" -> (o => new NEG( addqsize(o), o('e'), o('a') )),
