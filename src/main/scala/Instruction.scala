@@ -110,6 +110,16 @@ object ANDItoCCR extends Instruction {
 
 }
 
+object ANDItoSR extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.toSR( cpu.fromSR & cpu.fetchShort )
+  }
+
+  def disassemble( cpu: CPU ) = s"ANDI"
+
+}
+
 class ASMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
@@ -445,6 +455,16 @@ object EORItoCCR extends Instruction {
 
 }
 
+object EORItoSR extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.toSR( cpu.fromSR ^ cpu.fetchShort )
+  }
+
+  def disassemble( cpu: CPU ) = s"EORI"
+
+}
+
 class EXG( rx: Int, mode: Int, ry: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
@@ -768,6 +788,16 @@ object ORItoCCR extends Instruction {
 
     if (testBit( imm, CCR.V ))
       cpu.V |= true
+  }
+
+  def disassemble( cpu: CPU ) = s"ORI"
+
+}
+
+object ORItoSR extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.toSR( cpu.fromSR | cpu.fetchShort )
   }
 
   def disassemble( cpu: CPU ) = s"ORI"
