@@ -625,6 +625,17 @@ class MOVEtoCCR( mode: Int, reg: Int ) extends Instruction {
 
 }
 
+class MOVEtoSR( mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    if (cpu.supervisor)
+      cpu.toSR( cpu.read(mode, reg, ShortSize) )
+  }
+
+  def disassemble( cpu: CPU ) = s"MOVE"
+
+}
+
 class MOVEQ( reg: Int, data: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
