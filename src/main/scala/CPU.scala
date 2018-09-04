@@ -362,7 +362,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   // ALU
   //
 
-  def flags( overflow: Int, carry: Int, extended: Boolean, res: Int, x: Boolean ) =
+  def flags( overflow: Int, carry: Int, extended: Boolean, res: Int, x: Boolean ): Int =
     flags( (overflow&0x80000000L) != 0, carry, extended, res, x )
 
   def flags( overflow: Boolean, carry: Int, extended: Boolean, res: Int, x: Boolean ) = {
@@ -522,6 +522,8 @@ object CPU {
           "1100 rrr d ss eee aaa; s:0-2" -> (o => new AND( o('r'), o('d'), addqsize(o), o('e'), o('a') )),
           "00000010 ss eee aaa; s:0-2" -> (o => new ANDI( addqsize(o), o('e'), o('a') )),
           "0000001000111100" -> (_ => ANDItoCCR),
+          "1110000 d 11 eee aaa; e:2-7" -> (o => new ASMem( o('d'), o('e'), o('a') )),
+          "1110 ccc d ss i 00 rrr" -> (o => new ASReg( o('c'), o('d'), addqsize(o), o('i'), o('r') )),
           "0110 cccc dddddddd" -> (o => new Bcc( o('c'), o('d') )),
           "0000 rrr 101 eee aaa" -> (o => new BCHG( Some(o('r')), o('e'), o('a') )),
           "0000100001 eee aaa" -> (o => new BCHG( None, o('e'), o('a') )),

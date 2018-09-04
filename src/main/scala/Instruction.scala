@@ -119,7 +119,19 @@ class ASReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Inst
     cpu.writeD( if (dir == 0) cpu.asr(c, operand, size) else cpu.asl(c, operand, size), dreg, size )
   }
 
-  def disassemble( cpu: CPU ) = s"ASL"
+  def disassemble( cpu: CPU ) = s"AS"
+
+}
+
+class ASMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val operand = cpu.read( mode, reg, ShortSize )
+
+    cpu.write( if (dir == 0) cpu.asr(1, operand, ShortSize) else cpu.asl(1, operand, ShortSize), mode, reg, ShortSize )
+  }
+
+  def disassemble( cpu: CPU ) = s"AS"
 
 }
 
