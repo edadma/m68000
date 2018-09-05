@@ -585,7 +585,7 @@ class LSMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
   def apply( cpu: CPU ): Unit = {
     val operand = cpu.read( mode, reg, ShortSize )
 
-    cpu.write( if (dir == 0) cpu.asr(1, operand, ShortSize) else cpu.asl(1, operand, ShortSize), mode, reg, ShortSize )
+    cpu.write( if (dir == 0) cpu.lsr(1, operand, ShortSize) else cpu.lsl(1, operand, ShortSize), mode, reg, ShortSize )
   }
 
   def disassemble( cpu: CPU ) = s"LS"
@@ -598,7 +598,7 @@ class LSReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Inst
     val c = if (ir == 0) count else cpu.readD( count, size )
     val operand = cpu.readD(dreg, size)
 
-    cpu.writeD( if (dir == 0) cpu.asr(c, operand, size) else cpu.asl(c, operand, size), dreg, size )
+    cpu.writeD( if (dir == 0) cpu.lsr(c, operand, size) else cpu.lsl(c, operand, size), dreg, size )
   }
 
   def disassemble( cpu: CPU ) = s"LS"
@@ -821,6 +821,31 @@ object RESET extends Instruction {
       cpu.resetSignal
 
   def disassemble( cpu: CPU ) = s"RESET"
+
+}
+
+class ROMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val operand = cpu.read( mode, reg, ShortSize )
+
+    cpu.write( if (dir == 0) cpu.ror(1, operand, ShortSize) else cpu.rol(1, operand, ShortSize), mode, reg, ShortSize )
+  }
+
+  def disassemble( cpu: CPU ) = s"RO"
+
+}
+
+class ROReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val c = if (ir == 0) count else cpu.readD( count, size )
+    val operand = cpu.readD(dreg, size)
+
+    cpu.writeD( if (dir == 0) cpu.ror(c, operand, size) else cpu.rol(c, operand, size), dreg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"RO"
 
 }
 

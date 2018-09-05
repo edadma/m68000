@@ -394,6 +394,12 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       flags( shifted == 0 || shifted == mask, ~(d - r + 1), false, res.toInt, false )
     }
 
+  def asr( r: Int, d: Int, size: Size ) =
+    if (r == 0)
+      flags( 0, 0, false, d, false )
+    else
+      flags( 0, d << (bits(size) - r), false, d >> r, false )
+
   def lsr( r: Int, d: Int, size: Size ) =
     if (r == 0)
       flags( 0, 0, false, d, false )
@@ -404,13 +410,19 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     if (r == 0)
       flags( 0, 0, false, d, false )
     else
-      flags( 0, ~(d - r + 1), false, d << r, false )
+      flags( 0, d - r + 1, false, d << r, false )
 
-  def asr( r: Int, d: Int, size: Size ) =
+  def rol( r: Int, d: Int, size: Size ) =
     if (r == 0)
       flags( 0, 0, false, d, false )
     else
-      flags( 0, d << (bits(size) - r), false, d >> r, false )
+      flags( 0, d - r + 1, false, (d << r) | (d >>> (bits(size) - r)), false )
+
+  def ror( r: Int, d: Int, size: Size ) =
+    if (r == 0)
+      flags( 0, 0, false, d, false )
+    else
+      flags( 0, d << (bits(size) - r), false, (d >>> r) | (d << (bits(size) - r)), false )
 
   def and( s: Int, d: Int ) = {
     flags( 0, 0, false, s & d, false )
@@ -587,6 +599,8 @@ object CPU {
           "0000000001111100" -> (_ => ORItoSR),
           "0100100001 eee aaa" -> (o => new PEA( o('e'), o('a') )),
           "0100111001110000" -> (_ => RESET),
+          "1110011 d 11 eee aaa; e:2-7" -> (o => new ROMem( o('d'), o('e'), o('a') )),
+          "1110 ccc d ss i 11 rrr" -> (o => new ROReg( o('c'), o('d'), addqsize(o), o('i'), o('r') )),
           "0100111001110011" -> (_ => RTE),
           "0100111001110111" -> (_ => RTR),
           "0100111001110101" -> (_ => RTS),
