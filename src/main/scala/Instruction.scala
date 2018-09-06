@@ -18,13 +18,13 @@ object ILLEGAL extends Instruction {
 
 }
 
-class ABCD(x: Int, r: Int, y: Int ) extends Instruction with Addressing {
+class ABCD( x: Int, r: Int, y: Int ) extends Instruction with Addressing {
 
   def apply( cpu: CPU ): Unit = {
     if (r == 0)
       cpu.writeD( cpu.abcd(cpu.readD(x, ByteSize), cpu.readD(y, ByteSize)), x, ByteSize )
     else
-      cpu.write( cpu.add(cpu.read(AddressRegisterIndirectPredecrement, x, ByteSize), cpu.read(AddressRegisterIndirectPredecrement, y, ByteSize), false), mode, reg, size )
+      cpu.readWrite( AddressRegisterIndirectPredecrement, x, ByteSize )( cpu.add(_, cpu.read(AddressRegisterIndirectPredecrement, y, ByteSize), false) )
   }
 
   def disassemble( cpu: CPU ) = s"ABCD"
@@ -57,7 +57,7 @@ class ADDA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class ADDI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.add(cpu.read(mode, reg, size), cpu.immediate(size), false), mode, reg, size )
+    cpu.readWrite( mode, reg, size )( cpu.add(_, cpu.immediate(size), false) )
   }
 
   def disassemble( cpu: CPU ) = s"ADDI"
