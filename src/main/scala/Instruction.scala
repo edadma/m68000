@@ -18,14 +18,26 @@ object ILLEGAL extends Instruction {
 
 }
 
+class ABCD(x: Int, r: Int, y: Int ) extends Instruction with Addressing {
+
+  def apply( cpu: CPU ): Unit = {
+    if (r == 0)
+      cpu.writeD( cpu.abcd(cpu.readD(x, ByteSize), cpu.readD(y, ByteSize)), x, ByteSize )
+    else
+      cpu.write( cpu.add(cpu.read(AddressRegisterIndirectPredecrement, x, ByteSize), cpu.read(AddressRegisterIndirectPredecrement, y, ByteSize), false), mode, reg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"ABCD"
+
+}
+
 class ADD( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
     if (dir == 0)
       cpu.writeD( cpu.add(cpu.read(mode, reg, size), cpu.readD(reg, size), false), reg, size )
     else
-      cpu.write( cpu.add(cpu.read(mode, reg, size), cpu.readD(reg, size), false), mode, reg, size )
-
+      cpu.readWrite( mode, reg, size )( cpu.add(_, cpu.readD(reg, size), false) )
   }
 
   def disassemble( cpu: CPU ) = s"ADD"
@@ -846,6 +858,31 @@ class ROReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Inst
   }
 
   def disassemble( cpu: CPU ) = s"RO"
+
+}
+
+class ROXMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val operand = cpu.read( mode, reg, ShortSize )
+
+    cpu.write( if (dir == 0) cpu.ror(1, operand, ShortSize) else cpu.rol(1, operand, ShortSize), mode, reg, ShortSize )
+  }
+
+  def disassemble( cpu: CPU ) = s"ROX"
+
+}
+
+class ROXReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val c = if (ir == 0) count else cpu.readD( count, size )
+    val operand = cpu.readD(dreg, size)
+
+    cpu.writeD( if (dir == 0) cpu.ror(c, operand, size) else cpu.rol(c, operand, size), dreg, size )
+  }
+
+  def disassemble( cpu: CPU ) = s"ROX"
 
 }
 

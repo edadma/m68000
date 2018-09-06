@@ -326,6 +326,34 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     }
   }
 
+  def write( data: Int, mode: Int, reg: Int, size: Size ) {
+    mode match {
+      case DataRegisterDirect => writeD( data, reg, size )
+      case AddressRegisterDirect => writeA( regwrite(data, readA(reg).asInstanceOf[Int], size)&0xFFFFFFFFL, reg )
+      case AddressRegisterIndirect => memoryWrite( data, readA(reg), size, false )
+      case AddressRegisterIndirectPostincrement => memoryWrite( data, readAPostincrement(reg, size), size, reg == 7 )
+      case AddressRegisterIndirectPredecrement => memoryWrite( data, readAPredecrement(reg, size), size, reg == 7 )
+      case OtherModes =>
+      //        reg match {
+      //        }
+    }
+  }
+
+  def readWrite( mode: Int, reg: Int, size: Size )( op: Int => Int ) = {
+    mode match {
+      case DataRegisterDirect|AddressRegisterDirect|AddressRegisterIndirect => write( op(read(mode, reg, size)), mode, reg, size )
+      case AddressRegisterIndirectPostincrement =>
+        val addr = readAPostincrement(reg, size)
+
+        memoryWrite( op(memoryRead(addr, size, reg == 7)), addr, size, reg == 7 )
+      case AddressRegisterIndirectPredecrement =>
+        val addr = readAPredecrement(reg, size)
+
+        memoryWrite( op(memoryRead(addr, size, reg == 7)), addr, size, reg == 7 )
+      case OtherModes =>
+    }
+  }
+
   def regwrite( data: Int, regcur: Int, size: Size ) =
     size match {
       case ByteSize => regcur&0xFFFFFF00 | data&0xFF
@@ -334,21 +362,6 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     }
 
   def writeD( data: Int, reg: Int, size: Size ) = D(reg) = regwrite( data, D(reg), size )
-
-  def write( data: Int, mode: Int, reg: Int, size: Size ) {
-    mode match {
-      case DataRegisterDirect => writeD( data, reg, size )
-      case AddressRegisterDirect => writeA( regwrite(data, readA(reg).asInstanceOf[Int], size)&0xFFFFFFFFL, reg )
-      case AddressRegisterIndirect => memoryWrite( data, readA(reg), size, false )
-      case AddressRegisterIndirectPostincrement =>
-        memoryWrite( data, readAPostincrement(reg, size), size, reg == 7 )
-      case AddressRegisterIndirectPredecrement =>
-        memoryWrite( data, readAPredecrement(reg, size), size, reg == 7 )
-      case OtherModes =>
-//        reg match {
-//        }
-    }
-  }
 
   def push( data: Int, size: Size ) = memoryWrite( data, readAPredecrement(7, size), size, true )
 
@@ -375,6 +388,24 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     Z = if (extended) res == 0 && Z else res == 0
     N = res < 0
     res
+  }
+
+  def abcd( s: Int, d: Int ) = {
+    def conv( bcd: Int ) = (bcd >> 4)*10 + (bcd & 0x0F)
+
+    val (r, c) =
+      conv( s ) + conv( d ) match {
+        case s if s > 99 => (s - 100, true)
+        case s => (s, false)
+      }
+
+    C = c
+    X = c
+
+    if (r != 0)
+      Z = false
+
+    ((r/10) << 4) | (r%10)
   }
 
   def add( s: Int, d: Int, extended: Boolean ) = {
