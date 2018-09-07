@@ -773,7 +773,7 @@ class OR( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruc
 class ORI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.or(cpu.read(mode, reg, size), cpu.immediate(size)), mode, reg, size )
+    cpu.readWrite( mode, reg, size )( cpu.or(_, cpu.immediate(size)) )
   }
 
   def disassemble( cpu: CPU ) = s"ORI"
@@ -838,9 +838,7 @@ object RESET extends Instruction {
 class ROMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val operand = cpu.read( mode, reg, ShortSize )
-
-    cpu.write( if (dir == 0) cpu.ror(1, operand, ShortSize) else cpu.rol(1, operand, ShortSize), mode, reg, ShortSize )
+    cpu.readWrite( mode, reg, ShortSize )( o => if (dir == 0) cpu.ror(1, o, ShortSize) else cpu.rol(1, o, ShortSize) )
   }
 
   def disassemble( cpu: CPU ) = s"RO"
@@ -863,9 +861,7 @@ class ROReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Inst
 class ROXMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val operand = cpu.read( mode, reg, ShortSize )
-
-    cpu.write( if (dir == 0) cpu.ror(1, operand, ShortSize) else cpu.rol(1, operand, ShortSize), mode, reg, ShortSize )
+    cpu.readWrite( mode, reg, ShortSize )( o => if (dir == 0) cpu.ror(1, o, ShortSize) else cpu.rol(1, o, ShortSize) )
   }
 
   def disassemble( cpu: CPU ) = s"ROX"
@@ -924,7 +920,7 @@ class SUB( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
     if (dir == 0)
       cpu.writeD( cpu.subtract(cpu.read(mode, reg, size), cpu.readD(reg, size), false), reg, size )
     else
-      cpu.write( cpu.subtract(cpu.read(mode, reg, size), cpu.readD(reg, size), false), mode, reg, size )
+      cpu.readWrite( mode, reg, size)( cpu.subtract(_, cpu.readD(reg, size), false) )
   }
 
   def disassemble( cpu: CPU ) = s"SUB"
@@ -950,13 +946,13 @@ class SWAP( reg: Int ) extends Instruction {
 class TAS( mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val v = cpu.read( mode, reg, ByteSize )
-
-    cpu.N = testBit( v, 7 )
-    cpu.Z = v == 0
-    cpu.V = false
-    cpu.C = false
-    cpu.write( v|0x80, mode, reg, ByteSize )
+    cpu.readWrite( mode, reg, ByteSize ) { v =>
+      cpu.N = testBit( v, 7 )
+      cpu.Z = v == 0
+      cpu.V = false
+      cpu.C = false
+      v|0x80
+    }
   }
 
   def disassemble( cpu: CPU ) = s"TAS"
