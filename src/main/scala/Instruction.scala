@@ -67,7 +67,7 @@ class ADDI( size: Size, mode: Int, reg: Int ) extends Instruction {
 class ADDQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.add(cpu.read(mode, reg, size), data, false), mode, reg, size )
+    cpu.readWrite( mode, reg, size )( cpu.add(_, data, false) )
   }
 
   def disassemble( cpu: CPU ) = s"ADDQ"
@@ -80,7 +80,7 @@ class AND( dreg: Int, dest: Int, size: Size, mode: Int, reg: Int ) extends Instr
     if (dest == 0)
       cpu.writeD( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size)), reg, size )
     else
-      cpu.write( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size)), mode, reg, size )
+      cpu.readWrite( mode, reg, size )( cpu.and(_, cpu.readD(dreg, size)) )
   }
 
   def disassemble( cpu: CPU ) = s"AND"
@@ -90,7 +90,7 @@ class AND( dreg: Int, dest: Int, size: Size, mode: Int, reg: Int ) extends Instr
 class ANDI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.and(cpu.read(mode, reg, size), cpu.immediate(size)), mode, reg, size )
+    cpu.readWrite( mode, reg, size )( cpu.and(_, cpu.immediate(size)) )
   }
 
   def disassemble( cpu: CPU ) = s"ANDI"
@@ -135,9 +135,7 @@ object ANDItoSR extends Instruction {
 class ASMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val operand = cpu.read( mode, reg, ShortSize )
-
-    cpu.write( if (dir == 0) cpu.asr(1, operand, ShortSize) else cpu.asl(1, operand, ShortSize), mode, reg, ShortSize )
+    cpu.readWrite( mode, reg, ShortSize )( x => if (dir == 0) cpu.asr(1, x, ShortSize) else cpu.asl(1, x, ShortSize) )
   }
 
   def disassemble( cpu: CPU ) = s"AS"
@@ -177,15 +175,16 @@ class Bcc( cond: Int, disp: Int ) extends Instruction {
 class BCHG( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val data = cpu.read( mode, reg, BitSize )
     val bit =
       breg match {
         case None => cpu.fetchByte
         case Some( b ) => b
       }
 
-    cpu.Z = testBit( data, bit )
-    cpu.write( flipBit(data, bit), mode, reg, BitSize )
+    cpu.readWrite( mode, reg, BitSize ){ x =>
+      cpu.Z = testBit( x, bit )
+      flipBit(x, bit)
+    }
   }
 
   def disassemble( cpu: CPU ) = s"BCHG"
@@ -195,15 +194,16 @@ class BCHG( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 class BCLR( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val data = cpu.read( mode, reg, BitSize )
     val bit =
       breg match {
         case None => cpu.fetchByte
         case Some( b ) => b
       }
 
-    cpu.Z = testBit( data, bit )
-    cpu.write( clearBit(data, bit), mode, reg, BitSize )
+    cpu.readWrite( mode, reg, BitSize ) { x =>
+      cpu.Z = testBit( x, bit )
+      clearBit( x, bit )
+    }
   }
 
   def disassemble( cpu: CPU ) = s"BCLR"
@@ -223,15 +223,16 @@ class BKPT( bkpt: Int ) extends Instruction {
 class BSET( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val data = cpu.read( mode, reg, BitSize )
     val bit =
       breg match {
         case None => cpu.fetchByte
         case Some( b ) => b
       }
 
-    cpu.Z = testBit( data, bit )
-    cpu.write( setBit(data, bit), mode, reg, BitSize )
+    cpu.readWrite( mode, reg, BitSize ) { x =>
+      cpu.Z = testBit( x, bit )
+      setBit(x, bit)
+    }
   }
 
   def disassemble( cpu: CPU ) = s"BSET"
