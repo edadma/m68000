@@ -391,10 +391,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   }
 
   def abcd( s: Int, d: Int ) = {
-    def conv( bcd: Int ) = (bcd >> 4)*10 + (bcd & 0x0F)
-
     val (r, c) =
-      conv( s ) + conv( d ) match {
+      fromBCD( s ) + fromBCD( d ) match {
         case s if s > 99 => (s - 100, true)
         case s => (s, false)
       }
@@ -405,7 +403,23 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     if (r != 0)
       Z = false
 
-    ((r/10) << 4) | (r%10)
+    toBCD( r )
+  }
+
+  def sbcd( s: Int, d: Int ) = {
+    val (r, c) =
+      fromBCD( d ) - fromBCD( s ) match {
+        case s if s < 0 => (100 + s, true)
+        case s => (s, false)
+      }
+
+    C = c
+    X = c
+
+    if (r != 0)
+      Z = false
+
+    toBCD( r )
   }
 
   def add( s: Int, d: Int, extended: Boolean ) = {
@@ -566,6 +580,7 @@ object CPU {
     if (!built) {
       populate(
         List[(String, Map[Char, Int] => Instruction)](
+          "1100 yyy 10000 r xxx" -> (o => new ABCD( o('y'), o('r'), o('x') )),
           "1101 rrr 0 ss eee aaa; s:0-2" -> (o => new ADD( o('r'), 0, addqsize(o), o('e'), o('a') )),
           "1101 rrr 1 ss eee aaa; s:0-2; e:2-7" -> (o => new ADD( o('r'), 1, addqsize(o), o('e'), o('a') )),
           "1101 rrr sss eee aaa; s:3,7" -> (o => new ADDA( o('r'), addasize(o), o('e'), o('a') )),
@@ -635,6 +650,7 @@ object CPU {
           "0100111001110011" -> (_ => RTE),
           "0100111001110111" -> (_ => RTR),
           "0100111001110101" -> (_ => RTS),
+          "1000 yyy 10000 r xxx" -> (o => new SBCD( o('y'), o('r'), o('x') )),
           "1001 rrr 0 ss eee aaa; s:0-2" -> (o => new SUB( o('r'), 0, addqsize(o), o('e'), o('a') )),
           "1001 rrr 1 ss eee aaa; s:0-2; e:2-7" -> (o => new SUB( o('r'), 1, addqsize(o), o('e'), o('a') )),
           "0100100001000 rrr" -> (o => new SWAP( o('r') )),

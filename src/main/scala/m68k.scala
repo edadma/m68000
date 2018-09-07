@@ -44,6 +44,10 @@ package object m68k {
       case IntSize => 4
     }
 
+  def fromBCD( bcd: Int ) = (bcd >> 4)*10 + (bcd & 0x0F)
+
+  def toBCD( n: Int ) = ((n/10) << 4) | (n%10)
+
   def bits( size: Size ) =
     size match {
       case ByteSize => 8

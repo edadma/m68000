@@ -18,13 +18,13 @@ object ILLEGAL extends Instruction {
 
 }
 
-class ABCD( x: Int, r: Int, y: Int ) extends Instruction with Addressing {
+class ABCD( y: Int, r: Int, x: Int ) extends Instruction with Addressing {
 
   def apply( cpu: CPU ): Unit = {
     if (r == 0)
       cpu.writeD( cpu.abcd(cpu.readD(x, ByteSize), cpu.readD(y, ByteSize)), x, ByteSize )
     else
-      cpu.readWrite( AddressRegisterIndirectPredecrement, x, ByteSize )( cpu.add(_, cpu.read(AddressRegisterIndirectPredecrement, y, ByteSize), false) )
+      cpu.readWrite( AddressRegisterIndirectPredecrement, x, ByteSize )( cpu.abcd(_, cpu.read(AddressRegisterIndirectPredecrement, y, ByteSize)) )
   }
 
   def disassemble( cpu: CPU ) = s"ABCD"
@@ -911,6 +911,19 @@ object RTS extends Instruction {
   }
 
   def disassemble( cpu: CPU ) = s"RTS"
+
+}
+
+class SBCD( y: Int, r: Int, x: Int ) extends Instruction with Addressing {
+
+  def apply( cpu: CPU ): Unit = {
+    if (r == 0)
+      cpu.writeD( cpu.sbcd(cpu.readD(x, ByteSize), cpu.readD(y, ByteSize)), x, ByteSize )
+    else
+      cpu.readWrite( AddressRegisterIndirectPredecrement, x, ByteSize )( cpu.sbcd(_, cpu.read(AddressRegisterIndirectPredecrement, y, ByteSize)) )
+  }
+
+  def disassemble( cpu: CPU ) = s"SBCD"
 
 }
 
