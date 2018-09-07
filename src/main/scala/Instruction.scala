@@ -329,7 +329,7 @@ class CMPA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class CMPI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.add( cpu.immediate(size), cpu.read(mode, reg, size), false )
+    cpu.subtract( cpu.immediate(size), cpu.read(mode, reg, size), false )
   }
 
   def disassemble( cpu: CPU ) = s"CMPI"
@@ -339,7 +339,7 @@ class CMPI( size: Size, mode: Int, reg: Int ) extends Instruction {
 class CMPM( size: Size, rx: Int, ry: Int ) extends Instruction with Addressing {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.add( cpu.read(AddressRegisterIndirectPostincrement, rx, size), cpu.read(AddressRegisterIndirectPostincrement, ry, size), false )
+    cpu.subtract( cpu.read(AddressRegisterIndirectPostincrement, rx, size), cpu.read(AddressRegisterIndirectPostincrement, ry, size), false )
   }
 
   def disassemble( cpu: CPU ) = s"CMPM"
