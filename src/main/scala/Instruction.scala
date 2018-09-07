@@ -426,7 +426,7 @@ class DIVU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
 class EOR( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size)), mode, reg, size )
+    cpu.readWrite( mode, reg, size )( cpu.eor(_, cpu.readD(reg, size)) )
   }
 
   def disassemble( cpu: CPU ) = s"EOR"
@@ -436,7 +436,7 @@ class EOR( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class EORI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.immediate(size)), mode, reg, size )
+    cpu.readWrite( mode, reg, size )( cpu.eor(_, cpu.immediate(size)) )
   }
 
   def disassemble( cpu: CPU ) = s"EORI"
@@ -596,9 +596,7 @@ class LINK( reg: Int ) extends Instruction {
 class LSMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val operand = cpu.read( mode, reg, ShortSize )
-
-    cpu.write( if (dir == 0) cpu.lsr(1, operand, ShortSize) else cpu.lsl(1, operand, ShortSize), mode, reg, ShortSize )
+    cpu.readWrite( mode, reg, ShortSize )( o => if (dir == 0) cpu.lsr(1, o, ShortSize) else cpu.lsl(1, o, ShortSize) )
   }
 
   def disassemble( cpu: CPU ) = s"LS"
@@ -723,7 +721,7 @@ class MULU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
 class NEG( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.neg(cpu.read(mode, reg, size), false), mode, reg, size )
+    cpu.readWrite( mode, reg, size)( cpu.neg(_, false) )
   }
 
   def disassemble( cpu: CPU ) = s"NEG"
@@ -733,7 +731,7 @@ class NEG( size: Size, mode: Int, reg: Int ) extends Instruction {
 class NEGX( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.neg(cpu.read(mode, reg, size), true), mode, reg, size )
+    cpu.readWrite( mode, reg, size)( cpu.neg(_, true) )
   }
 
   def disassemble( cpu: CPU ) = s"NEGX"
@@ -752,7 +750,7 @@ object NOP extends Instruction {
 class NOT( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.write( cpu.flags(0, 0, false, ~cpu.read(mode, reg, size), false), mode, reg, size )
+    cpu.readWrite( mode, reg, size )( x => cpu.flags(0, 0, false, ~x, false) )
   }
 
   def disassemble( cpu: CPU ) = s"NOT"

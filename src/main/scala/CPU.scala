@@ -304,7 +304,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case _ => A(reg) = data
     }
 
-    def readD( reg: Int, size: Size ) = cast( D(reg), size )
+  def readD( reg: Int, size: Size ) = cast( D(reg), size )
 
   def address( mode: Int, reg: Int ) =
     mode match {
@@ -602,7 +602,7 @@ object CPU {
           "00001010 ss eee aaa; s:0-2" -> (o => new EORI( addqsize(o), o('e'), o('a') )),
           "0000101000111100" -> (_ => EORItoCCR),
           "0000101001111100" -> (_ => EORItoSR),
-          "1100 xxx 1 ooooo yyy" -> (o => new EXG( o('x'), o('o'), o('y') )),
+          "1100 xxx 1 ooooo yyy; o:8,9,17" -> (o => new EXG( o('x'), o('o'), o('y') )),
           "0100100 sss 000 rrr; s:2,3,7" -> (o => new EXT( extsize(o), o('r') )),
           "0100111011 eee aaa" -> (o => new JMP( o('e'), o('a') )),
           "0100111010 eee aaa" -> (o => new JSR( o('e'), o('a') )),

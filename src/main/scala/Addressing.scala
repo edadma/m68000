@@ -10,6 +10,8 @@ trait Addressing {
   val AddressRegisterIndirectPredecrement = 4
   val OtherModes = 7
 
+  val AbsoluteShort = 0
+  val AbsoluteLong = 1
   val ImmediateData = 4
 
 }
