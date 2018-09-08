@@ -636,6 +636,7 @@ object CPU {
           "010011100110 d rrr" -> (o => new MOVEUSP( o('d'), o('r') )),
           "1100 rrr 111 eee aaa; e:0-7-1" -> (o => new MULS( o('r'), o('e'), o('a') )),
           "1100 rrr 011 eee aaa; e:0-7-1" -> (o => new MULU( o('r'), o('e'), o('a') )),
+          "0100100000 eee aaa; s:0-2; e:0-7-1" -> (o => new NBCD( addqsize(o), o('e'), o('a') )),
           "01000100 ss eee aaa; s:0-2; e:0-7-1" -> (o => new NEG( addqsize(o), o('e'), o('a') )),
           "01000000 ss eee aaa; s:0-2; e:0-7-1" -> (o => new NEGX( addqsize(o), o('e'), o('a') )),
           "0100111001110001" -> (_ => NOP),

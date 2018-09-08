@@ -718,6 +718,16 @@ class MULU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
 
 }
 
+class NBCD( size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.readWrite( mode, reg, size)( cpu.sbcd(_, 0) )
+  }
+
+  def disassemble( cpu: CPU ) = s"NBCD"
+
+}
+
 class NEG( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
