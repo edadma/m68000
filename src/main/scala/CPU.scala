@@ -31,7 +31,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   var counter = 0L
   var trace = false
 
-	protected var running = false
+	protected [m68k] var running = false
+  protected [m68k] var stopped = false
 
   private val opcodes = CPU.opcodeTable
 
@@ -155,6 +156,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def halt: Unit = {
     running = false
+    stopped = false
   }
 
   def reset: Unit = {
@@ -217,10 +219,13 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     running = true
 
     while (running) {
-      execute
-
       if (interruptsAvailable)
         service
+
+      if (stopped)
+        Thread.sleep( 10 )
+      else
+        execute
     }
   }
 
@@ -523,7 +528,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def exception( vector: Int ): Unit = {
     push( fromSR, ShortSize )
     SR |= SRBit.S
-    SR &= SRBit.NO_TRACE_MASK
+    SR &= ~SRBit.T
     pushAddress( PC )
     jumpto( memoryRead(vector, IntSize, false) )
   }
@@ -652,6 +657,7 @@ object CPU {
           "0100111001110111" -> (_ => RTR),
           "0100111001110101" -> (_ => RTS),
           "1000 yyy 10000 r xxx" -> (o => new SBCD( o('y'), o('r'), o('x') )),
+          "0100111001110001" -> (_ => STOP),
           "1001 rrr 0 ss eee aaa; s:0-2" -> (o => new SUB( o('r'), 0, addqsize(o), o('e'), o('a') )),
           "1001 rrr 1 ss eee aaa; s:0-2; e:2-7" -> (o => new SUB( o('r'), 1, addqsize(o), o('e'), o('a') )),
           "0100100001000 rrr" -> (o => new SWAP( o('r') )),

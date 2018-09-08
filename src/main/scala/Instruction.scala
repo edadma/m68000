@@ -937,6 +937,18 @@ class SBCD( y: Int, r: Int, x: Int ) extends Instruction with Addressing {
 
 }
 
+object STOP extends Instruction {
+
+  def apply( cpu: CPU ): Unit =
+    if (cpu.supervisor) {
+      cpu.toSR( cpu.immediate(ShortSize) )
+      cpu.stopped = true
+    }
+
+  def disassemble( cpu: CPU ) = s"STOP"
+
+}
+
 class SUB( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
