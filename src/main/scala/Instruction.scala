@@ -2,7 +2,7 @@
 package xyz.hyperreal.m68k
 
 
-abstract class Instruction extends (CPU => Unit) {
+abstract class Instruction extends (CPU => Unit) with Addressing {
 
   def disassemble( cpu: CPU ): String
 

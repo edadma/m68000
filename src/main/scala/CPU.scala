@@ -326,6 +326,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case AddressRegisterIndirectPredecrement => memoryRead( readAPredecrement(reg, size), size, reg == 7 )
       case OtherModes =>
         reg match {
+          case AbsoluteShort => memoryRead( fetchShort, size, false )
+          case AbsoluteLong => memoryRead( fetchInt, size, false )
           case ImmediateData => immediate( size )
         }
     }
@@ -544,6 +546,21 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     pushAddress( PC )
     jumpto( memoryRead(vector, IntSize, false) )
   }
+
+  def addressMode( mode: Int, reg: Int, size: Size ) =
+    mode match {
+      case DataRegisterDirect => s"D$reg"
+      case AddressRegisterDirect => s"A$reg"
+      case AddressRegisterIndirect => s"(A$reg)"
+      case AddressRegisterIndirectPostincrement => s"(A$reg)+"
+      case AddressRegisterIndirectPredecrement => s"-(A$reg)"
+      case OtherModes =>
+        reg match {
+          case AbsoluteShort => s"($fetchShort).W"
+          case AbsoluteLong => s"($fetchShort).L"
+          case ImmediateData => immediate( size )
+        }
+    }
 
 }
 
