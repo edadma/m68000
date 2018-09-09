@@ -64,7 +64,11 @@ class ADDA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.writeA( cpu.add(cpu.read(mode, reg, size), cpu.readA(areg).asInstanceOf[Int], false), areg )
   }
 
-  def disassemble( cpu: CPU ) = s"ADDA"
+  def disassemble( cpu: CPU ) = {
+    val op = cpu.operand( size, mode, reg )
+
+    mnemonic( "ADDA", size ) + s"$op, A$areg"
+  }
 
 }
 
@@ -74,7 +78,7 @@ class ADDI( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, size )( cpu.add(_, cpu.immediate(size), false) )
   }
 
-  def disassemble( cpu: CPU ) = s"ADDI"
+  def disassemble( cpu: CPU ) = mnemonic( "ADDI", size ) + s"#${cpu.immediate(size)}, ${cpu.operand( size, mode, reg )}"
 
 }
 
@@ -84,7 +88,8 @@ class ADDQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, size )( cpu.add(_, data, false) )
   }
 
-  def disassemble( cpu: CPU ) = s"ADDQ"
+
+  def disassemble( cpu: CPU ) = mnemonic( "ADDQ", size ) + s"#$data, ${cpu.operand( size, mode, reg )}"
 
 }
 
@@ -97,7 +102,11 @@ class AND( dreg: Int, dest: Int, size: Size, mode: Int, reg: Int ) extends Instr
       cpu.readWrite( mode, reg, size )( cpu.and(_, cpu.readD(dreg, size)) )
   }
 
-  def disassemble( cpu: CPU ) = s"AND"
+  def disassemble( cpu: CPU ) = {
+    val op = cpu.operand( size, mode, reg )
+
+    mnemonic( "AND", size ) + (if (dest == 0) s"$op, D$dreg" else s"D$dreg, $op")
+  }
 
 }
 
