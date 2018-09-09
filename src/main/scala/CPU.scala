@@ -547,7 +547,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     jumpto( memoryRead(vector, IntSize, false) )
   }
 
-  def addressMode( mode: Int, reg: Int, size: Size ) =
+  def operand( size: Size, mode: Int, reg: Int ) =
     mode match {
       case DataRegisterDirect => s"D$reg"
       case AddressRegisterDirect => s"A$reg"
@@ -558,7 +558,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
         reg match {
           case AbsoluteShort => s"($fetchShort).W"
           case AbsoluteLong => s"($fetchShort).L"
-          case ImmediateData => immediate( size )
+          case ImmediateData => s"#${immediate( size )}"
         }
     }
 

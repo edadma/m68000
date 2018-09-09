@@ -6,6 +6,16 @@ abstract class Instruction extends (CPU => Unit) with Addressing {
 
   def disassemble( cpu: CPU ): String
 
+  def mnemonic( sym: String, size: Size ) = {
+    val s =
+      size match {
+        case ByteSize => "B"
+        case ShortSize => "W"
+        case IntSize => "L"
+      }
+
+    s"$sym.$s${" "*(4 - sym.length)} "
+  }
 }
 
 object ILLEGAL extends Instruction {
@@ -27,7 +37,7 @@ class ABCD( y: Int, r: Int, x: Int ) extends Instruction with Addressing {
       cpu.readWrite( AddressRegisterIndirectPredecrement, x, ByteSize )( cpu.abcd(_, cpu.read(AddressRegisterIndirectPredecrement, y, ByteSize)) )
   }
 
-  def disassemble( cpu: CPU ) = s"ABCD"
+  def disassemble( cpu: CPU ) = "ABCD   " + (if (r == 0) s"D$y, D$x" else s"-(A$y), -(A$x)")
 
 }
 
@@ -40,7 +50,11 @@ class ADD( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
       cpu.readWrite( mode, reg, size )( cpu.add(_, cpu.readD(reg, size), false) )
   }
 
-  def disassemble( cpu: CPU ) = s"ADD"
+  def disassemble( cpu: CPU ) = {
+    val op = cpu.operand( size, mode, reg )
+
+    mnemonic( "ADD", size ) + (if (dir == 0) s"$op, D$dreg" else s"D$dreg, $op")
+  }
 
 }
 
