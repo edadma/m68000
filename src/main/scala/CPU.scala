@@ -547,6 +547,13 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     jumpto( memoryRead(vector, IntSize, false) )
   }
 
+  def displacement( disp: Int ) =
+    disp match {
+      case 0 => fetchShort
+      case -1 => fetchInt//020
+      case _ => disp
+    }
+
   def operand( size: Size, mode: Int, reg: Int ) =
     mode match {
       case DataRegisterDirect => s"D$reg"

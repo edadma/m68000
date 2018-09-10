@@ -6,6 +6,8 @@ abstract class Instruction extends (CPU => Unit) with Addressing {
 
   def disassemble( cpu: CPU ): String
 
+  def mnemonic( sym: String ) = s"$sym.${" "*(6 - sym.length)} "
+
   def mnemonic( sym: String, size: Size ) = {
     val s =
       size match {
@@ -116,7 +118,7 @@ class ANDI( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, size )( cpu.and(_, cpu.immediate(size)) )
   }
 
-  def disassemble( cpu: CPU ) = s"ANDI"
+  def disassemble( cpu: CPU ) = mnemonic( "ANDI", size ) + s"#${cpu.immediate(size)}, ${cpu.operand( size, mode, reg )}"
 
 }
 
@@ -161,7 +163,11 @@ class ASMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, ShortSize )( x => if (dir == 0) cpu.asr(1, x, ShortSize) else cpu.asl(1, x, ShortSize) )
   }
 
-  def disassemble( cpu: CPU ) = s"AS"
+  def disassemble( cpu: CPU ) = {
+    val d = if (dir == 0) 'R' else 'L'
+
+    s"AS$d    ${cpu.operand( ShortSize, mode, reg )}"
+  }
 
 }
 
@@ -169,12 +175,17 @@ class ASReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Inst
 
   def apply( cpu: CPU ): Unit = {
     val c = if (ir == 0) count else cpu.readD( count, size )
-    val operand = cpu.readD(dreg, size)
+    val operand = cpu.readD( dreg, size )
 
     cpu.writeD( if (dir == 0) cpu.asr(c, operand, size) else cpu.asl(c, operand, size), dreg, size )
   }
 
-  def disassemble( cpu: CPU ) = s"AS"
+  def disassemble( cpu: CPU ) = {
+    val d = if (dir == 0) 'R' else 'L'
+    val c = if (ir == 0) s"#$count" else s"D$count"
+
+    mnemonic( s"AS$d", size ) + s"$c, D$dreg"
+  }
 
 }
 
@@ -184,14 +195,10 @@ class Bcc( cond: Int, disp: Int ) extends Instruction {
     val pc = cpu.PC
 
     if (cpu.testcc( cond ))
-      cpu.jumpto( pc + disp match {
-        case 0 => cpu.fetchShort
-        case -1 => cpu.fetchInt//020
-        case _ => disp
-      } )
+      cpu.jumpto( pc + cpu.displacement(disp) )
   }
 
-  def disassemble( cpu: CPU ) = s"Bcc"
+  def disassemble( cpu: CPU ) = mnemonic( s"B${Conditional( cond )}" ) + (cpu.pc + cpu.displacement(disp))
 
 }
 

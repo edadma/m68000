@@ -3,6 +3,26 @@ package xyz.hyperreal.m68k
 
 object Conditional {
 
+  def apply( cond: Int ) =
+    cond match {
+      case True => "A"
+      case False => "N"
+      case High => "HI"
+      case LowSame => "LS"
+      case CarryClear => "CC"
+      case CarrySet => "CS"
+      case NotEqual => "NE"
+      case Equal => "EQ"
+      case OverflowClear => "VC"
+      case OverflowSet => "VS"
+      case Plus => "PL"
+      case Minus => "MI"
+      case GreaterEqual => "GE"
+      case LessThan => "LT"
+      case GreaterThan => "GT"
+      case LessEqual => "LE"
+    }
+
   val True = 0
   val False = 1
   val High = 2
