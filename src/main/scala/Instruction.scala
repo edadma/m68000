@@ -446,7 +446,7 @@ class EORI( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, size )( cpu.eor(_, cpu.immediate(size)) )
   }
 
-  def disassemble( cpu: CPU ) = s"EORI"
+  def disassemble( cpu: CPU ) = cpu.immediate( "EORI", size, mode, reg )
 
 }
 
@@ -471,7 +471,7 @@ object EORItoCCR extends Instruction {
       cpu.V ^= true
   }
 
-  def disassemble( cpu: CPU ) = s"EORI"
+  def disassemble( cpu: CPU ) = s"EORI   #${cpu.fetchByte}, CCR"
 
 }
 
@@ -481,7 +481,7 @@ object EORItoSR extends Instruction {
     cpu.toSR( cpu.fromSR ^ cpu.fetchShort )
   }
 
-  def disassemble( cpu: CPU ) = s"EORI"
+  def disassemble( cpu: CPU ) = s"EORI   #${cpu.fetchShort}, SR"
 
 }
 
@@ -507,7 +507,13 @@ class EXG( rx: Int, mode: Int, ry: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = s"EXG"
+  def disassemble( cpu: CPU ) =
+    "EXG    " +
+      (mode match {
+        case 0x08 => s"D$rx, D$ry"
+        case 0x09 => s"A$rx, A$ry"
+        case 0x11 => s"D$rx, A$ry"
+      })
 
 }
 
@@ -516,9 +522,9 @@ class EXT( size: Size, reg: Int ) extends Instruction {
   def apply( cpu: CPU ): Unit = {
     val (res, s) =
       size match {
-        case ByteSize => (cpu.readD( reg, ByteSize ), ShortSize)
-        case ShortSize => (cpu.readD( reg, ShortSize ), IntSize)
-        case IntSize => (cpu.readD( reg, ByteSize ), IntSize)
+        case ShortSize => (cpu.readD( reg, ByteSize ), ShortSize)
+        case IntSize => (cpu.readD( reg, ShortSize ), IntSize)
+//        case ByteSize => (cpu.readD( reg, ByteSize ), IntSize)
       }
 
     cpu.N = res < 0
@@ -526,7 +532,7 @@ class EXT( size: Size, reg: Int ) extends Instruction {
     cpu.writeD( res, reg, s )
   }
 
-  def disassemble( cpu: CPU ) = s"EXT"
+  def disassemble( cpu: CPU ) = mnemonic( "EXT", size ) + s"D$reg"
 
 }
 
@@ -559,7 +565,7 @@ class LEA( areg: Int, mode: Int, reg: Int ) extends Instruction {
     cpu.writeA( cpu.address(mode, reg), areg )
   }
 
-  def disassemble( cpu: CPU ) = s"LEA"
+  def disassemble( cpu: CPU ) = cpu.binaryA( "LEA", mode, reg, areg )
 
 }
 
@@ -596,7 +602,7 @@ class LINK( reg: Int ) extends Instruction {
     cpu.writeA( sp + cpu.immediate(ShortSize), 7 )
   }
 
-  def disassemble( cpu: CPU ) = s"LINK"
+  def disassemble( cpu: CPU ) = s"LINK   A$reg, #${cpu.immediate(ShortSize)}"
 
 }
 
@@ -629,7 +635,7 @@ class MOVE( size: Size, dreg: Int, dmode: Int, smode: Int, sreg: Int ) extends I
     cpu.write( cpu.flags(0, 0, false, cpu.read(smode, sreg, size), false), dmode, dreg, size )
   }
 
-  def disassemble( cpu: CPU ) = s"MOVE"
+  def disassemble( cpu: CPU ) = mnemonic( "MOVE", size ) + s"${cpu.operand( size, smode, sreg )}, ${cpu.operand( size, dmode, dreg )}"
 
 }
 
@@ -639,7 +645,7 @@ class MOVEA( size: Size, areg: Int, mode: Int, reg: Int ) extends Instruction {
     cpu.writeA( cpu.read(mode, reg, size), areg )
   }
 
-  def disassemble( cpu: CPU ) = s"MOVEA"
+  def disassemble( cpu: CPU ) = cpu.binaryA( "MOVEA", size, mode, reg, areg )
 
 }
 
@@ -649,7 +655,7 @@ class MOVEfromSR( mode: Int, reg: Int ) extends Instruction {
     cpu.write( cpu.fromSR, mode, reg, ShortSize )
   }
 
-  def disassemble( cpu: CPU ) = s"MOVE"
+  def disassemble( cpu: CPU ) = s"MOVE   SR, ${cpu.operand( mode, reg )}"
 
 }
 
@@ -659,7 +665,7 @@ class MOVEtoCCR( mode: Int, reg: Int ) extends Instruction {
     cpu.toCCR( cpu.read(mode, reg, ByteSize) )
   }
 
-  def disassemble( cpu: CPU ) = s"MOVE"
+  def disassemble( cpu: CPU ) = s"MOVE   ${cpu.operand( mode, reg )}, CCR"
 
 }
 
@@ -670,7 +676,7 @@ class MOVEtoSR( mode: Int, reg: Int ) extends Instruction {
       cpu.toSR( cpu.read(mode, reg, ShortSize) )
   }
 
-  def disassemble( cpu: CPU ) = s"MOVE"
+  def disassemble( cpu: CPU ) = s"MOVE   ${cpu.operand( mode, reg )}, SR"
 
 }
 
@@ -680,7 +686,7 @@ class MOVEQ( reg: Int, data: Int ) extends Instruction {
     cpu.D(reg) = cpu.flags( 0, 0, false, data, false )
   }
 
-  def disassemble( cpu: CPU ) = s"MOVEQ"
+  def disassemble( cpu: CPU ) = s"MOVEQ  #$data, D$reg"
 
 }
 
@@ -694,7 +700,7 @@ class MOVEUSP( dir: Int, reg: Int ) extends Instruction {
         cpu.writeA( cpu.USP, reg )
   }
 
-  def disassemble( cpu: CPU ) = s"MOVE"
+  def disassemble( cpu: CPU ) = "MOVE   " + (if (dir == 0) s"A$reg, USP" else s"USP, A$reg")
 
 }
 
@@ -710,7 +716,7 @@ class MULS( dreg: Int, mode: Int, reg: Int ) extends Instruction {
     cpu.D(dreg) = res
   }
 
-  def disassemble( cpu: CPU ) = s"MULS"
+  def disassemble( cpu: CPU ) = cpu.binaryDstD( "MULS", ShortSize, mode, reg, dreg )
 
 }
 
@@ -721,7 +727,7 @@ class MULU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
       (cpu.read( mode, reg, ShortSize )&0xFFFF)*(cpu.readD( dreg, ShortSize )&0xFFFF), false )
   }
 
-  def disassemble( cpu: CPU ) = s"MULU"
+  def disassemble( cpu: CPU ) = cpu.binaryDstD( "MULU", ShortSize, mode, reg, dreg )
 
 }
 
@@ -940,7 +946,7 @@ class SBCD( y: Int, r: Int, x: Int ) extends Instruction with Addressing {
       cpu.readWrite( AddressRegisterIndirectPredecrement, x, ByteSize )( cpu.sbcd(_, cpu.read(AddressRegisterIndirectPredecrement, y, ByteSize)) )
   }
 
-  def disassemble( cpu: CPU ) = s"SBCD"
+  def disassemble( cpu: CPU ) = "SBCD   " + (if (r == 0) s"D$y, D$x" else s"-(A$y), -(A$x)")
 
 }
 
@@ -1036,7 +1042,7 @@ class TST( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.C = false
   }
 
-  def disassemble( cpu: CPU ) = s"TST"
+  def disassemble( cpu: CPU ) = cpu.unary( "TST",size, mode, reg )
 
 }
 

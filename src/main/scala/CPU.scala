@@ -581,6 +581,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def binaryA( sym: String, size: Size, mode: Int, reg: Int, areg: Int ) =
     mnemonic( sym, size ) + s"${operand( IntSize, mode, reg )}, A$areg"
 
+  def binaryA( sym: String, mode: Int, reg: Int, areg: Int ) =
+    mnemonic( sym ) + s"${operand( IntSize, mode, reg )}, A$areg"
+
   def binaryDstD( sym: String, size: Size, mode: Int, reg: Int, dreg: Int ) =
     mnemonic( sym, size ) + s"${operand( IntSize, mode, reg )}, D$dreg"
 
@@ -631,9 +634,8 @@ object CPU {
 
   def extsize( operands: Map[Char, Int] ) =
     operands('s') match {
-      case 2 => ByteSize
-      case 3 => ShortSize
-      case 7 => IntSize
+      case 2 => ShortSize
+      case 3 => IntSize
     }
 
   def opcodeTable: IndexedSeq[Instruction] = synchronized {
@@ -678,7 +680,7 @@ object CPU {
           "0000101000111100" -> (_ => EORItoCCR),
           "0000101001111100" -> (_ => EORItoSR),
           "1100 xxx 1 ooooo yyy; o:8,9,17" -> (o => new EXG( o('x'), o('o'), o('y') )),
-          "0100100 sss 000 rrr; s:2,3,7" -> (o => new EXT( extsize(o), o('r') )),
+          "01001000 ss 000 rrr; s:2,3" -> (o => new EXT( extsize(o), o('r') )),
           "0100111011 eee aaa" -> (o => new JMP( o('e'), o('a') )),
           "0100111010 eee aaa" -> (o => new JSR( o('e'), o('a') )),
           "0100 rrr 111 eee aaa" -> (o => new LEA( o('r'), o('e'), o('a') )),
