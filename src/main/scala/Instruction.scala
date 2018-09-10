@@ -50,11 +50,7 @@ class ADDA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.writeA( cpu.add(cpu.read(mode, reg, size), cpu.readA(areg).asInstanceOf[Int], false), areg )
   }
 
-  def disassemble( cpu: CPU ) = {
-    val op = cpu.operand( size, mode, reg )
-
-    mnemonic( "ADDA", size ) + s"$op, A$areg"
-  }
+  def disassemble( cpu: CPU ) = cpu.binaryA( "ADDA", size, mode, reg, areg )
 
 }
 
@@ -64,7 +60,7 @@ class ADDI( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, size )( cpu.add(_, cpu.immediate(size), false) )
   }
 
-  def disassemble( cpu: CPU ) = mnemonic( "ADDI", size ) + s"#${cpu.immediate(size)}, ${cpu.operand( size, mode, reg )}"
+  def disassemble( cpu: CPU ) = cpu.immediate( "ADDI", size, mode, reg )
 
 }
 
@@ -98,7 +94,7 @@ class ANDI( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, size )( cpu.and(_, cpu.immediate(size)) )
   }
 
-  def disassemble( cpu: CPU ) = mnemonic( "ANDI", size ) + s"#${cpu.immediate(size)}, ${cpu.operand( size, mode, reg )}"
+  def disassemble( cpu: CPU ) = cpu.immediate( "ANDI", size, mode, reg )
 
 }
 
@@ -123,17 +119,18 @@ object ANDItoCCR extends Instruction {
       cpu.V = false
   }
 
-  def disassemble( cpu: CPU ) = s"ANDI"
+  def disassemble( cpu: CPU ) = s"ANDI   #${cpu.fetchByte}, CCR"
 
 }
 
 object ANDItoSR extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.toSR( cpu.fromSR & cpu.fetchShort )
+    if (cpu.supervisor)
+      cpu.toSR( cpu.fromSR & cpu.fetchShort )
   }
 
-  def disassemble( cpu: CPU ) = s"ANDI"
+  def disassemble( cpu: CPU ) = s"ANDI   #${cpu.fetchShort}, SR"
 
 }
 
@@ -322,7 +319,7 @@ class CMP( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.subtract( cast(cpu.D(reg), size), cpu.read(mode, reg, size), false )
   }
 
-  def disassemble( cpu: CPU ) = s"CMP"
+  def disassemble( cpu: CPU ) = cpu.binaryD( "CMP", size, mode, reg, dreg )
 
 }
 
@@ -332,7 +329,7 @@ class CMPA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.subtract( cpu.readA(areg).asInstanceOf[Int], cpu.read(mode, reg, size), false )
   }
 
-  def disassemble( cpu: CPU ) = s"CMPA"
+  def disassemble( cpu: CPU ) = cpu.binaryA( "CMPA", size, mode, reg, areg )
 
 }
 
@@ -342,7 +339,7 @@ class CMPI( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.subtract( cpu.immediate(size), cpu.read(mode, reg, size), false )
   }
 
-  def disassemble( cpu: CPU ) = s"CMPI"
+  def disassemble( cpu: CPU ) = cpu.immediate( "CMPI", size, mode, reg )
 
 }
 
@@ -352,7 +349,7 @@ class CMPM( size: Size, rx: Int, ry: Int ) extends Instruction with Addressing {
     cpu.subtract( cpu.read(AddressRegisterIndirectPostincrement, rx, size), cpu.read(AddressRegisterIndirectPostincrement, ry, size), false )
   }
 
-  def disassemble( cpu: CPU ) = s"CMPM"
+  def disassemble( cpu: CPU ) = mnemonic( "CMPM", size ) + s"(A$ry)+, (A$rx)+"
 
 }
 
@@ -375,7 +372,7 @@ class DBcc( cond: Int, reg: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = s"DBcc"
+  def disassemble( cpu: CPU ) = mnemonic( s"DB${Conditional( cond )}" ) + s"D$reg, ${cpu.PC + cpu.fetchShort}"
 
 }
 

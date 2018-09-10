@@ -571,13 +571,20 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
         }
     }
 
-  def unary(sym: String, size: Size, mode: Int, reg: Int ) = mnemonic( sym, size ) + operand( size, mode, reg )
+  def unary( sym: String, size: Size, mode: Int, reg: Int ) = mnemonic( sym, size ) + operand( size, mode, reg )
 
-  def unary(sym: String, mode: Int, reg: Int ) = mnemonic( sym ) + operand( IntSize, mode, reg )
+  def unary( sym: String, mode: Int, reg: Int ) = mnemonic( sym ) + operand( IntSize, mode, reg )
 
-  def binary(sym: String, size: Size, mode: Int, reg: Int, dir: Int, dreg: Int ) =
-    mnemonic( "ADD", size ) + (if (dir == 0) s"${operand( IntSize, mode, reg )}, D$dreg" else s"D$dreg, ${operand( IntSize, mode, reg )}")
+  def binary( sym: String, size: Size, mode: Int, reg: Int, dir: Int, dreg: Int ) =
+    mnemonic( sym, size ) + (if (dir == 0) s"${operand( IntSize, mode, reg )}, D$dreg" else s"D$dreg, ${operand( IntSize, mode, reg )}")
 
+  def binaryA( sym: String, size: Size, mode: Int, reg: Int, areg: Int ) =
+    mnemonic( sym, size ) + s"${operand( IntSize, mode, reg )}, A$areg"
+
+  def binaryD( sym: String, size: Size, mode: Int, reg: Int, dreg: Int ) =
+    mnemonic( sym, size ) + s"${operand( IntSize, mode, reg )}, D$dreg"
+
+  def immediate( sym: String, size: Size, mode: Int, reg: Int ) = mnemonic( sym, size ) + s"#${immediate(size)}, ${operand( size, mode, reg )}"
 }
 
 object CPU {
