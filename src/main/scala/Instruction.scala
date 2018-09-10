@@ -6,18 +6,6 @@ abstract class Instruction extends (CPU => Unit) with Addressing {
 
   def disassemble( cpu: CPU ): String
 
-  def mnemonic( sym: String ) = s"$sym.${" "*(6 - sym.length)} "
-
-  def mnemonic( sym: String, size: Size ) = {
-    val s =
-      size match {
-        case ByteSize => "B"
-        case ShortSize => "W"
-        case IntSize => "L"
-      }
-
-    s"$sym.$s${" "*(4 - sym.length)} "
-  }
 }
 
 object ILLEGAL extends Instruction {
@@ -52,11 +40,7 @@ class ADD( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
       cpu.readWrite( mode, reg, size )( cpu.add(_, cpu.readD(reg, size), false) )
   }
 
-  def disassemble( cpu: CPU ) = {
-    val op = cpu.operand( size, mode, reg )
-
-    mnemonic( "ADD", size ) + (if (dir == 0) s"$op, D$dreg" else s"D$dreg, $op")
-  }
+  def disassemble( cpu: CPU ) = cpu.binary( "ADD", size, mode, reg, dir, dreg )
 
 }
 
@@ -95,20 +79,16 @@ class ADDQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
 }
 
-class AND( dreg: Int, dest: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
+class AND( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    if (dest == 0)
+    if (dir == 0)
       cpu.writeD( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size)), reg, size )
     else
       cpu.readWrite( mode, reg, size )( cpu.and(_, cpu.readD(dreg, size)) )
   }
 
-  def disassemble( cpu: CPU ) = {
-    val op = cpu.operand( size, mode, reg )
-
-    mnemonic( "AND", size ) + (if (dest == 0) s"$op, D$dreg" else s"D$dreg, $op")
-  }
+  def disassemble( cpu: CPU ) = cpu.binary( "AND", size, mode, reg, dir, dreg )
 
 }
 
@@ -198,7 +178,7 @@ class Bcc( cond: Int, disp: Int ) extends Instruction {
       cpu.jumpto( pc + cpu.displacement(disp) )
   }
 
-  def disassemble( cpu: CPU ) = mnemonic( s"B${Conditional( cond )}" ) + (cpu.pc + cpu.displacement(disp))
+  def disassemble( cpu: CPU ) = mnemonic( s"B${Conditional( cond )}" ) + (cpu.PC + cpu.displacement(disp))
 
 }
 
@@ -213,7 +193,7 @@ class BCHG( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 
     cpu.readWrite( mode, reg, BitSize ){ x =>
       cpu.Z = testBit( x, bit )
-      flipBit(x, bit)
+      flipBit( x, bit )
     }
   }
 
@@ -332,7 +312,7 @@ class CLR( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.C = false
   }
 
-  def disassemble( cpu: CPU ) = s"CLR"
+  def disassemble( cpu: CPU ) = cpu.unary( "CLR", size, mode, reg )
 
 }
 
@@ -559,7 +539,7 @@ class JMP( mode: Int, reg: Int ) extends Instruction {
     cpu.jumpto( cpu.read(mode, reg, IntSize) )
   }
 
-  def disassemble( cpu: CPU ) = s"JMP"
+  def disassemble( cpu: CPU ) = cpu.unary( "JMP", mode, reg )
 
 }
 
@@ -572,7 +552,7 @@ class JSR( mode: Int, reg: Int ) extends Instruction {
     cpu.jumpto( addr )
   }
 
-  def disassemble( cpu: CPU ) = s"JMP"
+  def disassemble( cpu: CPU ) = cpu.unary( "JSR", mode, reg )
 
 }
 
@@ -754,7 +734,7 @@ class NBCD( mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, ByteSize )( cpu.sbcd(_, 0) )
   }
 
-  def disassemble( cpu: CPU ) = s"NBCD"
+  def disassemble( cpu: CPU ) = cpu.unary( "NBCD", mode, reg )
 
 }
 
@@ -764,7 +744,7 @@ class NEG( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, size)( cpu.neg(_, false) )
   }
 
-  def disassemble( cpu: CPU ) = s"NEG"
+  def disassemble( cpu: CPU ) = cpu.unary( "NEG", size, mode, reg )
 
 }
 
@@ -774,7 +754,7 @@ class NEGX( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, size)( cpu.neg(_, true) )
   }
 
-  def disassemble( cpu: CPU ) = s"NEGX"
+  def disassemble( cpu: CPU ) = cpu.unary( "NEGX", size, mode, reg )
 
 }
 
@@ -783,7 +763,7 @@ object NOP extends Instruction {
   def apply( cpu: CPU ): Unit = {
   }
 
-  def disassemble( cpu: CPU ) = s"NOP"
+  def disassemble( cpu: CPU ) = "NOP"
 
 }
 
@@ -793,7 +773,7 @@ class NOT( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, size )( x => cpu.flags(0, 0, false, ~x, false) )
   }
 
-  def disassemble( cpu: CPU ) = s"NOT"
+  def disassemble( cpu: CPU ) = cpu.unary( "NOT", size, mode, reg )
 
 }
 
@@ -806,7 +786,7 @@ class OR( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruc
       cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size)), mode, reg, size )
   }
 
-  def disassemble( cpu: CPU ) = s"EOR"
+  def disassemble( cpu: CPU ) = cpu.binary( "OR", size, mode, reg, dir, dreg )
 
 }
 
@@ -816,7 +796,7 @@ class ORI( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, size )( cpu.or(_, cpu.immediate(size)) )
   }
 
-  def disassemble( cpu: CPU ) = s"ORI"
+  def disassemble( cpu: CPU ) = cpu.unary( "ORI", size, mode, reg )
 
 }
 
@@ -841,7 +821,7 @@ object ORItoCCR extends Instruction {
       cpu.V |= true
   }
 
-  def disassemble( cpu: CPU ) = s"ORI"
+  def disassemble( cpu: CPU ) = s"ORI    #${cpu.fetchByte}, CCR"
 
 }
 
@@ -851,7 +831,7 @@ object ORItoSR extends Instruction {
     cpu.toSR( cpu.fromSR | cpu.fetchShort )
   }
 
-  def disassemble( cpu: CPU ) = s"ORI"
+  def disassemble( cpu: CPU ) = s"ORI    #${cpu.fetchShort}, SR"
 
 }
 
@@ -861,7 +841,7 @@ class PEA( mode: Int, reg: Int ) extends Instruction {
     cpu.pushAddress( cpu.address(mode, reg) )
   }
 
-  def disassemble( cpu: CPU ) = s"PEA"
+  def disassemble( cpu: CPU ) = s"PEA    ${cpu.operand( mode, reg )}"
 
 }
 
@@ -871,7 +851,7 @@ object RESET extends Instruction {
     if (cpu.supervisor)
       cpu.resetSignal
 
-  def disassemble( cpu: CPU ) = s"RESET"
+  def disassemble( cpu: CPU ) = "RESET"
 
 }
 
@@ -929,7 +909,7 @@ object RTE extends Instruction {
       cpu.jumpto( cpu.popAddress )
     }
 
-  def disassemble( cpu: CPU ) = s"RTE"
+  def disassemble( cpu: CPU ) = "RTE"
 
 }
 
@@ -940,7 +920,7 @@ object RTR extends Instruction {
     cpu.jumpto( cpu.popAddress )
   }
 
-  def disassemble( cpu: CPU ) = s"RTR"
+  def disassemble( cpu: CPU ) = "RTR"
 
 }
 
@@ -950,7 +930,7 @@ object RTS extends Instruction {
     cpu.jumpto( cpu.popAddress )
   }
 
-  def disassemble( cpu: CPU ) = s"RTS"
+  def disassemble( cpu: CPU ) = "RTS"
 
 }
 
@@ -971,11 +951,11 @@ object STOP extends Instruction {
 
   def apply( cpu: CPU ): Unit =
     if (cpu.supervisor) {
-      cpu.toSR( cpu.immediate(ShortSize) )
+      cpu.toSR( cpu.fetchShort )
       cpu.stopped = true
     }
 
-  def disassemble( cpu: CPU ) = s"STOP"
+  def disassemble( cpu: CPU ) = s"STOP   #${cpu.fetchShort}"
 
 }
 
@@ -988,7 +968,7 @@ class SUB( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
       cpu.readWrite( mode, reg, size)( cpu.subtract(_, cpu.readD(reg, size), false) )
   }
 
-  def disassemble( cpu: CPU ) = s"SUB"
+  def disassemble( cpu: CPU ) = cpu.binary( "SUB", size, mode, reg, dir, dreg )
 
 }
 
@@ -1004,7 +984,7 @@ class SWAP( reg: Int ) extends Instruction {
     cpu.C = false
   }
 
-  def disassemble( cpu: CPU ) = s"SWAP"
+  def disassemble( cpu: CPU ) = s"SWAP   D$reg"
 
 }
 
@@ -1020,7 +1000,7 @@ class TAS( mode: Int, reg: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = s"TAS"
+  def disassemble( cpu: CPU ) = s"TAS    ${cpu.operand( ByteSize, mode, reg )}"
 
 }
 
@@ -1032,7 +1012,7 @@ class TRAP( vector: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = s"TRAP"
+  def disassemble( cpu: CPU ) = s"TRAP   #$vector"
 
 }
 
@@ -1044,7 +1024,7 @@ object TRAPV extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = s"TRAPV"
+  def disassemble( cpu: CPU ) = "TRAPV"
 
 }
 
@@ -1070,6 +1050,6 @@ class UNLK( reg: Int ) extends Instruction {
     cpu.writeA( cpu.popAddress, reg )
   }
 
-  def disassemble( cpu: CPU ) = s"UNLK"
+  def disassemble( cpu: CPU ) = s"UNLK   A$reg"
 
 }

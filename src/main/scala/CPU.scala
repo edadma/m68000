@@ -554,6 +554,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case _ => disp
     }
 
+  def operand( mode: Int, reg: Int ) = operand( null, mode, reg )
+
   def operand( size: Size, mode: Int, reg: Int ) =
     mode match {
       case DataRegisterDirect => s"D$reg"
@@ -568,6 +570,13 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
           case ImmediateData => s"#${immediate( size )}"
         }
     }
+
+  def unary(sym: String, size: Size, mode: Int, reg: Int ) = mnemonic( sym, size ) + operand( size, mode, reg )
+
+  def unary(sym: String, mode: Int, reg: Int ) = mnemonic( sym ) + operand( IntSize, mode, reg )
+
+  def binary(sym: String, size: Size, mode: Int, reg: Int, dir: Int, dreg: Int ) =
+    mnemonic( "ADD", size ) + (if (dir == 0) s"${operand( IntSize, mode, reg )}, D$dreg" else s"D$dreg, ${operand( IntSize, mode, reg )}")
 
 }
 

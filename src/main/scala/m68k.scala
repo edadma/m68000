@@ -74,4 +74,17 @@ package object m68k {
 
   def ones( a: Int ) = (for (i <- 0 until a) yield 1<<i) reduce (_ | _)
 
+  def mnemonic( sym: String ) = s"$sym.${" "*(6 - sym.length)} "
+
+  def mnemonic( sym: String, size: Size ) = {
+    val s =
+      size match {
+        case ByteSize => "B"
+        case ShortSize => "W"
+        case IntSize => "L"
+      }
+
+    s"$sym.$s${" "*(4 - sym.length)} "
+  }
+
 }
