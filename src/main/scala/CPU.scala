@@ -581,8 +581,11 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def binaryA( sym: String, size: Size, mode: Int, reg: Int, areg: Int ) =
     mnemonic( sym, size ) + s"${operand( IntSize, mode, reg )}, A$areg"
 
-  def binaryD( sym: String, size: Size, mode: Int, reg: Int, dreg: Int ) =
+  def binaryDstD( sym: String, size: Size, mode: Int, reg: Int, dreg: Int ) =
     mnemonic( sym, size ) + s"${operand( IntSize, mode, reg )}, D$dreg"
+
+  def binarySrcD( sym: String, size: Size, mode: Int, reg: Int, dreg: Int ) =
+    mnemonic( sym, size ) + s"D$dreg, ${operand( IntSize, mode, reg )}"
 
   def immediate( sym: String, size: Size, mode: Int, reg: Int ) = mnemonic( sym, size ) + s"#${immediate(size)}, ${operand( size, mode, reg )}"
 }

@@ -319,7 +319,7 @@ class CMP( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.subtract( cast(cpu.D(reg), size), cpu.read(mode, reg, size), false )
   }
 
-  def disassemble( cpu: CPU ) = cpu.binaryD( "CMP", size, mode, reg, dreg )
+  def disassemble( cpu: CPU ) = cpu.binaryDstD( "CMP", size, mode, reg, dreg )
 
 }
 
@@ -399,7 +399,7 @@ class DIVS( dreg: Int, mode: Int, reg: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = s"DIVS"
+  def disassemble( cpu: CPU ) = cpu.binaryDstD( "DIVS", ShortSize, mode, reg, dreg )
 
 }
 
@@ -426,7 +426,7 @@ class DIVU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = s"DIVU"
+  def disassemble( cpu: CPU ) = cpu.binaryDstD( "DIVU", ShortSize, mode, reg, dreg )
 
 }
 
@@ -436,7 +436,7 @@ class EOR( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, size )( cpu.eor(_, cpu.readD(reg, size)) )
   }
 
-  def disassemble( cpu: CPU ) = s"EOR"
+  def disassemble( cpu: CPU ) = cpu.binarySrcD( "EOR", size, mode, reg, dreg )
 
 }
 
