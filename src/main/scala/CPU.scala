@@ -478,15 +478,15 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def roxl( r: Int, d: Int, size: Size ) =
     if (r == 0)
-      flags( 0, 0, false, d, false )
+      flags( 0, 0, false, d, true )
     else
-      flags( 0, d - r + 1, false, (d << r) | (d >>> (bits(size) - r)), false )
+      flags( 0, d - r + 1, false, (d << r) | (d >>> (bits(size) - r)) | bit(X, r - 1), true )
 
   def roxr( r: Int, d: Int, size: Size ) =
     if (r == 0)
-      flags( 0, 0, false, d, false )
+      flags( 0, 0, false, d, true )
     else
-      flags( 0, d << (bits(size) - r), false, (d >>> r) | (d << (bits(size) - r)), false )
+      flags( 0, d << (bits(size) - r), false, (d >>> r) | (d << (bits(size) - r)) | bit(X, bits(size) - r + 1), true )
 
   def and( s: Int, d: Int ) = {
     flags( 0, 0, false, s & d, false )
@@ -554,7 +554,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case _ => disp
     }
 
-  def operand( mode: Int, reg: Int ) = operand( null, mode, reg )
+  def operand( mode: Int, reg: Int ): String = operand( null, mode, reg )
 
   def operand( size: Size, mode: Int, reg: Int ) =
     mode match {
@@ -590,7 +590,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def binarySrcD( sym: String, size: Size, mode: Int, reg: Int, dreg: Int ) =
     mnemonic( sym, size ) + s"D$dreg, ${operand( IntSize, mode, reg )}"
 
-  def immediate( sym: String, size: Size, mode: Int, reg: Int ) = mnemonic( sym, size ) + s"#${immediate(size)}, ${operand( size, mode, reg )}"
+  def immediate( sym: String, size: Size, mode: Int, reg: Int ): String = mnemonic( sym, size ) + s"#${immediate(size)}, ${operand( size, mode, reg )}"
 }
 
 object CPU {

@@ -632,7 +632,11 @@ class LSMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, ShortSize )( o => if (dir == 0) cpu.lsr(1, o, ShortSize) else cpu.lsl(1, o, ShortSize) )
   }
 
-  def disassemble( cpu: CPU ) = s"LS"
+  def disassemble( cpu: CPU ) = {
+    val d = if (dir == 0) 'R' else 'L'
+
+    s"LS$d    ${cpu.operand( ShortSize, mode, reg )}"
+  }
 
 }
 
@@ -645,7 +649,12 @@ class LSReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Inst
     cpu.writeD( if (dir == 0) cpu.lsr(c, operand, size) else cpu.lsl(c, operand, size), dreg, size )
   }
 
-  def disassemble( cpu: CPU ) = s"LS"
+  def disassemble( cpu: CPU ) = {
+    val d = if (dir == 0) 'R' else 'L'
+    val c = if (ir == 0) s"#$count" else s"D$count"
+
+    mnemonic( s"LS$d", size ) + s"$c, D$dreg"
+  }
 
 }
 
@@ -884,7 +893,11 @@ class ROMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, ShortSize )( o => if (dir == 0) cpu.ror(1, o, ShortSize) else cpu.rol(1, o, ShortSize) )
   }
 
-  def disassemble( cpu: CPU ) = s"RO"
+  def disassemble( cpu: CPU ) = {
+    val d = if (dir == 0) 'R' else 'L'
+
+    s"RO$d    ${cpu.operand( ShortSize, mode, reg )}"
+  }
 
 }
 
@@ -897,7 +910,12 @@ class ROReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Inst
     cpu.writeD( if (dir == 0) cpu.ror(c, operand, size) else cpu.rol(c, operand, size), dreg, size )
   }
 
-  def disassemble( cpu: CPU ) = s"RO"
+  def disassemble( cpu: CPU ) = {
+    val d = if (dir == 0) 'R' else 'L'
+    val c = if (ir == 0) s"#$count" else s"D$count"
+
+    mnemonic( s"RO$d", size ) + s"$c, D$dreg"
+  }
 
 }
 
@@ -907,7 +925,11 @@ class ROXMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, ShortSize )( o => if (dir == 0) cpu.ror(1, o, ShortSize) else cpu.rol(1, o, ShortSize) )
   }
 
-  def disassemble( cpu: CPU ) = s"ROX"
+  def disassemble( cpu: CPU ) = {
+    val d = if (dir == 0) 'R' else 'L'
+
+    s"ROX$d    ${cpu.operand( ShortSize, mode, reg )}"
+  }
 
 }
 
@@ -920,7 +942,12 @@ class ROXReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Ins
     cpu.writeD( if (dir == 0) cpu.ror(c, operand, size) else cpu.rol(c, operand, size), dreg, size )
   }
 
-  def disassemble( cpu: CPU ) = s"ROX"
+  def disassemble( cpu: CPU ) = {
+    val d = if (dir == 0) 'R' else 'L'
+    val c = if (ir == 0) s"#$count" else s"D$count"
+
+    mnemonic( s"ROX$d", size ) + s"$c, D$dreg"
+  }
 
 }
 
