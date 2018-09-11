@@ -678,6 +678,37 @@ class MOVEA( size: Size, areg: Int, mode: Int, reg: Int ) extends Instruction {
 
 }
 
+class MOVEM( dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    val list = cpu.fetchShort
+
+    def traverse( action: Int => Unit ) =
+      for (i <- 0 until 16)
+        if (testBit( list, i ))
+          action( i )
+
+    dir match {
+      case 0 =>
+        mode match {
+          case AddressRegisterIndirectPredecrement =>
+            traverse { idx =>
+              val r =
+                if (idx < 8)
+                  cpu.D( 7 - idx )
+                else
+                  cpu.readA( 7 - (idx - 8) ).asInstanceOf[Int]
+
+              cpu.write( r, mode, reg, size )
+            }
+        }
+    }
+  }
+
+  def disassemble( cpu: CPU ) = "MOVEM"
+
+}
+
 class MOVEfromSR( mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
