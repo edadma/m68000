@@ -1,0 +1,11 @@
+SECTIONS {
+    . = 0;
+    vectorsSection : { *(vectorsSection) }
+    .rodata : { *(.rodata) }
+    .text : { *(.text) }
+
+    . = 0x10000;
+    .data : { *(.data) }
+    .bss : { *(.bss) }
+    systemStackSection : { *(systemStackSection) }
+}

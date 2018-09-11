@@ -1,1 +1,1 @@
-m68k-unknown-uclinux-uclibc-ld --defsym=_start=main -Ttext=0x2000 -Tdata=0x3000 -Tbss=0x4000 --section-start=.rodata=0x0000 $1.o
+m68k-unknown-uclinux-uclibc-ld --script script a.out
