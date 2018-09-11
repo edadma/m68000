@@ -554,7 +554,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case _ => disp
     }
 
-  def operand( mode: Int, reg: Int ) = operand( null, mode, reg )
+  def operand( mode: Int, reg: Int ): String = operand( null, mode, reg )
 
   def operand( size: Size, mode: Int, reg: Int ) =
     mode match {
@@ -590,7 +590,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def binarySrcD( sym: String, size: Size, mode: Int, reg: Int, dreg: Int ) =
     mnemonic( sym, size ) + s"D$dreg, ${operand( IntSize, mode, reg )}"
 
-  def immediate( sym: String, size: Size, mode: Int, reg: Int ) = mnemonic( sym, size ) + s"#${immediate(size)}, ${operand( size, mode, reg )}"
+  def immediate( sym: String, size: Size, mode: Int, reg: Int ): String = mnemonic( sym, size ) + s"#${immediate(size)}, ${operand( size, mode, reg )}"
 }
 
 object CPU {
