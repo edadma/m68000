@@ -194,7 +194,12 @@ class BCHG( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = s"BCHG"
+  def disassemble( cpu: CPU ) =
+    "BCHG   " +
+      (breg match {
+        case None => s"#${cpu.fetchByte}, ${cpu.operand( mode, reg )}"
+        case Some( r ) => s"D$r, ${cpu.operand( mode, reg )}"
+      })
 
 }
 
@@ -213,7 +218,12 @@ class BCLR( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = s"BCLR"
+  def disassemble( cpu: CPU ) =
+    "BCLR   " +
+      (breg match {
+        case None => s"#${cpu.fetchByte}, ${cpu.operand( mode, reg )}"
+        case Some( r ) => s"D$r, ${cpu.operand( mode, reg )}"
+      })
 
 }
 
@@ -223,7 +233,7 @@ class BKPT( bkpt: Int ) extends Instruction {
     if (!cpu.breakpoint( bkpt ))
       cpu.exception( VectorTable.illegalInstruction )
 
-  def disassemble( cpu: CPU ) = s"BKPT"
+  def disassemble( cpu: CPU ) = s"BKPT   #$bkpt"
 
 }
 
@@ -242,7 +252,12 @@ class BSET( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = s"BSET"
+  def disassemble( cpu: CPU ) =
+    "BSET   " +
+      (breg match {
+        case None => s"#${cpu.fetchByte}, ${cpu.operand( mode, reg )}"
+        case Some( r ) => s"D$r, ${cpu.operand( mode, reg )}"
+      })
 
 }
 
@@ -260,7 +275,7 @@ class BSR( disp: Int ) extends Instruction {
     cpu.jumpto( jump )
   }
 
-  def disassemble( cpu: CPU ) = s"BSR"
+  def disassemble( cpu: CPU ) = s"BSR    ${cpu.PC + cpu.displacement(disp)}"
 
 }
 
@@ -277,7 +292,12 @@ class BTST( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
     cpu.Z = testBit( data, bit )
   }
 
-  def disassemble( cpu: CPU ) = s"BTST"
+  def disassemble( cpu: CPU ) =
+    "BTST   " +
+      (breg match {
+        case None => s"#${cpu.fetchByte}, ${cpu.operand( mode, reg )}"
+        case Some( r ) => s"D$r, ${cpu.operand( mode, reg )}"
+      })
 
 }
 
@@ -295,7 +315,7 @@ class CHK( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = s"CHK"
+  def disassemble( cpu: CPU ) = cpu.binaryDstD( "CHK", size, mode, reg, dreg )
 
 }
 
