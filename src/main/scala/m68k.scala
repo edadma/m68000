@@ -2,6 +2,8 @@
 package xyz.hyperreal
 import java.io.ByteArrayOutputStream
 
+import scala.collection.mutable.ListBuffer
+
 
 package object m68k {
 
@@ -86,5 +88,21 @@ package object m68k {
 
     s"$sym.$s${" "*(4 - sym.length)} "
   }
+
+  def ranges( list: List[String], buf: ListBuffer[(String, String)] = new ListBuffer ): String =
+    list match {
+      case Nil =>
+        buf flatMap {
+          case (a, b) if a == b => List( a )
+          case (a, b) if a.last.toInt == b.last.toInt - 1 => List( a, b )
+          case (a, b) => List( s"$a-$b" )
+        } mkString "/"
+      case h :: t if buf.nonEmpty && h.head == buf.last._2.head && h.last.toInt == buf.last._2.last + 1 =>
+        buf(buf.length - 1) = (buf.last._1, h)
+        ranges( t, buf )
+      case h :: t =>
+        buf += (h -> h)
+        ranges( t, buf )
+    }
 
 }
