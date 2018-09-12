@@ -683,23 +683,58 @@ class MOVEM( dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
   def apply( cpu: CPU ): Unit = {
     val list = cpu.fetchShort
 
-    def traverse( action: Int => Unit ) =
-      for (i <- 0 until 16)
+    def regs =
+      0 until 16 flatMap { i =>
         if (testBit( list, i ))
-          action( i )
+          List( i )
+        else
+          Nil
+      }
 
     dir match {
       case 0 =>
         mode match {
           case AddressRegisterIndirectPredecrement =>
-            traverse { idx =>
-              val r =
+            regs map { idx =>
+              if (idx < 8)
+                cpu.D( 7 - idx )
+              else
+                cpu.readA( 7 - (idx - 8) ).asInstanceOf[Int]
+            } foreach (cpu.write( _, mode, reg, size ))
+          case _ =>
+            val rs =
+              regs map { idx =>
                 if (idx < 8)
-                  cpu.D( 7 - idx )
+                  cpu.D( idx )
                 else
-                  cpu.readA( 7 - (idx - 8) ).asInstanceOf[Int]
+                  cpu.readA( idx - 8 ).asInstanceOf[Int]
+              }
+            var addr = cpu.address( mode, reg )
 
-              cpu.write( r, mode, reg, size )
+            for (r <- rs) {
+              cpu.memoryWrite( r, addr, size, false )
+              addr += width( size, false )
+            }
+        }
+      case 1 =>
+        mode match {
+          case AddressRegisterIndirectPostincrement =>
+            regs foreach { idx =>
+              if (idx < 8)
+                cpu.D(idx) = cpu.read(mode, reg, size)
+              else
+                cpu.writeA(cpu.read(mode, reg, size), idx - 8)
+            }
+          case _ =>
+            var addr = cpu.address(mode, reg)
+
+            for (idx <- regs) {
+              if (idx < 8)
+                cpu.D(idx) = cpu.memoryRead(addr, size, false)
+              else
+                cpu.writeA(cpu.memoryRead(addr, size, false), idx - 8)
+
+              addr += width(size, false)
             }
         }
     }

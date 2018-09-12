@@ -638,6 +638,12 @@ object CPU {
       case 3 => IntSize
     }
 
+  def movemsize( operands: Map[Char, Int] ) =
+    operands('s') match {
+      case 0 => ShortSize
+      case 1 => IntSize
+    }
+
   def opcodeTable: IndexedSeq[Instruction] = synchronized {
     if (!built) {
       populate(
@@ -695,6 +701,10 @@ object CPU {
           "0100010011 eee aaa; e:0-7-1" -> (o => new MOVEtoCCR( o('e'), o('a') )),
           "0100011011 eee aaa; e:0-7-1" -> (o => new MOVEtoSR( o('e'), o('a') )),
           "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
+          "01001 0 001 s eee aaa; e:2,4,5,6" -> (o => new MOVEM( 0, movemsize(o), o('e'), o('a') )),
+          "01001 0 001 s 111 aaa; a:0,1" -> (o => new MOVEM( 0, movemsize(o), 7, o('a') )),
+          "01001 1 001 s eee aaa; e:2,3,5,6" -> (o => new MOVEM( 1, movemsize(o), o('e'), o('a') )),
+          "01001 1 001 s 111 aaa; a:0-3" -> (o => new MOVEM( 1, movemsize(o), 7, o('a') )),
           "010011100110 d rrr" -> (o => new MOVEUSP( o('d'), o('r') )),
           "1100 rrr 111 eee aaa; e:0-7-1" -> (o => new MULS( o('r'), o('e'), o('a') )),
           "1100 rrr 011 eee aaa; e:0-7-1" -> (o => new MULU( o('r'), o('e'), o('a') )),
