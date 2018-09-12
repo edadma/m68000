@@ -680,22 +680,23 @@ class MOVEA( size: Size, areg: Int, mode: Int, reg: Int ) extends Instruction {
 
 class MOVEM( dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
-  def apply( cpu: CPU ): Unit = {
+  def regs( cpu: CPU ) = {
     val list = cpu.fetchShort
 
-    def regs =
-      0 until 16 flatMap { i =>
-        if (testBit( list, i ))
-          List( i )
-        else
-          Nil
-      }
+    0 until 16 flatMap { i =>
+      if (testBit(list, i))
+        List(i)
+      else
+        Nil
+    }
+  }
 
+  def apply( cpu: CPU ): Unit = {
     dir match {
       case 0 =>
         mode match {
           case AddressRegisterIndirectPredecrement =>
-            regs map { idx =>
+            regs( cpu ) map { idx =>
               if (idx < 8)
                 cpu.D( 7 - idx )
               else
@@ -703,7 +704,7 @@ class MOVEM( dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
             } foreach (cpu.write( _, mode, reg, size ))
           case _ =>
             val rs =
-              regs map { idx =>
+              regs( cpu ) map { idx =>
                 if (idx < 8)
                   cpu.D( idx )
                 else
@@ -719,7 +720,7 @@ class MOVEM( dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
       case 1 =>
         mode match {
           case AddressRegisterIndirectPostincrement =>
-            regs foreach { idx =>
+            regs( cpu ) foreach { idx =>
               if (idx < 8)
                 cpu.D(idx) = cpu.read(mode, reg, size)
               else
@@ -728,7 +729,7 @@ class MOVEM( dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
           case _ =>
             var addr = cpu.address(mode, reg)
 
-            for (idx <- regs) {
+            for (idx <- regs( cpu )) {
               if (idx < 8)
                 cpu.D(idx) = cpu.memoryRead(addr, size, false)
               else
@@ -740,7 +741,21 @@ class MOVEM( dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = "MOVEM"
+  def disassemble( cpu: CPU ) = {
+    val rs =
+      mode match {
+        case AddressRegisterIndirectPredecrement =>
+          regs(cpu) map { idx => if (idx < 8) s"D${7 - idx}" else s"A${7 - (idx - 8)}" }
+        case _ =>
+          regs(cpu) map { idx => if (idx < 8) s"D$idx" else s"A${idx - 8}" }
+      }
+
+    def list( )
+
+    "MOVEM  " +
+      if (dir == 0)
+
+  }
 
 }
 
