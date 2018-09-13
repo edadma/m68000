@@ -1,12 +1,7 @@
-#include <stdio.h>
+extern void outc( char c );
 
-int a = 0x1234;
-
-char array[50];
-
-int
-main( int argc, const char* argv[] ) {
-
-    printf( "Hello World, %d\n" );
-
+void
+main() {
+    outc( 'a' );
+    outc( '\n' );
 }

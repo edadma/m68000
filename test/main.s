@@ -1,18 +1,18 @@
 #NO_APP
 	.file	"main.c"
-	.section	.rodata
-.LC0:
-	.string	"Hello World, %d\n"
 	.text
 	.align	2
 	.globl	main
 	.type	main, @function
 main:
 	link.w %fp,#0
-	pea .LC0
-	jsr printf
+	pea 97.w
+	jsr outc
 	addq.l #4,%sp
-	moveq #0,%d0
+	pea 10.w
+	jsr outc
+	addq.l #4,%sp
+	nop
 	unlk %fp
 	rts
 	.size	main, .-main
