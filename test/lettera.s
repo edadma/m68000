@@ -1,10 +1,11 @@
     .section    .rodata
 
-    .long       systemStack
+    .long       systemStackTop
     .long       _start
 
     .section    systemStackSection
     .comm       systemStack, 10000, 2
+systemStackTop:
 
     .text
 _start:
