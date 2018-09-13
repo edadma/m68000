@@ -688,7 +688,7 @@ class MOVEM( dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
         List(i)
       else
         Nil
-    }
+    } toList
   }
 
   def apply( cpu: CPU ): Unit = {
@@ -750,11 +750,11 @@ class MOVEM( dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
           regs(cpu) map { idx => if (idx < 8) s"D$idx" else s"A${idx - 8}" }
       }
 
-    def list( )
-
-    "MOVEM  " +
-      if (dir == 0)
-
+    mnemonic( "MOVEM", size ) +
+      (if (dir == 0)
+        ranges( rs ) + ", " + cpu.operand( mode, reg )
+      else
+        cpu.operand( mode, reg ) + ", " + ranges( rs ))
   }
 
 }
