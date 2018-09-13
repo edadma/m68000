@@ -1,7 +1,8 @@
 SECTIONS {
     . = 0;
-    vectorsSection : { *(vectorsSection) }
     .rodata : { *(.rodata) }
+
+    . = 0x400;
     .text : { *(.text) }
 
     . = 0x10000;

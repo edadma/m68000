@@ -1,1 +1,1 @@
-m68k-unknown-uclinux-uclibc-ld --script script a.out
+m68k-unknown-uclinux-uclibc-ld --script script $1

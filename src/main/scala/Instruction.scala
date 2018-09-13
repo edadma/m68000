@@ -2,7 +2,13 @@
 package xyz.hyperreal.m68k
 
 
+case class Assembly( mnmonic: String, size: Option[Size], operands: List[Int] )
+
 abstract class Instruction extends (CPU => Unit) with Addressing {
+
+  var opcode = 0
+
+  val assembly: Assembly = null
 
   def disassemble( cpu: CPU ): String
 

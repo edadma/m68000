@@ -1,4 +1,4 @@
-    .section    vectorsSection
+    .section    .rodata
 
     .long       systemStack
     .long       _start
