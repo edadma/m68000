@@ -185,10 +185,12 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       registers
     }
 
-    instruction = fetchShort&0xFFFF
+    fetch
     opcodes(instruction)( this )
     counter += 1
   }
+
+  def fetch = instruction = fetchShort&0xFFFF
 
   def fetchByte = fetchShort.asInstanceOf[Byte].asInstanceOf[Int]
 

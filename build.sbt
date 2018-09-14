@@ -1,6 +1,6 @@
 name := "m68k"
 
-version := "0.1"
+version := "0.1_snapshot_1"
 
 scalaVersion := "2.12.6"
 
@@ -31,15 +31,9 @@ libraryDependencies ++= Seq(
 //  "com.typesafe" % "config" % "1.3.1"
 //)
 
-libraryDependencies ++= {
-	val akkaV = "2.5.11"
-	Seq(
-//		"com.typesafe.akka" %% "akka-actor"    % akkaV
-//		"com.typesafe.akka" %% "akka-remote"   % akkaV,
-//		"com.typesafe.akka" %% "akka-testkit"  % akkaV    % "test",
-//		"org.specs2"        %% "specs2-core"   % "2.3.11" % "test"
-	)
-}
+libraryDependencies ++= Seq(
+	"xyz.hyperreal" %% "args" % "0.1",
+)
 
 libraryDependencies ++= Seq(
   "jline" % "jline" % "2.14.6"

@@ -17,7 +17,7 @@ outc:
 	move.l  8(%fp),%d1
     move    #6, %d0
     trap    #15
-	unlk %fp
+	unlk    %fp
     rts
 
 halt:
