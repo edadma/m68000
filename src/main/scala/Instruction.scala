@@ -565,7 +565,7 @@ class EXT( size: Size, reg: Int ) extends Instruction {
 class JMP( mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.jumpto( cpu.read(mode, reg, IntSize) )
+    cpu.jumpto( cpu.address(mode, reg) )
   }
 
   def disassemble( cpu: CPU ) = cpu.unary( "JMP", mode, reg )
@@ -575,7 +575,7 @@ class JMP( mode: Int, reg: Int ) extends Instruction {
 class JSR( mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val addr = cpu.read( mode, reg, IntSize )
+    val addr = cpu.address( mode, reg )
 
     cpu.pushAddress( cpu.PC )
     cpu.jumpto( addr )

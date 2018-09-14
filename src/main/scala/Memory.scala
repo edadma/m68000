@@ -39,7 +39,7 @@ trait Addressable {
 		programInt( addr + 4, (value>>32).asInstanceOf[Int] )
 	}
 
-	def readShort( addr: Long) = (readByte( addr ) << 8) | readByte( addr + 1 )
+	def readShort( addr: Long) = (readByte( addr ) << 8) | (readByte( addr + 1 )&0xFF)
 
 	def writeShort( addr: Long, value: Int ) {
 		writeByte( addr, value&0xFF )

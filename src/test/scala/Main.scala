@@ -10,7 +10,7 @@ object Main extends App {
     new Memory {
       def init: Unit = {
         regions.clear
-        addHexdump( io.Source.fromFile("test/a.out.hex") )
+        addHexdump( io.Source.fromFile("test/main.hex") )
         add( new RAM("ram", 0x10000, 0x1FFFF) )
       }
     }

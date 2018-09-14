@@ -8,10 +8,12 @@ trait Addressing {
   val AddressRegisterIndirect = 2
   val AddressRegisterIndirectPostincrement = 3
   val AddressRegisterIndirectPredecrement = 4
+  val AddressRegisterIndirectWithDisplacement = 5
   val OtherModes = 7
 
   val AbsoluteShort = 0
   val AbsoluteLong = 1
+  val ProgramCounterWithDisplacement = 2
   val ImmediateData = 4
 
 }

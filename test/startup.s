@@ -4,7 +4,7 @@
     .long       _start
 
     .section    systemStackSection
-    .comm       systemStack, 10000, 2
+    .comm       systemStack, 0x1000, 2
 systemStackTop:
 
     .text
@@ -12,9 +12,11 @@ _start:
     jsr     main
     jmp     halt
 
+	.globl	outc
+	.type	outc, @function
 outc:
-	link.w  %fp,#-4
-	move.l  8(%fp),%d1
+	link.w  %fp, #0
+	move.l  8(%fp), %d1
     move    #6, %d0
     trap    #15
 	unlk    %fp

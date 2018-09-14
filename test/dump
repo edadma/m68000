@@ -1,1 +1,1 @@
-m68k-unknown-uclinux-uclibc-readelf -R .text -x .rodata -x .data -x .sdata $1 >$1.hex
+m68k-unknown-uclinux-uclibc-readelf -R .text -x .rodata -x .data -x .sdata a.out >$1.hex

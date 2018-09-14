@@ -11,31 +11,14 @@ class Emulator {
       def init {
         removeDevices
         regions.clear
-        add( new StdIOChar(0x20000) )
-        add( new RAM("stack", 0, 0xFFFF) )
-        add( new RAM("bss", 0x1000000, 0x100FFFF) )
-        add( new ROM("program", 0x10000, 0x1FFFF) )
+        add( new ROM("program", 0, 0xFFFF) )
+        add( new RAM("ram", 0, 0x1FFFF) )
       }
     }
   val cpu = new CPU( mem )
 
   private val registry = new HashMap[String, (String, Memory, CPU) => Unit]
 
-  register( "_stdioChar_", (p: String, mem: Memory, cpu: CPU) => mem add new StdIOChar( hex(p) ) )
-  register( "_stdioInt_", (p: String, mem: Memory, cpu: CPU) => mem add new StdIOInt( hex(p) ) )
-  register( "_stdioHex_", (p: String, mem: Memory, cpu: CPU) => mem add new StdIOHex( hex(p) ) )
-  register( "_rng_", (p: String, mem: Memory, cpu: CPU) => mem add new RNG( hex(p) ) )
-  //	register( "_video_",
-  //		(p: String, mem: Memory, cpu: CPU) => {
-  //			val parms = p split ","
-  //			val kp = hex(parms(1))
-  //			val kpd = if (kp == 0) null else new KeyPress( kp )
-  //
-  //			if (kpd ne null)
-  //				mem add kpd
-  //
-  //			mem add new VideoRAM( hex(parms(0)), kpd, hex(parms(2)), hex(parms(3)), hex(parms(4)), cpu, (for (i <- 5 to 20) yield hex(parms(i))).toIndexedSeq )
-  //		} )
   register( "_ram_",
     (p: String, mem: Memory, cpu: CPU) => {
       mem.removeRAM
