@@ -1,7 +1,9 @@
 extern void outc( char c );
 
+char letter = 'a';
+
 void
 main() {
-    outc( 'a' );
+    outc( letter + 1 );
     outc( '\n' );
 }
