@@ -42,22 +42,22 @@ trait Addressable {
 	def readShort( addr: Long) = (readByte( addr ) << 8) | (readByte( addr + 1 )&0xFF)
 
 	def writeShort( addr: Long, value: Int ) {
-		writeByte( addr, value&0xFF )
-		writeByte( addr + 1, value>>8 )
+		writeByte( addr, value>>8 )
+		writeByte( addr + 1, value&0xFF )
 	}
 
 	def readInt( addr: Long ) = (readShort( addr )<<16) | (readShort( addr + 2 )&0xFFFF)
 
 	def writeInt( addr: Long, value: Int ) {
-		writeShort( addr, value&0xFFFF )
-		writeShort( addr + 2, value>>16 )
+		writeShort( addr, value>>16 )
+		writeShort( addr + 2, value&0xFFFF )
 	}
 
-	def readLong( addr: Long ) = (readInt( addr )&0xFFFFFFFFL) | (readInt( addr + 4 ).asInstanceOf[Long]<<32)
+	def readLong( addr: Long ) = (readInt( addr ).asInstanceOf[Long]<<32) | (readInt( addr + 4 )&0xFFFFFFFFL)
 
 	def writeLong( addr: Long, value: Long ) {
-		writeInt( addr, value.asInstanceOf[Int] )
-		writeInt( addr + 4, (value>>32).asInstanceOf[Int] )
+		writeInt( addr, (value>>32).asInstanceOf[Int] )
+		writeInt( addr + 4, value.asInstanceOf[Int] )
 	}
 }
 

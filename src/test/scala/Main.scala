@@ -46,7 +46,7 @@ object Main extends App {
 
         vector match {
           case 15 =>
-            D(0) match {
+            D(0).toShort match {
               case 0 =>
                 prt
                 println

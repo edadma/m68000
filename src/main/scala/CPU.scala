@@ -185,7 +185,6 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     }
 
     fetch
-    println( SSP.toHexString, PC.toHexString, instruction.toHexString )
     opcodes(instruction)( this )
     counter += 1
   }
@@ -734,7 +733,7 @@ object CPU {
           "0100111001110111" -> (_ => RTR),
           "0100111001110101" -> (_ => RTS),
           "1000 yyy 10000 r xxx" -> (o => new SBCD( o('y'), o('r'), o('x') )),
-          "0100111001110001" -> (_ => STOP),
+          "0100111001110010" -> (_ => STOP),
           "1001 rrr 0 ss eee aaa; s:0-2" -> (o => new SUB( o('r'), 0, addqsize(o), o('e'), o('a') )),
           "1001 rrr 1 ss eee aaa; s:0-2; e:2-7" -> (o => new SUB( o('r'), 1, addqsize(o), o('e'), o('a') )),
           "0100100001000 rrr" -> (o => new SWAP( o('r') )),
