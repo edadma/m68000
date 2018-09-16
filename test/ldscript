@@ -1,3 +1,5 @@
+OUTPUT_FORMAT(srec)
+
 MEMORY
 {
     rom : ORIGIN = 0x00000, LENGTH = 0x1000
@@ -6,6 +8,9 @@ MEMORY
 
 SECTIONS
 {
+    __stack_size__ = 0x1000;
+
+    .rodata : { *(.rodata) } > rom
     .text : { *(.text*) } > rom
 
     __data_rom_start__ = .;
@@ -22,4 +27,12 @@ SECTIONS
     } > ram
     __bss_end__ = .;
     __bss_size__ = __bss_end__ - __bss_start__;
+
+    __stack_start__ = .;
+    __stack_end__ = . + __stack_size__;
+
+    /DISCARD/ : {
+        *(.eh_frame);
+        *(.comment);
+    }
 }

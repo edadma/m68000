@@ -1,11 +1,7 @@
     .section    .rodata
 
-    .long       _systemStackEnd
+    .long       __stack_end__
     .long       _start
-
-    .section    .bss
-    .comm       _systemStack, 0x1000, 2
-_systemStackEnd:
 
     .text
 _start:

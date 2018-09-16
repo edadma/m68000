@@ -1,1 +1,1 @@
-m68k-unknown-uclinux-uclibc-ld --script script startup.o $1.o
+m68k-unknown-uclinux-uclibc-ld --script ldscript startup.o $1.o
