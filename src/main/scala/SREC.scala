@@ -27,9 +27,9 @@ object SREC {
 				i match {
 					case byte: Int =>
 						add( byte )
-					case bytes: Seq[Number] =>
+					case bytes: Seq[_] =>
 						for (b <- bytes)
-							add( b.intValue )
+							add( b.asInstanceOf[Number].intValue )
 				}
 				
 			out.println( "S" + typ + hexByte(count + 1) + buf + hexByte((sum + count + 1)^0xFF) )
@@ -48,9 +48,9 @@ object SREC {
 			val end = rom.start + rom.size
 			
 			for (rec <- rom.start until end by 16) {
-				val len = 16 min (end - rec)
+				val len = 16L min (end - rec)
 				
-				record( '1', rec >> 8, rec, (for (i <- 0 until len) yield rom.readByte(rec + i)) )
+				record( '1', rec >> 8, rec, for (i <- 0L until len) yield rom.readByte(rec + i) )
 				s1count += 1
 			}
 		}
