@@ -36,16 +36,16 @@ object Main extends App {
           for (c <- A(1) to A(1) + D(1)&0xFFFF)
             print( memoryRead(c, ByteSize, false).toChar )
 
-        def prtn = {
-          def prtn( addr: Long ): Unit =
+        def prtz = {
+          def prtz( addr: Long ): Unit =
             memoryRead( addr, ByteSize, false ) match {
               case 0 =>
               case c =>
                 print( c.toChar )
-                prtn( addr + 1 )
+                prtz( addr + 1 )
             }
 
-          prtn( A(1) )
+          prtz( A(1) )
         }
 
         vector match {
@@ -70,9 +70,9 @@ object Main extends App {
               case 8 => D(1) = LocalTime.now.get( ChronoField.MILLI_OF_DAY )/10
               case 9 => halt
               case 13 =>
-                prtn
+                prtz
                 println
-              case 14 => prtn
+              case 14 => prtz
               case _ => sys.error( s"unknown task number: ${D(0)}" )
             }
 

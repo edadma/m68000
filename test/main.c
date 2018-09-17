@@ -1,9 +1,7 @@
 extern void outc( char c );
-
-char letter = 'a';
+extern void outln( char* s );
 
 void
 main() {
-    outc( letter + 1 );
-    outc( '\n' );
+    outln( "this is a test" );
 }
