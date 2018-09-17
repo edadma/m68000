@@ -1,6 +1,7 @@
 //@
 package xyz.hyperreal.m68k
 
+import java.io.File
 import java.time.LocalTime
 import java.time.temporal.ChronoField
 
@@ -10,8 +11,9 @@ object Main extends App {
     new Memory {
       def init: Unit = {
         regions.clear
-        addHexdump( io.Source.fromFile("test/main.hex") )
+//        addHexdump( io.Source.fromFile("test/main.hex") )
         add( new RAM("ram", 0x10000, 0x1FFFF) )
+        SREC( this, new File("test/main.srec") )
       }
     }
   val cpu =

@@ -10,7 +10,7 @@ SECTIONS
 {
     __stack_size__ = 0x1000;
 
-    .rodata : { *(.rodata) } > rom
+    .rodata : { *(.rodata*) } > rom
     .text : { *(.text*) } > rom
 
     __data_rom_start__ = .;
@@ -23,7 +23,7 @@ SECTIONS
 
     .bss  : {
         __bss_start__ = .;
-        *(.bss*)
+        *(.bss*) *(COMMON)
     } > ram
     __bss_end__ = .;
     __bss_size__ = __bss_end__ - __bss_start__;
