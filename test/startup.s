@@ -37,6 +37,16 @@ outc:
     unlk    %fp
     rts
 
+    .globl	outn
+    .type	outn, @function
+outn:
+    link.w  %fp, #0
+    move.l  8(%fp), %d1
+    move    #3, %d0
+    trap    #15
+    unlk    %fp
+    rts
+
     .globl	outln
     .type	outln, @function
 outln:
