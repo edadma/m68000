@@ -102,8 +102,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def disassemble: Unit = {
     if (memory.valid( PC )) {
       val pc = PC
-      val m = memory.find( PC )
 
+      prog = memory.find( PC )
       fetch
 
       val extension = PC
@@ -111,7 +111,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       val words = (PC - extension).toInt/2
 
       PC = extension
-      print( f"${PC.toHexString.toUpperCase}%6s  ${hexShort(instruction)} " )
+      print( f"${pc.toHexString.toUpperCase}%6s  ${hexShort(instruction)} " )
 
       for (_ <- 0 until words)
         print( hexShort(fetchShort) + " " )
@@ -559,7 +559,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def displacement( disp: Int ) =
     disp match {
       case 0 => fetchShort
-      case -1 => fetchInt//020
+//      case -1 => fetchInt//020
       case _ => disp
     }
 

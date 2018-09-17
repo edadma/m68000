@@ -174,13 +174,12 @@ class ASReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Inst
 class Bcc( cond: Int, disp: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val pc = cpu.PC
-
-    if (cpu.testcc( cond ))
-      cpu.jumpto( pc + cpu.displacement(disp) )
+    cpu.jumpto( cpu.PC + cpu.displacement(disp) )
   }
 
-  def disassemble( cpu: CPU ) = mnemonic( s"B${Conditional( cond )}" ) + (cpu.PC + cpu.displacement(disp))
+  def disassemble( cpu: CPU ) = {
+    mnemonic( s"B${Conditional( cond )}" ) + (cpu.PC + cpu.displacement(disp)).toHexString.toUpperCase
+  }
 
 }
 
@@ -567,7 +566,7 @@ class JMP( mode: Int, reg: Int ) extends Instruction {
     cpu.jumpto( cpu.address(mode, reg) )
   }
 
-  def disassemble( cpu: CPU ) = cpu.unary( "JMP", mode, reg )
+  def disassemble( cpu: CPU ) = mnemonic( "JMP" ) + cpu.address( mode, reg ).toHexString.toUpperCase
 
 }
 
@@ -580,7 +579,7 @@ class JSR( mode: Int, reg: Int ) extends Instruction {
     cpu.jumpto( addr )
   }
 
-  def disassemble( cpu: CPU ) = cpu.unary( "JSR", mode, reg )
+  def disassemble( cpu: CPU ) = mnemonic( "JSR" ) + cpu.address( mode, reg ).toHexString.toUpperCase
 
 }
 
