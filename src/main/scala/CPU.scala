@@ -372,8 +372,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def regwrite( data: Int, regcur: Int, size: Size ) =
     size match {
-      case ByteSize => regcur&0xFFFFFF00 | data&0xFF
-      case ShortSize => regcur&0xFFFF0000 | data&0xFFFF
+      case ByteSize => (regcur&0xFFFFFF00) | (data&0xFF)
+      case ShortSize => (regcur&0xFFFF0000) | (data&0xFFFF)
       case IntSize => data
     }
 
@@ -624,6 +624,12 @@ object CPU {
       case 2 => IntSize
     }
 
+  def addqdata( operands: Map[Char, Int] ) =
+    operands('d') match {
+      case 8 => 0
+      case d => d
+    }
+
   def addasize( operands: Map[Char, Int] ) =
     operands('s') match {
       case 3 => ShortSize
@@ -664,7 +670,7 @@ object CPU {
           "1101 rrr 1 ss eee aaa; s:0-2; e:2-7" -> (o => new ADD( o('r'), 1, addqsize(o), o('e'), o('a') )),
           "1101 rrr sss eee aaa; s:3,7" -> (o => new ADDA( o('r'), addasize(o), o('e'), o('a') )),
           "00000110 ss eee aaa; s:0-2; e:0-7-1" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
-          "0101 ddd 0 ss eee aaa; s:0-2" -> (o => new ADDQ( o('d') + 1, addqsize(o), o('e'), o('a') )),
+          "0101 ddd 0 ss eee aaa; s:0-2" -> (o => new ADDQ( addqdata(o), addqsize(o), o('e'), o('a') )),
           "00000110 ss eee aaa; s:0-2" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
           "1100 rrr d ss eee aaa; s:0-2" -> (o => new AND( o('r'), o('d'), addqsize(o), o('e'), o('a') )),
           "00000010 ss eee aaa; s:0-2" -> (o => new ANDI( addqsize(o), o('e'), o('a') )),

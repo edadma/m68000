@@ -76,7 +76,6 @@ class ADDQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, size )( cpu.add(_, data, false) )
   }
 
-
   def disassemble( cpu: CPU ) = mnemonic( "ADDQ", size ) + s"#$data, ${cpu.operand( size, mode, reg )}"
 
 }
