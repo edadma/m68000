@@ -33,7 +33,7 @@ class ABCD( y: Int, r: Int, x: Int ) extends Instruction with Addressing {
       cpu.readWrite( AddressRegisterIndirectPredecrement, x, ByteSize )( cpu.abcd(_, cpu.read(AddressRegisterIndirectPredecrement, y, ByteSize)) )
   }
 
-  def disassemble( cpu: CPU ) = "ABCD   " + (if (r == 0) s"D$y, D$x" else s"-(A$y), -(A$x)")
+  def disassemble( cpu: CPU ) = s"${mnemonic("ABCD")}" + (if (r == 0) s"D$y, D$x" else s"-(A$y), -(A$x)")
 
 }
 
@@ -125,7 +125,7 @@ object ANDItoCCR extends Instruction {
       cpu.V = false
   }
 
-  def disassemble( cpu: CPU ) = s"ANDI   #${cpu.fetchByte}, CCR"
+  def disassemble( cpu: CPU ) = s"${mnemonic("ANDI")}#${cpu.fetchByte}, CCR"
 
 }
 
@@ -136,7 +136,7 @@ object ANDItoSR extends Instruction {
       cpu.toSR( cpu.fromSR & cpu.fetchShort )
   }
 
-  def disassemble( cpu: CPU ) = s"ANDI   #${cpu.fetchShort}, SR"
+  def disassemble( cpu: CPU ) = s"${mnemonic("ANDI")}#${cpu.fetchShort}, SR"
 
 }
 
@@ -201,7 +201,7 @@ class BCHG( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
   }
 
   def disassemble( cpu: CPU ) =
-    "BCHG   " +
+    s"${mnemonic("BCHG")}" +
       (breg match {
         case None => s"#${cpu.fetchByte}, ${cpu.operand( mode, reg )}"
         case Some( r ) => s"D$r, ${cpu.operand( mode, reg )}"
@@ -225,7 +225,7 @@ class BCLR( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
   }
 
   def disassemble( cpu: CPU ) =
-    "BCLR   " +
+    s"${mnemonic("BCLR")}" +
       (breg match {
         case None => s"#${cpu.fetchByte}, ${cpu.operand( mode, reg )}"
         case Some( r ) => s"D$r, ${cpu.operand( mode, reg )}"
@@ -239,7 +239,7 @@ class BKPT( bkpt: Int ) extends Instruction {
     if (!cpu.breakpoint( bkpt ))
       cpu.exception( VectorTable.illegalInstruction )
 
-  def disassemble( cpu: CPU ) = s"BKPT   #$bkpt"
+  def disassemble( cpu: CPU ) = s"${mnemonic("BKPT")}#$bkpt"
 
 }
 
@@ -259,7 +259,7 @@ class BSET( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
   }
 
   def disassemble( cpu: CPU ) =
-    "BSET   " +
+    s"${mnemonic("BSET")}" +
       (breg match {
         case None => s"#${cpu.fetchByte}, ${cpu.operand( mode, reg )}"
         case Some( r ) => s"D$r, ${cpu.operand( mode, reg )}"
@@ -281,7 +281,7 @@ class BSR( disp: Int ) extends Instruction {
     cpu.jumpto( jump )
   }
 
-  def disassemble( cpu: CPU ) = s"BSR    ${cpu.PC + cpu.displacement(disp)}"
+  def disassemble( cpu: CPU ) = s"${mnemonic("BSR")}${cpu.PC + cpu.displacement(disp)}"
 
 }
 
@@ -299,7 +299,7 @@ class BTST( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
   }
 
   def disassemble( cpu: CPU ) =
-    "BTST   " +
+    s"${mnemonic("BTST")}" +
       (breg match {
         case None => s"#${cpu.fetchByte}, ${cpu.operand( mode, reg )}"
         case Some( r ) => s"D$r, ${cpu.operand( mode, reg )}"
@@ -497,7 +497,7 @@ object EORItoCCR extends Instruction {
       cpu.V ^= true
   }
 
-  def disassemble( cpu: CPU ) = s"EORI   #${cpu.fetchByte}, CCR"
+  def disassemble( cpu: CPU ) = s"${mnemonic("EORI")}#${cpu.fetchByte}, CCR"
 
 }
 
@@ -507,7 +507,7 @@ object EORItoSR extends Instruction {
     cpu.toSR( cpu.fromSR ^ cpu.fetchShort )
   }
 
-  def disassemble( cpu: CPU ) = s"EORI   #${cpu.fetchShort}, SR"
+  def disassemble( cpu: CPU ) = s"${mnemonic("EORI")}#${cpu.fetchShort}, SR"
 
 }
 
@@ -534,7 +534,7 @@ class EXG( rx: Int, mode: Int, ry: Int ) extends Instruction {
   }
 
   def disassemble( cpu: CPU ) =
-    "EXG    " +
+    s"${mnemonic("EXG")}" +
       (mode match {
         case 0x08 => s"D$rx, D$ry"
         case 0x09 => s"A$rx, A$ry"
@@ -628,7 +628,7 @@ class LINK( reg: Int ) extends Instruction {
     cpu.writeA( sp + cpu.immediate(ShortSize), 7 )
   }
 
-  def disassemble( cpu: CPU ) = s"LINK   A$reg, #${cpu.immediate(ShortSize)}"
+  def disassemble( cpu: CPU ) = s"${mnemonic("LINK")}A$reg, #${cpu.immediate(ShortSize)}"
 
 }
 
@@ -771,7 +771,7 @@ class MOVEfromSR( mode: Int, reg: Int ) extends Instruction {
     cpu.write( cpu.fromSR, mode, reg, ShortSize )
   }
 
-  def disassemble( cpu: CPU ) = s"MOVE   SR, ${cpu.operand( mode, reg )}"
+  def disassemble( cpu: CPU ) = s"${mnemonic("MOVE")}SR, ${cpu.operand( mode, reg )}"
 
 }
 
@@ -781,7 +781,7 @@ class MOVEtoCCR( mode: Int, reg: Int ) extends Instruction {
     cpu.toCCR( cpu.read(mode, reg, ByteSize) )
   }
 
-  def disassemble( cpu: CPU ) = s"MOVE   ${cpu.operand( mode, reg )}, CCR"
+  def disassemble( cpu: CPU ) = s"${mnemonic("MOVE")}${cpu.operand( mode, reg )}, CCR"
 
 }
 
@@ -792,7 +792,7 @@ class MOVEtoSR( mode: Int, reg: Int ) extends Instruction {
       cpu.toSR( cpu.read(mode, reg, ShortSize) )
   }
 
-  def disassemble( cpu: CPU ) = s"MOVE   ${cpu.operand( mode, reg )}, SR"
+  def disassemble( cpu: CPU ) = s"${mnemonic("MOVE")}${cpu.operand( mode, reg )}, SR"
 
 }
 
@@ -802,7 +802,7 @@ class MOVEQ( reg: Int, data: Int ) extends Instruction {
     cpu.D(reg) = cpu.flags( 0, 0, false, data, false )
   }
 
-  def disassemble( cpu: CPU ) = s"MOVEQ  #$data, D$reg"
+  def disassemble( cpu: CPU ) = s"${mnemonic("MOVEQ")}#$data, D$reg"
 
 }
 
@@ -816,7 +816,7 @@ class MOVEUSP( dir: Int, reg: Int ) extends Instruction {
         cpu.writeA( cpu.USP, reg )
   }
 
-  def disassemble( cpu: CPU ) = "MOVE   " + (if (dir == 0) s"A$reg, USP" else s"USP, A$reg")
+  def disassemble( cpu: CPU ) = s"${mnemonic("MOVE")}" + (if (dir == 0) s"A$reg, USP" else s"USP, A$reg")
 
 }
 
@@ -940,7 +940,7 @@ object ORItoCCR extends Instruction {
       cpu.V |= true
   }
 
-  def disassemble( cpu: CPU ) = s"ORI    #${cpu.fetchByte}, CCR"
+  def disassemble( cpu: CPU ) = s"${mnemonic("ORI")}#${cpu.fetchByte}, CCR"
 
 }
 
@@ -950,7 +950,7 @@ object ORItoSR extends Instruction {
     cpu.toSR( cpu.fromSR | cpu.fetchShort )
   }
 
-  def disassemble( cpu: CPU ) = s"ORI    #${cpu.fetchShort}, SR"
+  def disassemble( cpu: CPU ) = s"${mnemonic("ORI")}#${cpu.fetchShort}, SR"
 
 }
 
@@ -960,7 +960,7 @@ class PEA( mode: Int, reg: Int ) extends Instruction {
     cpu.pushAddress( cpu.address(mode, reg) )
   }
 
-  def disassemble( cpu: CPU ) = s"PEA    ${cpu.operand( mode, reg )}"
+  def disassemble( cpu: CPU ) = s"${mnemonic("PEA")}${cpu.operand( mode, reg )}"
 
 }
 
@@ -1080,7 +1080,7 @@ class SBCD( y: Int, r: Int, x: Int ) extends Instruction with Addressing {
       cpu.readWrite( AddressRegisterIndirectPredecrement, x, ByteSize )( cpu.sbcd(_, cpu.read(AddressRegisterIndirectPredecrement, y, ByteSize)) )
   }
 
-  def disassemble( cpu: CPU ) = "SBCD   " + (if (r == 0) s"D$y, D$x" else s"-(A$y), -(A$x)")
+  def disassemble( cpu: CPU ) = s"${mnemonic("SBCD")}" + (if (r == 0) s"D$y, D$x" else s"-(A$y), -(A$x)")
 
 }
 
@@ -1092,7 +1092,7 @@ object STOP extends Instruction {
       cpu.stopped = true
     }
 
-  def disassemble( cpu: CPU ) = s"STOP   #${cpu.fetchShort}"
+  def disassemble( cpu: CPU ) = s"${mnemonic("STOP")}#${cpu.fetchShort}"
 
 }
 
@@ -1121,7 +1121,7 @@ class SWAP( reg: Int ) extends Instruction {
     cpu.C = false
   }
 
-  def disassemble( cpu: CPU ) = s"SWAP   D$reg"
+  def disassemble( cpu: CPU ) = s"${mnemonic("SWAP")}D$reg"
 
 }
 
@@ -1137,7 +1137,7 @@ class TAS( mode: Int, reg: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = s"TAS    ${cpu.operand( ByteSize, mode, reg )}"
+  def disassemble( cpu: CPU ) = s"${mnemonic("TAS")}${cpu.operand( ByteSize, mode, reg )}"
 
 }
 
@@ -1149,7 +1149,7 @@ class TRAP( vector: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = s"TRAP   #$vector"
+  def disassemble( cpu: CPU ) = s"${mnemonic("TRAP")}#$vector"
 
 }
 
@@ -1187,6 +1187,6 @@ class UNLK( reg: Int ) extends Instruction {
     cpu.writeA( cpu.popAddress, reg )
   }
 
-  def disassemble( cpu: CPU ) = s"UNLK   A$reg"
+  def disassemble( cpu: CPU ) = s"${mnemonic("UNLK")}A$reg"
 
 }

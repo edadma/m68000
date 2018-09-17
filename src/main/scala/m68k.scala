@@ -76,7 +76,7 @@ package object m68k {
 
   def ones( a: Int ) = (for (i <- 0 until a) yield 1<<i) reduce (_ | _)
 
-  def mnemonic( sym: String ) = s"$sym.${" "*(6 - sym.length)} "
+  def mnemonic( sym: String ) = s"$sym${" "*(8 - sym.length)} "
 
   def mnemonic( sym: String, size: Size ) = {
     val s =
@@ -86,7 +86,7 @@ package object m68k {
         case IntSize => "L"
       }
 
-    s"$sym.$s${" "*(4 - sym.length)} "
+    s"$sym.$s${" "*(6 - sym.length)} "
   }
 
   def ranges( list: List[String], buf: ListBuffer[(String, String)] = new ListBuffer ): String =

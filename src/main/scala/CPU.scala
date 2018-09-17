@@ -106,9 +106,19 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
       fetch
 
+      val extension = PC
       val disassembly = opcodes(instruction).disassemble( this )
+      val words = (PC - extension).toInt/2
 
-      printf( f"$PC%6x  ${hexShort(instruction)}  $disassembly\n" )
+      PC = extension
+      printf( f"${PC.toHexString.toUpperCase}%6s  ${hexShort(instruction)} " )
+
+      for (_ <- 0 until words)
+        print( hexShort(fetchShort) + " " )
+
+      print( " "*((4 - words)*5) )
+
+      println( " " + disassembly )
       PC = pc
     } else
       println( f"pc=$PC%6x" )
@@ -566,6 +576,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case AddressRegisterIndirect => s"(A$reg)"
       case AddressRegisterIndirectPostincrement => s"(A$reg)+"
       case AddressRegisterIndirectPredecrement => s"-(A$reg)"
+      case AddressRegisterIndirectWithDisplacement => s"$fetchShort(A$reg)"
       case OtherModes =>
         reg match {
           case AbsoluteShort => s"($fetchShort).W"
