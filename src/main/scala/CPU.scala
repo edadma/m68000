@@ -111,7 +111,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       val words = (PC - extension).toInt/2
 
       PC = extension
-      printf( f"${PC.toHexString.toUpperCase}%6s  ${hexShort(instruction)} " )
+      print( f"${PC.toHexString.toUpperCase}%6s  ${hexShort(instruction)} " )
 
       for (_ <- 0 until words)
         print( hexShort(fetchShort) + " " )
@@ -121,36 +121,31 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       println( " " + disassembly )
       PC = pc
     } else
-      println( f"pc=$PC%6x" )
+      println( f"PC=${PC.toHexString.toUpperCase}%6s" )
   }
 
   def registers: Unit = {
-//    def regs( start: Int ) {
-//      for (i <- start until (start + 5 min 32))
-//        printf( "%21s  ", s"${rx(i)}=${x(i).toHexString}" )
-//
-//      println
-//    }
-//
-//    for (i <- 0 until 32 by 5)
-//      regs( i )
-  }
+    for (i <- 0 to 7)
+      print( s"D$i=${hexInt(D(i))} " )
 
-  def fregisters: Unit = {
-//    def regs( start: Int ) {
-//      for (i <- start until (start + 5 min 32))
-//        printf( "%21s  ", s"${rf(i)}=${"%.2f".format(f(i))}" )
-//
-//      println
-//    }
-//
-//    for (i <- 0 until 32 by 5)
-//      regs( i )
+    println
+
+    for (i <- 0 to 7)
+      print( s"A$i=${hexInt(readA(i).asInstanceOf[Int])} " )
+
+    println
+
+    println( "T S  III   XNZVC" )
+
+    def star( bit: Int ) = if ((SR&bit) != 0) "*" else " "
+
+    def cond( on: Boolean ) = if (on) "*" else " "
+
+    println( s"${star(SRBit.T)} ${star(SRBit.S)}  ${star(SRBit.I2)}${star(SRBit.I1)}${star(SRBit.I0)}   ${cond(X)}${cond(N)}${cond(Z)}${cond(V)}${cond(C)}" )
   }
 
   def registersAll: Unit = {
     registers
-    fregisters
   }
 
   def problem( error: String ) = {
@@ -187,6 +182,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     if (trace) {
       disassemble
       registers
+      println
     }
 
     fetch
