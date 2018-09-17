@@ -18,6 +18,8 @@ object Main extends App {
     }
   val cpu =
     new CPU( mem ) {
+      trace = true
+
       override def illegal = {
         println( "illegal instruction" )
         halt

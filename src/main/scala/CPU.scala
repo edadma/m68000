@@ -100,23 +100,18 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 	def isRunning = running
 
   def disassemble: Unit = {
-//    if (memory.valid( pc )) {
-//    val m = memory.find( pc )
-//    val low = m.readByte( pc )
-//    val (inst, disassembly) =
-//      if ((low&3) == 3) {
-//        val inst = m.readInt( pc, low )
-//
-//        (hexInt( inst ), opcodes32(inst&0x1FFFFFF).disassemble( this ))
-//      } else {
-//        val inst = m.readShort( pc, low )
-//
-//        (hexShort( inst ), opcodes16(inst).disassemble( this ))
-//      }
-//
-//      printf( "%8x  %s  %s\n", pc, inst, disassembly )
-//    } else
-//      println( s"pc=${pc.toHexString}" )
+    if (memory.valid( PC )) {
+      val pc = PC
+      val m = memory.find( PC )
+
+      fetch
+
+      val disassembly = opcodes(instruction).disassemble( this )
+
+      printf( f"$PC%6x  ${hexShort(instruction)}  $disassembly\n" )
+      PC = pc
+    } else
+      println( f"pc=$PC%6x" )
   }
 
   def registers: Unit = {

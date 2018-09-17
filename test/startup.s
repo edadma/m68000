@@ -37,6 +37,8 @@ outc:
     unlk    %fp
     rts
 
+    .globl	halt
+    .type	halt, @function
 halt:
     move    #9, %d0
     trap    #15
