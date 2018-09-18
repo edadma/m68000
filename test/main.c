@@ -6,6 +6,7 @@ char string[] = "ab";
 
 void
 main() {
+    outln( string );
 //    int sum = 0;
 //
 //    for (int i = 3; i <= 5; i++)

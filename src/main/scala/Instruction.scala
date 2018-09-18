@@ -173,9 +173,9 @@ class ASReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Inst
 
 class Bcc( cond: Int, disp: Int ) extends Instruction {
 
-  def apply( cpu: CPU ): Unit = {
-    cpu.jumpto( cpu.PC + cpu.displacement(disp) )
-  }
+  def apply( cpu: CPU ): Unit =
+    if (cpu.testcc( cond ))
+      cpu.jumpto( cpu.PC + cpu.displacement(disp) )
 
   def disassemble( cpu: CPU ) = {
     mnemonic( s"B${Conditional( cond )}" ) + (cpu.PC + cpu.displacement(disp)).toHexString.toUpperCase
@@ -340,7 +340,7 @@ class CLR( size: Size, mode: Int, reg: Int ) extends Instruction {
 class CMP( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.subtract( cast(cpu.D(reg), size), cpu.read(mode, reg, size), false )
+    cpu.subtract( cpu.read(mode, reg, size), cast(cpu.D(reg), size), false )
   }
 
   def disassemble( cpu: CPU ) = cpu.binaryDstD( "CMP", size, mode, reg, dreg )
@@ -350,7 +350,7 @@ class CMP( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class CMPA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.subtract( cpu.readA(areg).asInstanceOf[Int], cpu.read(mode, reg, size), false )
+    cpu.subtract( cpu.read(mode, reg, size), cpu.readA(areg).asInstanceOf[Int], false )
   }
 
   def disassemble( cpu: CPU ) = cpu.binaryA( "CMPA", size, mode, reg, areg )
@@ -370,7 +370,7 @@ class CMPI( size: Size, mode: Int, reg: Int ) extends Instruction {
 class CMPM( size: Size, rx: Int, ry: Int ) extends Instruction with Addressing {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.subtract( cpu.read(AddressRegisterIndirectPostincrement, rx, size), cpu.read(AddressRegisterIndirectPostincrement, ry, size), false )
+    cpu.subtract( cpu.read(AddressRegisterIndirectPostincrement, ry, size), cpu.read(AddressRegisterIndirectPostincrement, rx, size), false )
   }
 
   def disassemble( cpu: CPU ) = mnemonic( "CMPM", size ) + s"(A$ry)+, (A$rx)+"
@@ -1073,9 +1073,9 @@ class SBCD( y: Int, r: Int, x: Int ) extends Instruction with Addressing {
 
   def apply( cpu: CPU ): Unit = {
     if (r == 0)
-      cpu.writeD( cpu.sbcd(cpu.readD(x, ByteSize), cpu.readD(y, ByteSize)), x, ByteSize )
+      cpu.writeD( cpu.sbcd(cpu.readD(y, ByteSize), cpu.readD(x, ByteSize)), x, ByteSize )
     else
-      cpu.readWrite( AddressRegisterIndirectPredecrement, x, ByteSize )( cpu.sbcd(_, cpu.read(AddressRegisterIndirectPredecrement, y, ByteSize)) )
+      cpu.readWrite( AddressRegisterIndirectPredecrement, x, ByteSize )( cpu.sbcd(cpu.read(AddressRegisterIndirectPredecrement, y, ByteSize), _) )
   }
 
   def disassemble( cpu: CPU ) = s"${mnemonic("SBCD")}" + (if (r == 0) s"D$y, D$x" else s"-(A$y), -(A$x)")
@@ -1100,7 +1100,7 @@ class SUB( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
     if (dir == 0)
       cpu.writeD( cpu.subtract(cpu.read(mode, reg, size), cpu.readD(reg, size), false), reg, size )
     else
-      cpu.readWrite( mode, reg, size)( cpu.subtract(_, cpu.readD(reg, size), false) )
+      cpu.readWrite( mode, reg, size)( cpu.subtract(cpu.readD(reg, size), _, false) )
   }
 
   def disassemble( cpu: CPU ) = cpu.binary( "SUB", size, mode, reg, dir, dreg )
