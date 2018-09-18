@@ -4,6 +4,7 @@
     .long       _start
 
     .text
+    .globl	_start
 _start:
     /* zero bss section */
     movea.l #__bss_start__, %a0
@@ -27,9 +28,9 @@ _start:
     jsr     main
     jmp     halt
 
-    .globl	outc
-    .type	outc, @function
-outc:
+    .globl	printc
+    .type	printc, @function
+printc:
     link.w  %fp, #0
     move.l  8(%fp), %d1
     move    #6, %d0
@@ -37,9 +38,9 @@ outc:
     unlk    %fp
     rts
 
-    .globl	outn
-    .type	outn, @function
-outn:
+    .globl	printn
+    .type	printn, @function
+printn:
     link.w  %fp, #0
     move.l  8(%fp), %d1
     move    #3, %d0
@@ -47,9 +48,9 @@ outn:
     unlk    %fp
     rts
 
-    .globl	outln
-    .type	outln, @function
-outln:
+    .globl	println
+    .type	println, @function
+println:
     link.w  %fp, #0
     move.l  8(%fp), %a1
     move    #13, %d0

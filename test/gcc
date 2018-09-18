@@ -1,1 +1,1 @@
-m68k-unknown-uclinux-uclibc-gcc -nostdlib -nodefaultlibs -m68000 -c startup.s $1.c
+m68k-unknown-uclinux-uclibc-gcc -m68000 -c startup.s $1.c

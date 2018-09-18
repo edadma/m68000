@@ -1,3 +1,10 @@
+SEARCH_DIR(/home/ed/x-tools/m68k-unknown-uclinux-uclibc/lib/gcc/m68k-unknown-uclinux-uclibc/6.3.0/)
+/*
+SEARCH_DIR(/home/ed/x-tools/m68k-unknown-uclinux-uclibc/lib/gcc/m68k-unknown-uclinux-uclibc/6.3.0/../../../../m68k-unknown-uclinux-uclibc/lib/)
+SEARCH_DIR(/home/ed/x-tools/m68k-unknown-uclinux-uclibc/m68k-unknown-uclinux-uclibc/sysroot/lib/)
+SEARCH_DIR(/home/ed/x-tools/m68k-unknown-uclinux-uclibc/m68k-unknown-uclinux-uclibc/sysroot/usr/lib/)
+*/
+
 OUTPUT_FORMAT(srec)
 
 MEMORY
@@ -32,7 +39,7 @@ SECTIONS
     __stack_end__ = . + __stack_size__;
 
     /DISCARD/ : {
-        *(.eh_frame);
+/*        *(.eh_frame);*/
         *(.comment);
     }
 }

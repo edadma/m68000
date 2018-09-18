@@ -1,1 +1,1 @@
-m68k-unknown-uclinux-uclibc-ld --script ldscript -o $1.srec startup.o $1.o
+m68k-unknown-uclinux-uclibc-ld --script ldscript -Map $1.map startup.o $1.o -lgcc -o $1.srec

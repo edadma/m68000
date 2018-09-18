@@ -1,17 +1,41 @@
-extern void outc( char c );
-extern void outln( char* s );
-extern void outn( int n );
+extern void printc( char c );
+extern void println( char* s );
+extern void printn( int n );
 
-char string[] = "ab";
+char*
+bin2str( int n, int radix, char* buf ) {
+	char digits[] = "0123456789ABCDEF";
+	char* p = &buf[33];
+	int quo = n;
+
+	if (n < 0)
+		quo = -quo;
+
+	*p-- = 0;
+
+	while (quo >= radix) {
+		*p-- = digits[(quo%radix)];
+		quo /= radix;
+	}
+
+	*p = digits[quo];
+
+	if (n < 0)
+		*--p = '-';
+
+	return p;
+}
 
 void
 main() {
-    outln( string );
+	static char buf[34];
+
+    println( bin2str(123, 10, buf) );
 //    int sum = 0;
 //
 //    for (int i = 3; i <= 5; i++)
 //        sum += i;
 //
-//    outn( sum );
-//    outc( '\n' );
+//    printn( sum );
+//    printc( '\n' );
 }
