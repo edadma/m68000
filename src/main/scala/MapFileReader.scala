@@ -7,7 +7,7 @@ object MapFileReader extends App {
 
   println( apply(io.Source.fromFile("test/main.map")) )
 
-  val Label = " {16}([^ ]) {16}([^ ]+).*"r
+  lazy val labelRegex = " {16}0x([^ ]+) {16}([^ ]+).*"r
 
   def apply( src: io.Source ): Map[String, Long] = {
     val map = new HashMap[String, Long]
@@ -20,7 +20,8 @@ object MapFileReader extends App {
             return map.toMap
           else {
             line match {
-              case Label( address, label )
+              case labelRegex( address, label ) => map(label) = java.lang.Long.parseLong( address, 16 )
+              case _ =>
             }
           }
         }
