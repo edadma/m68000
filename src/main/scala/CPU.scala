@@ -24,6 +24,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   private [m68k] var instruction = 0
   private [m68k] var prog: Addressable = _
   private [m68k] var symbols: HashMap[Long, String] = HashMap()
+  private [m68k] var labels = 0
 
   private val interrupts = new PriorityQueue[Interrupt]
   private var interruptsAvailable = false
@@ -309,9 +310,17 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def readD( reg: Int, size: Size ) = cast( D(reg), size )
 
+  def relative( disp: Int ) = target( displacement(disp) )
+
   def target( addr: Long ) =
     symbols get addr match {
-      case None => addr.toHexString.toUpperCase
+      case None =>
+        labels += 1
+
+        val label = s"L$labels"
+
+        symbols(addr) = label
+        label
       case Some( label ) => label
     }
 
@@ -571,11 +580,12 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   }
 
   def displacement( disp: Int ) =
-    disp match {
-      case 0 => fetchShort
-//      case -1 => fetchInt//020
-      case _ => disp
-    }
+    PC +
+      (disp match {
+        case 0 => fetchShort
+  //      case -1 => fetchInt//020
+        case _ => disp
+      })
 
   def operand( mode: Int, reg: Int ): String = operand( null, mode, reg )
 

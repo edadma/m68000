@@ -175,10 +175,10 @@ class Bcc( cond: Int, disp: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit =
     if (cpu.testcc( cond ))
-      cpu.jumpto( cpu.PC + cpu.displacement(disp) )
+      cpu.jumpto( cpu.displacement(disp) )
 
   def disassemble( cpu: CPU ) = {
-    mnemonic( s"B${Conditional( cond )}" ) + (cpu.PC + cpu.displacement(disp)).toHexString.toUpperCase
+    mnemonic( s"B${Conditional( cond )}" ) + cpu.relative(disp)
   }
 
 }
@@ -268,18 +268,11 @@ class BSET( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 class BSR( disp: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val jump =
-      disp match {
-        case 0 => cpu.fetchShort
-        case -1 => cpu.fetchInt//020
-        case _ => disp
-      }
-
     cpu.pushAddress( cpu.PC )
-    cpu.jumpto( jump )
+    cpu.jumpto( cpu.displacement(disp) )
   }
 
-  def disassemble( cpu: CPU ) = s"${mnemonic("BSR")}${cpu.PC + cpu.displacement(disp)}"
+  def disassemble( cpu: CPU ) = s"${mnemonic("BSR")}${cpu.relative(disp)}"
 
 }
 
@@ -380,8 +373,6 @@ class CMPM( size: Size, rx: Int, ry: Int ) extends Instruction with Addressing {
 class DBcc( cond: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val pc = cpu.PC
-
     if (cpu.testcc( cond ))
       cpu.PC += 2
     else {
@@ -392,11 +383,11 @@ class DBcc( cond: Int, reg: Int ) extends Instruction {
       if (res == -1)
         cpu.PC += 2
       else
-        cpu.jumpto( pc + cpu.fetchShort )
+        cpu.jumpto( cpu.PC + cpu.fetchShort )
     }
   }
 
-  def disassemble( cpu: CPU ) = mnemonic( s"DB${Conditional( cond )}" ) + s"D$reg, ${cpu.PC + cpu.fetchShort}"
+  def disassemble( cpu: CPU ) = mnemonic( s"DB${Conditional( cond )}" ) + s"D$reg, ${cpu.target( cpu.PC + cpu.fetchShort )}"
 
 }
 
