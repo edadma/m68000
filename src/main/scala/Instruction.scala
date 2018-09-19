@@ -76,7 +76,7 @@ class ADDQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, size )( cpu.add(_, data, false) )
   }
 
-  def disassemble( cpu: CPU ) = mnemonic( "ADDQ", size ) + s"#$data, ${cpu.operand( size, mode, reg )}"
+  def disassemble( cpu: CPU ) = mnemonic( "ADDQ", size ) + s"#$data, ${cpu.operand(mode, reg, size)}"
 
 }
 
@@ -148,7 +148,7 @@ class ASMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
   def disassemble( cpu: CPU ) = {
     val d = if (dir == 0) 'R' else 'L'
 
-    s"AS$d    ${cpu.operand( ShortSize, mode, reg )}"
+    s"AS$d    ${cpu.operand(mode, reg, ShortSize)}"
   }
 
 }
@@ -557,7 +557,7 @@ class JMP( mode: Int, reg: Int ) extends Instruction {
     cpu.jumpto( cpu.address(mode, reg) )
   }
 
-  def disassemble( cpu: CPU ) = mnemonic( "JMP" ) + cpu.target( mode, reg )
+  def disassemble( cpu: CPU ) = mnemonic( "JMP" ) + cpu.targetea( mode, reg )
 
 }
 
@@ -570,7 +570,7 @@ class JSR( mode: Int, reg: Int ) extends Instruction {
     cpu.jumpto( addr )
   }
 
-  def disassemble( cpu: CPU ) = mnemonic( "JSR" ) + cpu.target( mode, reg )
+  def disassemble( cpu: CPU ) = mnemonic( "JSR" ) + cpu.targetea( mode, reg )
 
 }
 
@@ -580,7 +580,7 @@ class LEA( areg: Int, mode: Int, reg: Int ) extends Instruction {
     cpu.writeA( cpu.address(mode, reg), areg )
   }
 
-  def disassemble( cpu: CPU ) = cpu.binaryA( "LEA", mode, reg, areg )
+  def disassemble( cpu: CPU ) = cpu.binaryA( "LEA", mode, reg, areg, false )
 
 }
 
@@ -630,7 +630,7 @@ class LSMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
   def disassemble( cpu: CPU ) = {
     val d = if (dir == 0) 'R' else 'L'
 
-    s"LS$d    ${cpu.operand( ShortSize, mode, reg )}"
+    s"LS$d    ${cpu.operand(mode, reg, ShortSize)}"
   }
 
 }
@@ -659,7 +659,7 @@ class MOVE( size: Size, dreg: Int, dmode: Int, smode: Int, sreg: Int ) extends I
     cpu.write( cpu.flags(0, 0, false, cpu.read(smode, sreg, size), false), dmode, dreg, size )
   }
 
-  def disassemble( cpu: CPU ) = mnemonic( "MOVE", size ) + s"${cpu.operand( size, smode, sreg )}, ${cpu.operand( size, dmode, dreg )}"
+  def disassemble( cpu: CPU ) = mnemonic( "MOVE", size ) + s"${cpu.operand(smode, sreg, size)}, ${cpu.operand(dmode, dreg, size)}"
 
 }
 
@@ -949,7 +949,7 @@ class PEA( mode: Int, reg: Int ) extends Instruction {
     cpu.pushAddress( cpu.address(mode, reg) )
   }
 
-  def disassemble( cpu: CPU ) = s"${mnemonic("PEA")}${cpu.operand( mode, reg )}"
+  def disassemble( cpu: CPU ) = s"${mnemonic("PEA")}${cpu.operand( mode, reg, locals = false )}"
 
 }
 
@@ -972,7 +972,7 @@ class ROMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
   def disassemble( cpu: CPU ) = {
     val d = if (dir == 0) 'R' else 'L'
 
-    s"RO$d    ${cpu.operand( ShortSize, mode, reg )}"
+    s"RO$d    ${cpu.operand(mode, reg, ShortSize)}"
   }
 
 }
@@ -1004,7 +1004,7 @@ class ROXMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
   def disassemble( cpu: CPU ) = {
     val d = if (dir == 0) 'R' else 'L'
 
-    s"ROX$d    ${cpu.operand( ShortSize, mode, reg )}"
+    s"ROX$d    ${cpu.operand(mode, reg, ShortSize)}"
   }
 
 }
@@ -1126,7 +1126,7 @@ class TAS( mode: Int, reg: Int ) extends Instruction {
     }
   }
 
-  def disassemble( cpu: CPU ) = s"${mnemonic("TAS")}${cpu.operand( ByteSize, mode, reg )}"
+  def disassemble( cpu: CPU ) = s"${mnemonic("TAS")}${cpu.operand(mode, reg, ByteSize)}"
 
 }
 

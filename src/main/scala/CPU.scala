@@ -312,19 +312,20 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def relative( disp: Int ) = target( displacement(disp) )
 
-  def target( addr: Long ) =
+  def target( addr: Long, locals: Boolean = true ) =
     symbols get addr match {
-      case None =>
+      case None if locals =>
         labels += 1
 
         val label = s"L$labels"
 
         symbols(addr) = label
         label
+      case None => "$" + addr.toHexString.toUpperCase
       case Some( label ) => label
     }
 
-  def target( mode: Int, reg: Int ): String = target( address(mode, reg) )
+  def targetea(mode: Int, reg: Int, locals: Boolean = true ): String = target( address(mode, reg), locals )
 
   def address( mode: Int, reg: Int ) =
     mode match {
@@ -587,9 +588,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
         case _ => disp
       })
 
-  def operand( mode: Int, reg: Int ): String = operand( null, mode, reg )
-
-  def operand( size: Size, mode: Int, reg: Int ) =
+  def operand(mode: Int, reg: Int, size: Size = null, locals: Boolean = true): String =
     mode match {
       case DataRegisterDirect => s"D$reg"
       case AddressRegisterDirect => s"A$reg"
@@ -599,33 +598,33 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case AddressRegisterIndirectWithDisplacement => s"$fetchShort(A$reg)"
       case OtherModes =>
         reg match {
-          case AbsoluteShort => s"(${target(fetchShort)}).W"
-          case AbsoluteLong => s"(${target(fetchInt)}).L"
+          case AbsoluteShort => s"(${target(fetchShort, locals)}).W"
+          case AbsoluteLong => s"(${target(fetchInt, locals)}).L"
           case ProgramCounterWithDisplacement => s"$fetchShort(PC)"
           case ImmediateData => s"#${immediate( size )}"
         }
     }
 
-  def unary( sym: String, size: Size, mode: Int, reg: Int ) = mnemonic( sym, size ) + operand( size, mode, reg )
+  def unary( sym: String, size: Size, mode: Int, reg: Int ) = mnemonic( sym, size ) + operand(mode, reg, size)
 
-  def unary( sym: String, mode: Int, reg: Int ) = mnemonic( sym ) + operand( IntSize, mode, reg )
+  def unary( sym: String, mode: Int, reg: Int ) = mnemonic( sym ) + operand(mode, reg, IntSize)
 
   def binary( sym: String, size: Size, mode: Int, reg: Int, dir: Int, dreg: Int ) =
-    mnemonic( sym, size ) + (if (dir == 0) s"${operand( IntSize, mode, reg )}, D$dreg" else s"D$dreg, ${operand( IntSize, mode, reg )}")
+    mnemonic( sym, size ) + (if (dir == 0) s"${operand(mode, reg, IntSize)}, D$dreg" else s"D$dreg, ${operand(mode, reg, IntSize)}")
 
   def binaryA( sym: String, size: Size, mode: Int, reg: Int, areg: Int ) =
-    mnemonic( sym, size ) + s"${operand( IntSize, mode, reg )}, A$areg"
+    mnemonic( sym, size ) + s"${operand(mode, reg, IntSize)}, A$areg"
 
-  def binaryA( sym: String, mode: Int, reg: Int, areg: Int ) =
-    mnemonic( sym ) + s"${operand( IntSize, mode, reg )}, A$areg"
+  def binaryA( sym: String, mode: Int, reg: Int, areg: Int, locals: Boolean = true ) =
+    mnemonic( sym ) + s"${operand(mode, reg, IntSize, locals)}, A$areg"
 
   def binaryDstD( sym: String, size: Size, mode: Int, reg: Int, dreg: Int ) =
-    mnemonic( sym, size ) + s"${operand( IntSize, mode, reg )}, D$dreg"
+    mnemonic( sym, size ) + s"${operand(mode, reg, IntSize)}, D$dreg"
 
   def binarySrcD( sym: String, size: Size, mode: Int, reg: Int, dreg: Int ) =
-    mnemonic( sym, size ) + s"D$dreg, ${operand( IntSize, mode, reg )}"
+    mnemonic( sym, size ) + s"D$dreg, ${operand(mode, reg, IntSize)}"
 
-  def immediate( sym: String, size: Size, mode: Int, reg: Int ): String = mnemonic( sym, size ) + s"#${immediate(size)}, ${operand( size, mode, reg )}"
+  def immediate( sym: String, size: Size, mode: Int, reg: Int ): String = mnemonic( sym, size ) + s"#${immediate(size)}, ${operand(mode, reg, size)}"
 }
 
 object CPU {
