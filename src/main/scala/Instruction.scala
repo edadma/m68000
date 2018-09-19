@@ -566,7 +566,7 @@ class JMP( mode: Int, reg: Int ) extends Instruction {
     cpu.jumpto( cpu.address(mode, reg) )
   }
 
-  def disassemble( cpu: CPU ) = mnemonic( "JMP" ) + cpu.address( mode, reg ).toHexString.toUpperCase
+  def disassemble( cpu: CPU ) = mnemonic( "JMP" ) + cpu.target( mode, reg )
 
 }
 
@@ -579,7 +579,7 @@ class JSR( mode: Int, reg: Int ) extends Instruction {
     cpu.jumpto( addr )
   }
 
-  def disassemble( cpu: CPU ) = mnemonic( "JSR" ) + cpu.address( mode, reg ).toHexString.toUpperCase
+  def disassemble( cpu: CPU ) = mnemonic( "JSR" ) + cpu.target( mode, reg )
 
 }
 

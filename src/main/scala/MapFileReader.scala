@@ -9,18 +9,18 @@ object MapFileReader extends App {
 
   lazy val labelRegex = " {16}0x([^ ]+) {16}([^ ]+).*"r
 
-  def apply( src: io.Source ): Map[String, Long] = {
-    val map = new HashMap[String, Long]
+  def apply( src: io.Source ): (HashMap[String, Long], HashMap[Long, String]) = {
+    val symbols = new HashMap[String, Long]
     var started = false
 
     for (line <- src.getLines) {
       if (started) {
         if (line.nonEmpty) {
           if (!line.contains( ' ' ))
-            return map.toMap
+            return (symbols, symbols map {case (d, r) => (r, d)})
           else {
             line match {
-              case labelRegex( address, label ) => map(label) = java.lang.Long.parseLong( address, 16 )
+              case labelRegex( address, label ) => symbols(label) = java.lang.Long.parseLong( address, 16 )
               case _ =>
             }
           }

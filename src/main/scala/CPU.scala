@@ -1,7 +1,7 @@
 //@
 package xyz.hyperreal.m68k
 
-import scala.collection.mutable.{ListBuffer, PriorityQueue}
+import scala.collection.mutable.{ListBuffer, PriorityQueue, HashMap}
 
 
 case class Interrupt( level: Int, vector: Option[Int] ) extends Ordered[Interrupt] {
@@ -23,6 +23,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   private [m68k] var SR = 0
   private [m68k] var instruction = 0
   private [m68k] var prog: Addressable = _
+  private [m68k] var symbols: HashMap[Long, String] = HashMap()
 
   private val interrupts = new PriorityQueue[Interrupt]
   private var interruptsAvailable = false
@@ -116,9 +117,14 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       for (_ <- 0 until words)
         print( hexShort(fetchShort) + " " )
 
-      print( " "*((4 - words)*5) )
+      print( " "*((4 - words)*5) + " " )
 
-      println( " " + disassembly )
+      symbols get pc match {
+        case None =>
+        case Some( label ) => print( label + ": " )
+      }
+
+      println( disassembly )
       PC = pc
     } else
       println( f"PC=${PC.toHexString.toUpperCase}%6s" )
@@ -180,8 +186,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def execute: Unit = {
     if (trace) {
-      disassemble
       registers
+      disassemble
       println
     }
 
@@ -302,6 +308,14 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     }
 
   def readD( reg: Int, size: Size ) = cast( D(reg), size )
+
+  def target( addr: Long ) =
+    symbols get addr match {
+      case None => addr.toHexString.toUpperCase
+      case Some( label ) => label
+    }
+
+  def target( mode: Int, reg: Int ): String = target( address(mode, reg) )
 
   def address( mode: Int, reg: Int ) =
     mode match {
@@ -575,8 +589,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case AddressRegisterIndirectWithDisplacement => s"$fetchShort(A$reg)"
       case OtherModes =>
         reg match {
-          case AbsoluteShort => s"($fetchShort).W"
-          case AbsoluteLong => s"($fetchShort).L"
+          case AbsoluteShort => s"(${target(fetchShort)}).W"
+          case AbsoluteLong => s"(${target(fetchInt)}).L"
           case ProgramCounterWithDisplacement => s"$fetchShort(PC)"
           case ImmediateData => s"#${immediate( size )}"
         }

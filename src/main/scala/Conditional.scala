@@ -5,7 +5,7 @@ object Conditional {
 
   def apply( cond: Int ) =
     cond match {
-      case True => "A"
+      case True => "RA"
       case False => "N"
       case High => "HI"
       case LowSame => "LS"

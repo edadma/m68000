@@ -11,14 +11,14 @@ object Main extends App {
     new Memory {
       def init: Unit = {
         regions.clear
-//        addHexdump( io.Source.fromFile("test/main.hex") )
         add( new RAM("ram", 0x10000, 0x1FFFF) )
         SREC( this, new File("test/main.srec") )
       }
     }
   val cpu =
     new CPU( mem ) {
-//      trace = true
+      trace = true
+      symbols = MapFileReader( io.Source.fromFile("test/main.map") )._2
 
       override def illegal = {
         println( "illegal instruction" )
