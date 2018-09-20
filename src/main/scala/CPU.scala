@@ -327,10 +327,26 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def targetea(mode: Int, reg: Int, locals: Boolean = true ): String = target( address(mode, reg), locals )
 
-  def address( mode: Int, reg: Int ) =
+  def address( mode: Int, reg: Int, size: Size = null ) =
     mode match {
       case AddressRegisterIndirect => readA( reg )
+      case AddressRegisterIndirectPostincrement => readAPostincrement( reg, size )
+      case AddressRegisterIndirectPredecrement => readAPredecrement( reg, size )
       case AddressRegisterIndirectWithDisplacement => readA( reg ) + fetchShort
+      case AddressRegisterIndirectWithIndex =>
+        val ext = fetchShort
+        val r = (ext >> 12)&7
+        val idx =
+          if ((ext&0x8000) == 0)
+            readD( r, if ((ext&0x0800) == 0) ShortSize else IntSize )
+          else
+            if ((ext&0x0800) == 0)
+              readA( r ).toShort
+            else
+              readA( r )
+        val disp = ext.toByte
+
+        readA( reg ) + idx + disp
       case OtherModes =>
         reg match {
           case AbsoluteShort => fetchShort.toLong
@@ -344,10 +360,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case DataRegisterDirect if size == BitSize => D(reg)
       case DataRegisterDirect => readD( reg, size )
       case AddressRegisterDirect => cast( readA(reg).asInstanceOf[Int], size )
-      case AddressRegisterIndirect => memoryRead( readA(reg), size, reg == 7 )
-      case AddressRegisterIndirectPostincrement => memoryRead( readAPostincrement(reg, size), size, reg == 7 )
-      case AddressRegisterIndirectPredecrement => memoryRead( readAPredecrement(reg, size), size, reg == 7 )
-      case AddressRegisterIndirectWithDisplacement => memoryRead( readA(reg) + fetchShort, size, reg == 7 )
+      case AddressRegisterIndirect|AddressRegisterIndirectPostincrement|AddressRegisterIndirectPredecrement|
+           AddressRegisterIndirectWithDisplacement|AddressRegisterIndirectWithIndex =>
+        memoryRead( address(mode, reg, size), size, reg == 7 )
       case OtherModes =>
         reg match {
           case AbsoluteShort => memoryRead( fetchShort, size, false )
@@ -362,10 +377,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     mode match {
       case DataRegisterDirect => writeD( data, reg, size )
       case AddressRegisterDirect => writeA( regwrite(data, readA(reg).asInstanceOf[Int], size)&0xFFFFFFFFL, reg )
-      case AddressRegisterIndirect => memoryWrite( data, readA(reg), size, reg == 7 )
-      case AddressRegisterIndirectPostincrement => memoryWrite( data, readAPostincrement(reg, size), size, reg == 7 )
-      case AddressRegisterIndirectPredecrement => memoryWrite( data, readAPredecrement(reg, size), size, reg == 7 )
-      case AddressRegisterIndirectWithDisplacement => memoryWrite( data, readA(reg) + fetchShort, size, reg == 7 )
+      case AddressRegisterIndirect|AddressRegisterIndirectPostincrement|AddressRegisterIndirectPredecrement|
+           AddressRegisterIndirectWithDisplacement|AddressRegisterIndirectWithIndex =>
+        memoryWrite( data, address(mode, reg, size), size, reg == 7 )
       case OtherModes =>
         reg match {
           case AbsoluteShort => memoryWrite( data, fetchShort, size, false )

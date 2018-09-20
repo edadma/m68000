@@ -9,6 +9,7 @@ trait Addressing {
   val AddressRegisterIndirectPostincrement = 3
   val AddressRegisterIndirectPredecrement = 4
   val AddressRegisterIndirectWithDisplacement = 5
+  val AddressRegisterIndirectWithIndex = 6
   val OtherModes = 7
 
   val AbsoluteShort = 0
