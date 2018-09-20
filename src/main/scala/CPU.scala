@@ -584,7 +584,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     PC +
       (disp match {
         case 0 => fetchShort
-  //      case -1 => fetchInt//020
+        case -1 => fetchInt
         case _ => disp
       })
 

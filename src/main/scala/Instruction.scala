@@ -268,8 +268,10 @@ class BSET( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 class BSR( disp: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
+    val addr = cpu.displacement( disp )
+
     cpu.pushAddress( cpu.PC )
-    cpu.jumpto( cpu.displacement(disp) )
+    cpu.jumpto( addr )
   }
 
   def disassemble( cpu: CPU ) = s"${mnemonic("BSR")}${cpu.relative(disp)}"

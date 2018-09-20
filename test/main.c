@@ -1,3 +1,6 @@
+#include <stdint.h>
+
+
 extern void printc( char c );
 extern void println( char* s );
 extern void printn( int n );
@@ -26,15 +29,17 @@ extern void printn( int n );
 //	return p;
 //}
 
+uint32_t a = 19;
+uint32_t b = 4;
+
 void
 main() {
 //	static char buf[34];
 
 //    println( bin2str(123, 10, buf) );
 
-    char s[] = "abc";
-    int i = 1;
-
-    printc( s[i] );
+    printn( a/b );
+    printc( '\n' );
+    printn( a%b );
     printc( '\n' );
 }
