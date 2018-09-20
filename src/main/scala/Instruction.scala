@@ -41,9 +41,9 @@ class ADD( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
 
   def apply( cpu: CPU ): Unit = {
     if (dir == 0)
-      cpu.writeD( cpu.add(cpu.read(mode, reg, size), cpu.readD(reg, size), false), reg, size )
+      cpu.writeD( cpu.add(cpu.read(mode, reg, size), cpu.readD(dreg, size), false), dreg, size )
     else
-      cpu.readWrite( mode, reg, size )( cpu.add(_, cpu.readD(reg, size), false) )
+      cpu.readWrite( mode, reg, size )( cpu.add(_, cpu.readD(dreg, size), false) )
   }
 
   def disassemble( cpu: CPU ) = cpu.binary( "ADD", size, mode, reg, dir, dreg )
@@ -84,7 +84,7 @@ class AND( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
 
   def apply( cpu: CPU ): Unit = {
     if (dir == 0)
-      cpu.writeD( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size)), reg, size )
+      cpu.writeD( cpu.and(cpu.read(mode, reg, size), cpu.readD(dreg, size)), dreg, size )
     else
       cpu.readWrite( mode, reg, size )( cpu.and(_, cpu.readD(dreg, size)) )
   }
@@ -302,7 +302,7 @@ class CHK( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
     val upper = cpu.read( mode, reg, size )
-    val d = cpu.readD( reg, size )
+    val d = cpu.readD( dreg, size )
 
     if (d < 0) {
       cpu.N = true
@@ -333,7 +333,7 @@ class CLR( size: Size, mode: Int, reg: Int ) extends Instruction {
 class CMP( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.subtract( cpu.read(mode, reg, size), cast(cpu.D(reg), size), false )
+    cpu.subtract( cpu.read(mode, reg, size), cast(cpu.D(dreg), size), false )
   }
 
   def disassemble( cpu: CPU ) = cpu.binaryDstD( "CMP", size, mode, reg, dreg )
@@ -448,7 +448,7 @@ class DIVU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
 class EOR( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.readWrite( mode, reg, size )( cpu.eor(_, cpu.readD(reg, size)) )
+    cpu.readWrite( mode, reg, size )( cpu.eor(_, cpu.readD(dreg, size)) )
   }
 
   def disassemble( cpu: CPU ) = cpu.binarySrcD( "EOR", size, mode, reg, dreg )
@@ -889,9 +889,9 @@ class OR( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruc
 
   def apply( cpu: CPU ): Unit = {
     if (dir == 0)
-      cpu.writeD( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size)), reg, size )
+      cpu.writeD( cpu.eor(cpu.read(mode, reg, size), cpu.readD(dreg, size)), dreg, size )
     else
-      cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(reg, size)), mode, reg, size )
+      cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(dreg, size)), mode, dreg, size )
   }
 
   def disassemble( cpu: CPU ) = cpu.binary( "OR", size, mode, reg, dir, dreg )
@@ -1089,7 +1089,7 @@ class SUB( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
 
   def apply( cpu: CPU ): Unit = {
     if (dir == 0)
-      cpu.writeD( cpu.subtract(cpu.read(mode, reg, size), cpu.readD(reg, size), false), reg, size )
+      cpu.writeD( cpu.subtract(cpu.read(mode, reg, size), cpu.readD(dreg, size), false), dreg, size )
     else
       cpu.readWrite( mode, reg, size)( cpu.subtract(cpu.readD(reg, size), _, false) )
   }
