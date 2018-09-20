@@ -17,7 +17,7 @@ object Main extends App {
     }
   val cpu =
     new CPU( mem ) {
-      trace = true
+//      trace = true
       symbols = MapFileReader( io.Source.fromFile("test/main.map") )._2
 
       override def illegal = {

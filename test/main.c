@@ -32,11 +32,11 @@ main() {
 
 //    println( bin2str(123, 10, buf) );
 
-    int sum = 0;
+    int product = 1;
 
-    for (int i = 3; i <= 4; i++)
-        sum += i;
+    for (int i = 3; i <= 5; i++)
+        product *= i;
 
-    printn( sum );
+    printn( product );
     printc( '\n' );
 }
