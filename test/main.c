@@ -32,11 +32,9 @@ main() {
 
 //    println( bin2str(123, 10, buf) );
 
-    int product = 1;
+    char s[] = "abc";
+    int i = 1;
 
-    for (int i = 3; i <= 5; i++)
-        product *= i;
-
-    printn( product );
+    printc( s[i] );
     printc( '\n' );
 }

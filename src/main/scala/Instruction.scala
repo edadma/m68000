@@ -1098,6 +1098,16 @@ class SUB( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
 
 }
 
+class SUBQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.readWrite( mode, reg, size )( cpu.subtract(data, _, false) )
+  }
+
+  def disassemble( cpu: CPU ) = mnemonic( "SUBQ", size ) + s"#$data, ${cpu.operand(mode, reg, size)}"
+
+}
+
 class SWAP( reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {

@@ -649,7 +649,7 @@ object CPU {
 
   def addqdata( operands: Map[Char, Int] ) =
     operands('d') match {
-      case 8 => 0
+      case 0 => 8
       case d => d
     }
 
@@ -767,6 +767,7 @@ object CPU {
           "0100111001110010" -> (_ => STOP),
           "1001 rrr 0 ss eee aaa; s:0-2" -> (o => new SUB( o('r'), 0, addqsize(o), o('e'), o('a') )),
           "1001 rrr 1 ss eee aaa; s:0-2; e:2-7" -> (o => new SUB( o('r'), 1, addqsize(o), o('e'), o('a') )),
+          "0101 ddd 1 ss eee aaa; s:0-2" -> (o => new SUBQ( addqdata(o), addqsize(o), o('e'), o('a') )),
           "0100100001000 rrr" -> (o => new SWAP( o('r') )),
           "0100101011 eee aaa" -> (o => new TAS( o('e'), o('a') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') )),
