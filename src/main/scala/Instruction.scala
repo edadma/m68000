@@ -724,9 +724,10 @@ class MOVEM( dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
                 cpu.writeA(cpu.read(mode, reg, size), idx - 8)
             }
           case _ =>
+            val rs = regs( cpu )
             var addr = cpu.address(mode, reg)
 
-            for (idx <- regs( cpu )) {
+            for (idx <- rs) {
               if (idx < 8)
                 cpu.D(idx) = cpu.memoryRead(addr, size, false)
               else
