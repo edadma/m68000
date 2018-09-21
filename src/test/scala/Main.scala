@@ -17,7 +17,7 @@ object Main extends App {
     }
   val cpu =
     new CPU( mem ) {
-//      trace = true
+      trace = true
       symbols = MapFileReader( io.Source.fromFile("test/main.map") )._2
 
       override def illegal = {
@@ -69,6 +69,7 @@ object Main extends App {
               case 6 => print( D(1).toChar )
               case 8 => D(1) = LocalTime.now.get( ChronoField.MILLI_OF_DAY )/10
               case 9 => halt
+              case 10 => print( java.lang.Double.longBitsToDouble((D(1).toLong<<32) | (D(2)&0xFFFFFFFFL)) )
               case 13 =>
                 prtz
                 println

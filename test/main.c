@@ -1,47 +1,16 @@
 #include <stdint.h>
 
 
-extern void printc( char c );
-extern void println( char* s );
-extern void printn( int n );
+extern void outc( char c );
+extern void outln( char* s );
+extern void outn( int n );
+extern void outf( double n );
 
-char*
-bin2str( int n, int radix, char* buf ) {
-	char digits[] = "0123456789ABCDEF";
-	char* p = &buf[33];
-	int quo = n;
 
-	if (n < 0)
-		quo = -quo;
-
-	*p-- = 0;
-
-	while (quo >= radix) {
-		*p-- = digits[(quo%radix)];
-		quo /= radix;
-	}
-
-	*p = digits[quo];
-
-	if (n < 0)
-		*--p = '-';
-
-	return p;
-}
-
-//int32_t a = 19;
-//int32_t b = 4;
+double a = 3.4;
+double b = 5.6;
 
 void
 main() {
-	static char buf[34];
-
-    println( bin2str(-123, 10, buf) );
-
-//    int indexes[] = {3, 4, 5};
-//
-//    for (int i = 0; i < 3; i++) {
-//        printn( i );
-//        printc( '\n' );
-//    }
+    outf( a + 1 );
 }

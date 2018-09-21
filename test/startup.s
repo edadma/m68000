@@ -28,9 +28,9 @@ _start:
     jsr     main
     jmp     halt
 
-    .globl	printc
-    .type	printc, @function
-printc:
+    .globl	outc
+    .type	outc, @function
+outc:
     link.w  %fp, #0
     move.l  8(%fp), %d1
     move    #6, %d0
@@ -38,9 +38,9 @@ printc:
     unlk    %fp
     rts
 
-    .globl	printn
-    .type	printn, @function
-printn:
+    .globl	outn
+    .type	outn, @function
+outn:
     link.w  %fp, #0
     move.l  8(%fp), %d1
     move    #3, %d0
@@ -48,9 +48,20 @@ printn:
     unlk    %fp
     rts
 
-    .globl	println
-    .type	println, @function
-println:
+    .globl	outf
+    .type	outf, @function
+outf:
+    link.w  %fp, #0
+    move.l  8(%fp), %d1
+	move.l  12(%fp),%d2
+    move    #10, %d0
+    trap    #15
+    unlk    %fp
+    rts
+
+    .globl	outln
+    .type	outln, @function
+outln:
     link.w  %fp, #0
     move.l  8(%fp), %a1
     move    #13, %d0
