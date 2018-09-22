@@ -479,6 +479,12 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     flags( s&d&(~r)|(~s)&(~d)&r, s&d|(~r)&d|s&(~r), extended, r, true )
   }
 
+  def addx( s: Int, d: Int ) = {
+    val r = s + d + (if (X) 1 else 0)
+
+    flags( s&d&(~r)|(~s)&(~d)&r, s&d|(~r)&d|s&(~r), true, r, true )
+  }
+
   def asl( r: Int, d: Int, size: Size ) =
     if (r == 0) {
       flags( 0, 0, false, d, false )
@@ -706,6 +712,7 @@ object CPU {
           "00000110 ss eee aaa; s:0-2; e:0-7-1" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
           "0101 ddd 0 ss eee aaa; s:0-2" -> (o => new ADDQ( addqdata(o), addqsize(o), o('e'), o('a') )),
           "00000110 ss eee aaa; s:0-2" -> (o => new ADDI( addqsize(o), o('e'), o('a') )),
+          "1101 xxx 1 ss 00 m yyy; s:0-2" -> (o => new ADDX( o('x'), addqsize(o), o('m'), o('y') )),
           "1100 rrr d ss eee aaa; s:0-2" -> (o => new AND( o('r'), o('d'), addqsize(o), o('e'), o('a') )),
           "00000010 ss eee aaa; s:0-2" -> (o => new ANDI( addqsize(o), o('e'), o('a') )),
           "0000001000111100" -> (_ => ANDItoCCR),
@@ -764,6 +771,8 @@ object CPU {
           "01000000 ss eee aaa; s:0-2; e:0-7-1" -> (o => new NEGX( addqsize(o), o('e'), o('a') )),
           "0100111001110001" -> (_ => NOP),
           "01000110 ss eee aaa; s:0-2; e:0-7-1" -> (o => new NOT( addqsize(o), o('e'), o('a') )),
+          "1000 rrr 0 ss eee aaa; s:0-2" -> (o => new OR( o('r'), 0, addqsize(o), o('e'), o('a') )),
+          "1000 rrr 1 ss eee aaa; s:0-2; e:2-7" -> (o => new OR( o('r'), 1, addqsize(o), o('e'), o('a') )),
           "00000000 ss eee aaa; s:0-2" -> (o => new ORI( addqsize(o), o('e'), o('a') )),
           "0000000000111100" -> (_ => ORItoCCR),
           "0000000001111100" -> (_ => ORItoSR),

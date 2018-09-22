@@ -80,6 +80,24 @@ class ADDQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
 }
 
+class ADDX( regx: Int, size: Size, rm: Int, regy: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    if (rm == 0)
+      cpu.writeD( cpu.addx(cpu.readD(regx, size), cpu.readD(regy, size)), regx, size )
+    else
+      cpu.readWrite( AddressRegisterIndirectPredecrement, regy, size )( cpu.addx(_, cpu.read(AddressRegisterIndirectPredecrement, regx, size)) )
+  }
+
+  def disassemble( cpu: CPU ) =
+    if (rm == 0)
+      mnemonic( "ADDX", size ) + s"D$regy, D$regx"
+    else
+      mnemonic( "ADDX", size ) + cpu.operand(AddressRegisterIndirectPredecrement, regy, size ) +
+        ", " + cpu.operand(AddressRegisterIndirectPredecrement, regx, size )
+
+}
+
 class AND( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
@@ -173,9 +191,12 @@ class ASReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Inst
 
 class Bcc( cond: Int, disp: Int ) extends Instruction {
 
-  def apply( cpu: CPU ): Unit =
+  def apply( cpu: CPU ): Unit = {
+    val addr = cpu.displacement( disp )
+
     if (cpu.testcc( cond ))
-      cpu.jumpto( cpu.displacement(disp) )
+      cpu.jumpto( addr )
+  }
 
   def disassemble( cpu: CPU ) = {
     mnemonic( s"B${Conditional( cond )}" ) + cpu.relative(disp)
@@ -695,9 +716,9 @@ class MOVEM( dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
           case AddressRegisterIndirectPredecrement =>
             regs( cpu ) map { idx =>
               if (idx < 8)
-                cpu.D( 7 - idx )
+                cpu.readA( 7 - idx ).asInstanceOf[Int]
               else
-                cpu.readA( 7 - (idx - 8) ).asInstanceOf[Int]
+                cpu.D( 7 - (idx - 8) )
             } foreach (cpu.write( _, mode, reg, size ))
           case _ =>
             val rs =
@@ -743,7 +764,7 @@ class MOVEM( dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
     val rs =
       mode match {
         case AddressRegisterIndirectPredecrement =>
-          regs(cpu) map { idx => if (idx < 8) s"D${7 - idx}" else s"A${7 - (idx - 8)}" }
+          regs(cpu) map { idx => if (idx < 8) s"A${7 - idx}" else s"D${7 - (idx - 8)}" }
         case _ =>
           regs(cpu) map { idx => if (idx < 8) s"D$idx" else s"A${idx - 8}" }
       }
