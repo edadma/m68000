@@ -151,8 +151,14 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     println( s"${star(SRBit.T)} ${star(SRBit.S)}  ${star(SRBit.I2)}${star(SRBit.I1)}${star(SRBit.I0)}   ${cond(X)}${cond(N)}${cond(Z)}${cond(V)}${cond(C)}" )
   }
 
-  def registersAll: Unit = {
-    registers
+  def ccr = {
+    println("XNZVC")
+
+    def star(bit: Int) = if ((SR & bit) != 0) "*" else " "
+
+    def cond(on: Boolean) = if (on) "*" else " "
+
+    println(s"${cond(X)}${cond(N)}${cond(Z)}${cond(V)}${cond(C)}")
   }
 
   def problem( error: String ) = {
@@ -512,13 +518,13 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     if (r == 0)
       flags( 0, 0, false, d, false )
     else
-      flags( 0, d - r + 1, false, d << r, false )
+      flags( 0, cast(d, size) - r + 1, false, d << r, false )
 
   def rol( r: Int, d: Int, size: Size ) =
     if (r == 0)
       flags( 0, 0, false, d, false )
     else
-      flags( 0, d - r + 1, false, (d << r) | (d >>> (bits(size) - r)), false )
+      flags( 0, cast(d, size) - r + 1, false, (d << r) | (d >>> (bits(size) - r)), false )
 
   def ror( r: Int, d: Int, size: Size ) =
     if (r == 0)
@@ -530,7 +536,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     if (r == 0)
       flags( 0, 0, false, d, true )
     else
-      flags( 0, d - r + 1, false, (d << r) | (d >>> (bits(size) - r)) | bit(X, r - 1), true )
+      flags( 0, cast(d, size) - r + 1, false, (d << r) | (d >>> (bits(size) - r)) | bit(X, r - 1), true )
 
   def roxr( r: Int, d: Int, size: Size ) =
     if (r == 0)

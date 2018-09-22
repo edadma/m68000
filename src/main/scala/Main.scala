@@ -199,7 +199,7 @@ object Main extends App {
           //
           //						registers
           case List( "registers"|"r" ) =>
-            emu.cpu.registersAll
+            emu.cpu.registers
           case List( "reload"|"rl" ) =>
             interp( reload )
           case List( "reset"|"re" ) =>
