@@ -780,6 +780,8 @@ object CPU {
           "0100111001110000" -> (_ => RESET),
           "1110011 d 11 eee aaa; e:2-7" -> (o => new ROMem( o('d'), o('e'), o('a') )),
           "1110 ccc d ss i 11 rrr; s:0-2" -> (o => new ROReg( o('c'), o('d'), addqsize(o), o('i'), o('r') )),
+          "1110010 d 11 eee aaa; e:2-7" -> (o => new ROXMem( o('d'), o('e'), o('a') )),
+          "1110 ccc d ss i 10 rrr; s:0-2" -> (o => new ROXReg( o('c'), o('d'), addqsize(o), o('i'), o('r') )),
           "0100111001110011" -> (_ => RTE),
           "0100111001110111" -> (_ => RTR),
           "0100111001110101" -> (_ => RTS),
