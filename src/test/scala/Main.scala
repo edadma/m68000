@@ -12,13 +12,13 @@ object Main extends App {
       def init: Unit = {
         regions.clear
         add( new RAM("ram", 0x10000, 0x1FFFF) )
-        SREC( this, new File("test/main.srec") )
+        SREC( this, new File("tools/strcmp.srec") )
       }
     }
   val cpu =
     new CPU( mem ) {
-      trace = true
-      symbols = MapFileReader( io.Source.fromFile("test/main.map") )._2
+//      trace = true
+      symbols = MapFileReader( io.Source.fromFile("tools/strcmp.map") )._2
 
       override def illegal = {
         println( "illegal instruction" )

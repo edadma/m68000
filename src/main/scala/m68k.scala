@@ -85,16 +85,14 @@ package object m68k {
 
   def mnemonic( sym: String ) = s"$sym${" "*(8 - sym.length)} "
 
-  def mnemonic( sym: String, size: Size ) = {
-    val s =
-      size match {
-        case ByteSize => "B"
-        case ShortSize => "W"
-        case IntSize => "L"
-      }
+  def sizechar( size: Size ) =
+    size match {
+      case ByteSize => "B"
+      case ShortSize => "W"
+      case IntSize => "L"
+    }
 
-    s"$sym.$s${" "*(6 - sym.length)} "
-  }
+  def mnemonic( sym: String, size: Size ) = s"$sym.${sizechar( size )}${" "*(6 - sym.length)} "
 
   def ranges( list: List[String], buf: ListBuffer[(String, String)] = new ListBuffer ): String =
     list match {

@@ -624,6 +624,14 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case AddressRegisterIndirectPostincrement => s"(A$reg)+"
       case AddressRegisterIndirectPredecrement => s"-(A$reg)"
       case AddressRegisterIndirectWithDisplacement => s"$fetchShort(A$reg)"
+      case AddressRegisterIndirectWithIndex =>
+        val ext = fetchShort
+        val s = if ((ext&0x0800) == 0) "W" else "L"
+        val r = (ext >> 12)&7
+        val x = if ((ext&0x8000) == 0) "D" else "A"
+        val d = ext.toByte
+
+        s"($d, A$reg, $x$r.$s)"
       case OtherModes =>
         reg match {
           case AbsoluteShort => s"(${target(fetchShort, locals)}).W"
@@ -769,7 +777,7 @@ object CPU {
           "0100000011 eee aaa; e:0-7-1" -> (o => new MOVEfromSR( o('e'), o('a') )),
           "0100010011 eee aaa; e:0-7-1" -> (o => new MOVEtoCCR( o('e'), o('a') )),
           "0100011011 eee aaa; e:0-7-1" -> (o => new MOVEtoSR( o('e'), o('a') )),
-          "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d') )),
+          "0111 rrr 0 dddddddd" -> (o => new MOVEQ( o('r'), o('d').toByte )),
           "01001 0 001 s eee aaa; e:2,4,5,6" -> (o => new MOVEM( 0, movemsize(o), o('e'), o('a') )),
           "01001 0 001 s 111 aaa; a:0,1" -> (o => new MOVEM( 0, movemsize(o), 7, o('a') )),
           "01001 1 001 s eee aaa; e:2,3,5,6" -> (o => new MOVEM( 1, movemsize(o), o('e'), o('a') )),
