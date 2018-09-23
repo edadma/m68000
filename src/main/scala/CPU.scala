@@ -533,16 +533,21 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       flags( 0, d << (bits(size) - r), false, (d >>> r) | (d << (bits(size) - r)), false )
 
   def roxl( r: Int, d: Int, size: Size ) =
-    if (r == 0)
-      flags( 0, 0, false, d, true )
-    else
-      flags( 0, cast(d, size) - r + 1, false, (d << r) | (d >>> (bits(size) - r)) | bit(X, r - 1), true )
+    r match {
+      case 0 => flags( 0, if (X) -1 else 0, false, d, true )
+      case 1 => flags( 0, cast(d, size), false, (d << 1) | bit(X, 0), true )
+      case _ =>
+        flags( 0, cast(d << (r - 1), size), false, (d << r) | (d >>> (bits(size) - r + 1)) | bit(X, r - 1), true )
+    }
 
   def roxr( r: Int, d: Int, size: Size ) =
-    if (r == 0)
-      flags( 0, 0, false, d, true )
-    else
-      flags( 0, d << (bits(size) - r), false, (d >>> r) | (d << (bits(size) - r)) | bit(X, bits(size) - r + 1), true )
+    r match {
+      case 0 => flags( 0, if (X) -1 else 0, false, d, true )
+      case 1 =>
+        flags( 0, cast(d << (bits(size) - 1), size), false, (d >>> 1) | bit(X, bits(size) - 1), true )
+      case _ =>
+        flags( 0, cast(d << (bits(size) - r), size), false, (d >>> r) | (d << (bits(size) - r - 1)) | bit(X, bits(size) - r), true )
+    }
 
   def and( s: Int, d: Int ) = {
     flags( 0, 0, false, s & d, false )

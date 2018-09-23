@@ -57,7 +57,7 @@ package object m68k {
       case IntSize => 32
     }
 
-  def bit( cond: Boolean, bit: Int ) = if (cond && bit > 0) 1<<bit else 0
+  def bit( cond: Boolean, bit: Int ) = if (cond) 1<<bit else 0
 
   def testBit( data: Int, bit: Int ) = (data&(1<<bit)) != 0
 
@@ -71,6 +71,13 @@ package object m68k {
     size match {
       case BitSize|ByteSize => v.asInstanceOf[Byte].asInstanceOf[Int]
       case ShortSize => v.asInstanceOf[Short].asInstanceOf[Int]
+      case IntSize => v
+    }
+
+  def ucast( v: Int, size: Size ) =
+    size match {
+      case BitSize|ByteSize => v&0xFF
+      case ShortSize => v&0xFFFF
       case IntSize => v
     }
 
