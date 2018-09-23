@@ -546,7 +546,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case 1 =>
         flags( 0, cast(d << (bits(size) - 1), size), false, (d >>> 1) | bit(X, bits(size) - 1), true )
       case _ =>
-        flags( 0, cast(d << (bits(size) - r), size), false, (d >>> r) | (d << (bits(size) - r - 1)) | bit(X, bits(size) - r), true )
+        flags( 0, cast(d << (bits(size) - r), size), false, (d >>> r) | (d << (bits(size) - r + 1)) | bit(X, bits(size) - r), true )
     }
 
   def and( s: Int, d: Int ) = {

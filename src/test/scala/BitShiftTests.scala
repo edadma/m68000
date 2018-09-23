@@ -102,16 +102,16 @@ class BitShiftTests extends FreeSpec with PropertyChecks with Matchers with Test
     test { cpu =>
       cpu.X = true
       ucast( cpu.roxr(2, 0x81, ByteSize), ByteSize )
-    } shouldBe (7, "")
+    } shouldBe (0xE0, "")
 
-//    test { cpu =>
-//      cpu.X = false
-//      ucast( cpu.roxr(3, 0xC1, ByteSize), ByteSize )
-//    } shouldBe (0x0B, "")
-//    test { cpu =>
-//      cpu.X = true
-//      ucast( cpu.roxr(3, 0xC1, ByteSize), ByteSize )
-//    } shouldBe (0x0F, "")
+    test { cpu =>
+      cpu.X = false
+      ucast( cpu.roxr(3, 0x83, ByteSize), ByteSize )
+    } shouldBe (0xD0, "")
+    test { cpu =>
+      cpu.X = true
+      ucast( cpu.roxr(3, 0x83, ByteSize), ByteSize )
+    } shouldBe (0xF0, "")
   }
 
 }
