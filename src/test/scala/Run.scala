@@ -8,7 +8,7 @@ object Run {
   def apply( file: String ) =
     capture {
       val cpu =
-        new CPU(
+        new CPUWithServices(
           new Memory {
             def init: Unit = {
               regions.clear
