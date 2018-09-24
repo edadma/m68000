@@ -309,9 +309,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def writeA( data: Long, reg: Int ) =
     reg match {
-      case 7 if (SR&SRBit.S) != 0 => SSP = data
-      case 7 => USP = data
-      case _ => A(reg) = data
+      case 7 if (SR&SRBit.S) != 0 => SSP = data&0xFFFFFFFFL
+      case 7 => USP = data&0xFFFFFFFFL
+      case _ => A(reg) = data&0xFFFFFFFFL
     }
 
   def readD( reg: Int, size: Size ) = cast( D(reg), size )
@@ -381,7 +381,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def write( data: Int, mode: Int, reg: Int, size: Size ) {
     mode match {
       case DataRegisterDirect => writeD( data, reg, size )
-      case AddressRegisterDirect => writeA( regwrite(data, readA(reg).asInstanceOf[Int], size)&0xFFFFFFFFL, reg )
+      case AddressRegisterDirect => writeA( regwrite(data, readA(reg).asInstanceOf[Int], size), reg )
       case AddressRegisterIndirect|AddressRegisterIndirectPostincrement|AddressRegisterIndirectPredecrement|
            AddressRegisterIndirectWithDisplacement|AddressRegisterIndirectWithIndex =>
         memoryWrite( data, address(mode, reg, size), size, reg == 7 )

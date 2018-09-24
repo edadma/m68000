@@ -58,6 +58,7 @@ class CPUWithServices( mem: Memory ) extends CPU( mem ) {
           case 9 => halt
           case 10 => print( java.lang.Double.longBitsToDouble((D(1).toLong<<32) | (D(2)&0xFFFFFFFFL)) )
           case 11 => print( D(1)&0xFFFFFFFFL )
+          case 12 => print( D(1).toHexString )
           case 13 =>
             prtz
             println
