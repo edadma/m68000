@@ -14,15 +14,6 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 //	"pi_approx" in {
 //		Run( "tests/pi_approx.ghex" ) shouldBe "3.141592653589791339641124"
 //	}
-//
-//	"signum" in {
-//		Run( "tests/signum.ghex" ) shouldBe
-//			"""
-//				|negative
-//				|zero
-//				|positive
-//			""".trim.stripMargin
-//	}
 
 	"strcmp" in {
 		Run( "tests/strcmp" ) shouldBe
@@ -39,34 +30,34 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 			""".trim.stripMargin
 	}
 
-//	"str2int" in {
-//		Run( "tests/str2int.ghex" ) shouldBe
-//			"""
-//				|yes
-//				|yes
-//				|yes
-//				|yes
-//				|yes
-//				|yes
-//				|yes
-//				|yes
-//				|yes
-//			""".trim.stripMargin
-//	}
-//
-//	"int2str" in {
-//		Run( "tests/int2str.ghex" ) shouldBe
-//			"""
-//				|zero
-//				|zero
-//				|zero
-//				|zero
-//				|zero
-//			""".trim.stripMargin
-//	}
-//
+	"str2int" in {
+		Run( "tests/str2int" ) shouldBe
+			"""
+				|yes
+				|yes
+				|yes
+				|yes
+				|yes
+				|yes
+				|yes
+				|yes
+				|yes
+			""".trim.stripMargin
+	}
+
+	"int2str" in {
+		Run( "tests/int2str" ) shouldBe
+			"""
+				|zero
+				|zero
+				|zero
+				|zero
+				|zero
+			""".trim.stripMargin
+	}
+
 //	"int2stru" in {
-//		Run( "tests/int2stru.ghex" ) shouldBe
+//		Run( "tests/int2stru" ) shouldBe
 //			"""
 //				|zero
 //				|zero
@@ -74,7 +65,7 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 //				|zero
 //			""".trim.stripMargin
 //	}
-//
+
 //	"int2str64" in {
 //		Run( "tests/int2str64.ghex" ) shouldBe
 //			"""

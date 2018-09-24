@@ -57,6 +57,7 @@ class CPUWithServices( mem: Memory ) extends CPU( mem ) {
           case 8 => D(1) = LocalTime.now.get( ChronoField.MILLI_OF_DAY )/10
           case 9 => halt
           case 10 => print( java.lang.Double.longBitsToDouble((D(1).toLong<<32) | (D(2)&0xFFFFFFFFL)) )
+          case 11 => print( D(1)&0xFFFFFFFFL )
           case 13 =>
             prtz
             println
