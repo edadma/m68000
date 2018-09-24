@@ -41,9 +41,9 @@ class ADD( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
 
   def apply( cpu: CPU ): Unit = {
     if (dir == 0)
-      cpu.writeD( cpu.add(cpu.read(mode, reg, size), cpu.readD(dreg, size), false), dreg, size )
+      cpu.writeD( cpu.add(cpu.read(mode, reg, size), cpu.readD(dreg, size), size, false), dreg, size )
     else
-      cpu.readWrite( mode, reg, size )( cpu.add(_, cpu.readD(dreg, size), false) )
+      cpu.readWrite( mode, reg, size )( cpu.add(_, cpu.readD(dreg, size), size, false) )
   }
 
   def disassemble( cpu: CPU ) = cpu.binary( "ADD", size, mode, reg, dir, dreg )
@@ -53,7 +53,7 @@ class ADD( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
 class ADDA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.writeA( cpu.add(cpu.read(mode, reg, size), cpu.readA(areg).asInstanceOf[Int], false), areg )
+    cpu.writeA( cpu.add(cpu.read(mode, reg, size), cpu.readA(areg).asInstanceOf[Int], size, false), areg )
   }
 
   def disassemble( cpu: CPU ) = cpu.binaryA( "ADDA", size, mode, reg, areg )
@@ -63,7 +63,7 @@ class ADDA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class ADDI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.readWrite( mode, reg, size )( cpu.add(_, cpu.immediate(size), false) )
+    cpu.readWrite( mode, reg, size )( cpu.add(_, cpu.immediate(size), size, false) )
   }
 
   def disassemble( cpu: CPU ) = cpu.immediate( "ADDI", size, mode, reg )
@@ -73,7 +73,7 @@ class ADDI( size: Size, mode: Int, reg: Int ) extends Instruction {
 class ADDQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.readWrite( mode, reg, size )( cpu.add(_, data, false) )
+    cpu.readWrite( mode, reg, size )( cpu.add(_, data, size, false) )
   }
 
   def disassemble( cpu: CPU ) = mnemonic( "ADDQ", size ) + s"#$data, ${cpu.operand(mode, reg, size)}"
@@ -84,9 +84,9 @@ class ADDX( regx: Int, size: Size, rm: Int, regy: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
     if (rm == 0)
-      cpu.writeD( cpu.addx(cpu.readD(regx, size), cpu.readD(regy, size)), regx, size )
+      cpu.writeD( cpu.addx(cpu.readD(regx, size), cpu.readD(regy, size), size), regx, size )
     else
-      cpu.readWrite( AddressRegisterIndirectPredecrement, regy, size )( cpu.addx(_, cpu.read(AddressRegisterIndirectPredecrement, regx, size)) )
+      cpu.readWrite( AddressRegisterIndirectPredecrement, regy, size )( cpu.addx(_, cpu.read(AddressRegisterIndirectPredecrement, regx, size), size) )
   }
 
   def disassemble( cpu: CPU ) =
@@ -452,14 +452,14 @@ class DIVU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
     else {
       val q = a/b
 
-      if (q < Short.MinValue || q > Short.MaxValue)
+      if (q > 0xFFFF)
         cpu.V = true
       else {
         cpu.N = q < 0
         cpu.Z = q == 0
         cpu.C = false
         cpu.V = false
-        cpu.D(dreg) = ((a%b).asInstanceOf[Int]<<16)|(q.asInstanceOf[Int]&0xFFFF)
+        cpu.D(dreg) = ((a%b).asInstanceOf[Short]<<16)|(q.asInstanceOf[Short]&0xFFFF)
       }
     }
   }

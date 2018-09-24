@@ -31,6 +31,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   var counter = 0L
   var trace = false
+  var traceout = Console.out
 
 	protected [m68k] var running = false
   protected [m68k] var stopped = false
@@ -192,11 +193,13 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   }
 
   def execute: Unit = {
-    if (trace) {
-      registers
-      disassemble
-      println
-    }
+    if (trace)
+      Console.withOut( traceout ) {
+        registers
+        disassemble
+        println
+        traceout.flush
+      }
 
     fetch
     opcodes(instruction)( this )
@@ -479,16 +482,16 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     toBCD( r )
   }
 
-  def add( s: Int, d: Int, extended: Boolean ) = {
+  def add( s: Int, d: Int, size: Size, extended: Boolean ) = {
     val r = s + d
 
-    flags( s&d&(~r)|(~s)&(~d)&r, s&d|(~r)&d|s&(~r), extended, r, true )
+    flags( cast(s&d&(~r)|(~s)&(~d)&r, size), cast(s&d|(~r)&d|s&(~r), size), extended, r, true )
   }
 
-  def addx( s: Int, d: Int ) = {
+  def addx( s: Int, d: Int, size: Size ) = {
     val r = s + d + (if (X) 1 else 0)
 
-    flags( s&d&(~r)|(~s)&(~d)&r, s&d|(~r)&d|s&(~r), true, r, true )
+    flags( cast(s&d&(~r)|(~s)&(~d)&r, size), cast(s&d|(~r)&d|s&(~r), size), true, r, true )
   }
 
   def asl( r: Int, d: Int, size: Size ) =

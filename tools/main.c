@@ -37,7 +37,7 @@ main() {
 //    outln( int2stru(n, 16, buf) );
     outx( n/d );
     outc( '\n' );
-    outx( n%d );
-    outc( '\n' );
+//    outx( n%d );
+//    outc( '\n' );
 
 }
