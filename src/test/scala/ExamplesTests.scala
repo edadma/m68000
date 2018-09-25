@@ -56,15 +56,15 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 			""".trim.stripMargin
 	}
 
-//	"int2stru" in {
-//		Run( "tests/int2stru" ) shouldBe
-//			"""
-//				|zero
-//				|zero
-//				|zero
-//				|zero
-//			""".trim.stripMargin
-//	}
+	"int2stru" in {
+		Run( "tests/int2stru" ) shouldBe
+			"""
+				|zero
+				|zero
+				|zero
+				|zero
+			""".trim.stripMargin
+	}
 
 //	"int2str64" in {
 //		Run( "tests/int2str64.ghex" ) shouldBe
@@ -92,55 +92,55 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 //				|F000000000000000
 //			""".trim.stripMargin
 //	}
-//
-//	"armstrong" in {
-//		Run( "tests/armstrong.ghex" ) shouldBe
-//			"""
-//				|0
-//				|1
-//				|153
-//				|370
-//				|371
-//				|407
-//			""".trim.stripMargin
-//	}
-//
-//	"armstrong64" in {
-//		Run( "tests/armstrong64.ghex" ) shouldBe
-//			"""
-//				|0
-//				|1
-//				|153
-//				|370
-//				|371
-//				|407
-//			""".trim.stripMargin
-//	}
-//
-//	"quicksort" in {
-//		Run( "tests/quicksort.ghex" ) shouldBe
-//			"""
-//				|[1, 2, 3, 7, 7, 7, 7, 8, 9, 10]
-//				|[1, 2, 3, 5, 7, 7, 7, 8, 9, 10]
-//				|[1, 2, 3, 4, 5, 7, 7, 8, 9, 10]
-//				|[9, 10]
-//				|[10]
-//				|[]
-//			""".trim.stripMargin
-//	}
-//
-//	"quicksort64" in {
-//		Run( "tests/quicksort64.ghex" ) shouldBe
-//			"""
-//				|[1, 2, 3, 7, 7, 7, 7, 8, 9, 10]
-//				|[1, 2, 3, 5, 7, 7, 7, 8, 9, 10]
-//				|[1, 2, 3, 4, 5, 7, 7, 8, 9, 10]
-//				|[9, 10]
-//				|[10]
-//				|[]
-//			""".trim.stripMargin
-//	}
-//
+
+	"armstrong" in {
+		Run( "tests/armstrong" ) shouldBe
+			"""
+				|0
+				|1
+				|153
+				|370
+				|371
+				|407
+			""".trim.stripMargin
+	}
+
+	"armstrong64" in {
+		Run( "tests/armstrong64" ) shouldBe
+			"""
+				|0
+				|1
+				|153
+				|370
+				|371
+				|407
+			""".trim.stripMargin
+	}
+
+	"quicksort" in {
+		Run( "tests/quicksort" ) shouldBe
+			"""
+				|[1, 2, 3, 7, 7, 7, 7, 8, 9, 10]
+				|[1, 2, 3, 5, 7, 7, 7, 8, 9, 10]
+				|[1, 2, 3, 4, 5, 7, 7, 8, 9, 10]
+				|[9, 10]
+				|[10]
+				|[]
+			""".trim.stripMargin
+	}
+
+	"quicksort64" in {
+		Run( "tests/quicksort64" ) shouldBe
+			"""
+				|[1, 2, 3, 7, 7, 7, 7, 8, 9, 10]
+				|[1, 2, 3, 5, 7, 7, 7, 8, 9, 10]
+				|[1, 2, 3, 4, 5, 7, 7, 8, 9, 10]
+				|[9, 10]
+				|[10]
+				|[]
+			""".trim.stripMargin
+	}
+
 //	"quicksort16" in {
 //		Run( "tests/quicksort16.ghex" ) shouldBe
 //			"""
