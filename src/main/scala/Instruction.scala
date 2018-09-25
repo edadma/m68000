@@ -1097,6 +1097,18 @@ class SBCD( y: Int, r: Int, x: Int ) extends Instruction with Addressing {
 
 }
 
+class Scc( cond: Int, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.write( if (cpu.testcc( cond )) 0xFF else 0, mode, reg, ByteSize )
+  }
+
+  def disassemble( cpu: CPU ) = {
+    mnemonic( s"S${Conditional( cond )}" ) + cpu.operand( mode, reg )
+  }
+
+}
+
 object STOP extends Instruction {
 
   def apply( cpu: CPU ): Unit =

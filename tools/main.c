@@ -1,11 +1,13 @@
+#include <stdint.h>
+
 extern void outc( char c );
 extern void outs( char* s );
 extern void outn( int n );
 
 
-short
-myabs( short x ) {
-  const short bit31 = x >> 15;
+int64_t
+myabs( int64_t x ) {
+  const int64_t bit31 = x >> 63;
 
   return (x ^ bit31) - bit31;
 }

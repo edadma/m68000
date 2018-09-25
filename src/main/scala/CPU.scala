@@ -814,6 +814,7 @@ object CPU {
           "0100111001110111" -> (_ => RTR),
           "0100111001110101" -> (_ => RTS),
           "1000 yyy 10000 r xxx" -> (o => new SBCD( o('y'), o('r'), o('x') )),
+          "0101 cccc 11 eee aaa; e:0-7-1" -> (o => new Scc( o('c'), o('e'), o('a') )),
           "0100111001110010" -> (_ => STOP),
           "1001 rrr 0 ss eee aaa; s:0-2" -> (o => new SUB( o('r'), 0, addqsize(o), o('e'), o('a') )),
           "1001 rrr 1 ss eee aaa; s:0-2; e:2-7" -> (o => new SUB( o('r'), 1, addqsize(o), o('e'), o('a') )),
