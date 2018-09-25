@@ -509,13 +509,13 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     if (r == 0)
       flags( 0, 0, false, d, false )
     else
-      flags( 0, d << (bits(size) - r), false, d >> r, false )
+      flags( 0, cast(d << (bits(size) - r), size), false, d >> r, false )
 
   def lsr( r: Int, d: Int, size: Size ) =
     if (r == 0)
       flags( 0, 0, false, d, false )
     else
-      flags( 0, d << (bits(size) - r), false, d >>> r, false )
+      flags( 0, cast(d << (bits(size) - r), size), false, ucast(d, size) >>> r, false )
 
   def lsl( r: Int, d: Int, size: Size ) =
     if (r == 0)
@@ -817,6 +817,7 @@ object CPU {
           "0100111001110010" -> (_ => STOP),
           "1001 rrr 0 ss eee aaa; s:0-2" -> (o => new SUB( o('r'), 0, addqsize(o), o('e'), o('a') )),
           "1001 rrr 1 ss eee aaa; s:0-2; e:2-7" -> (o => new SUB( o('r'), 1, addqsize(o), o('e'), o('a') )),
+          "1001 rrr sss eee aaa; s:3,7" -> (o => new SUBA( o('r'), addasize(o), o('e'), o('a') )),
           "0101 ddd 1 ss eee aaa; s:0-2" -> (o => new SUBQ( addqdata(o), addqsize(o), o('e'), o('a') )),
           "1001 xxx 1 ss 00 m yyy; s:0-2" -> (o => new SUBX( o('x'), addqsize(o), o('m'), o('y') )),
           "0100100001000 rrr" -> (o => new SWAP( o('r') )),

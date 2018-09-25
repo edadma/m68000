@@ -1122,6 +1122,16 @@ class SUB( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
 
 }
 
+class SUBA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.writeA( cpu.subtract(cpu.read(mode, reg, size), cpu.readA(areg).asInstanceOf[Int], false), areg )
+  }
+
+  def disassemble( cpu: CPU ) = cpu.binaryA( "SUBA", size, mode, reg, areg )
+
+}
+
 class SUBQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {

@@ -3,15 +3,19 @@ extern void outs( char* s );
 extern void outn( int n );
 
 
-signed char
-isNegative( signed char n ) {
-	return (signed char)((unsigned char) n >> 7);
+short
+myabs( short x ) {
+  const short bit31 = x >> 15;
+
+  return (x ^ bit31) - bit31;
 }
 
 void
 main() {
-	outn( isNegative(0) );
+	outn( myabs(5) );
 	outs( ", " );
-	outn( isNegative(-5) );
+	outn( myabs(0) );
+	outs( ", " );
+	outn( myabs(-5) );
 	outc( '\n' );
 }
