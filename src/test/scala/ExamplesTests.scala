@@ -164,18 +164,18 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 //				|[]
 //			""".trim.stripMargin
 //	}
-//
-//	"bittwiddling" in {
-//		Run( "tests/bittwiddling.ghex" ) shouldBe
-//			"""
-//				|5, 0, 5
-//				|0, 20, 57, 77
-//				|20, 57
-//				|0, 1
-//				|1, 0
-//			""".trim.stripMargin
-//	}
-//
+
+	"bittwiddling" in {
+		Run( "tests/bittwiddling" ) shouldBe
+			"""
+				|5, 0, 5
+			""".trim.stripMargin
+	}
+//	0, 20, 57, 77
+//	20, 57
+//	0, 1
+//	1, 0
+
 //	"bittwiddling8" in {
 //		Run( "tests/bittwiddling8.ghex" ) shouldBe
 //			"""
