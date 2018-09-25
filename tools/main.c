@@ -29,8 +29,10 @@
 //	return p;
 //}
 
-uint64_t num = 19;
-uint64_t den = 5;
+//uint64_t num = 19;
+//uint64_t den = 5;
+double a = 3.4;
+double b = 5.6;
 
 void
 main() {
@@ -38,6 +40,7 @@ main() {
 
 //	outs( bin2str(20, 10, buf) );
 
-    outl( num/den );
+//    outl( num/den );
+    outf( a + b );
 	outc( '\n' );
 }

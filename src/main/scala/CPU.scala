@@ -418,7 +418,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     size match {
       case ByteSize => (regcur&0xFFFFFF00) | (data&0xFF)
       case ShortSize => (regcur&0xFFFF0000) | (data&0xFFFF)
-      case IntSize => data
+      case BitSize|IntSize => data
     }
 
   def writeD( data: Int, reg: Int, size: Size ) = D(reg) = regwrite( data, D(reg), size )
