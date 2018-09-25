@@ -1132,6 +1132,24 @@ class SUBQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
 }
 
+class SUBX( regx: Int, size: Size, rm: Int, regy: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    if (rm == 0)
+      cpu.writeD( cpu.subtractx(cpu.readD(regx, size), cpu.readD(regy, size), size), regx, size )
+    else
+      cpu.readWrite( AddressRegisterIndirectPredecrement, regy, size )( cpu.subtractx(_, cpu.read(AddressRegisterIndirectPredecrement, regx, size), size) )
+  }
+
+  def disassemble( cpu: CPU ) =
+    if (rm == 0)
+      mnemonic( "SUBX", size ) + s"D$regy, D$regx"
+    else
+      mnemonic( "SUBX", size ) + cpu.operand(AddressRegisterIndirectPredecrement, regy, size ) +
+        ", " + cpu.operand(AddressRegisterIndirectPredecrement, regx, size )
+
+}
+
 class SWAP( reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {

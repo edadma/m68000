@@ -89,6 +89,16 @@ outln:
     unlk    %fp
     rts
 
+    .globl	outs
+    .type	outs, @function
+outs:
+    link.w  %fp, #0
+    move.l  8(%fp), %a1
+    move    #14, %d0
+    trap    #15
+    unlk    %fp
+    rts
+
     .globl	halt
     .type	halt, @function
 halt:
