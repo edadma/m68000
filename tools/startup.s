@@ -48,6 +48,19 @@ outn:
     unlk    %fp
     rts
 
+    .globl	outl
+    .type	outl, @function
+outl:
+    link.w  %fp, #0
+    move.l  %d2, %sp@-
+    move.l  8(%fp), %d1
+	move.l  12(%fp),%d2
+    move    #15, %d0
+    trap    #15
+    move.l  %sp@+, %d2
+    unlk    %fp
+    rts
+
     .globl	outu
     .type	outu, @function
 outu:
@@ -72,10 +85,12 @@ outx:
     .type	outf, @function
 outf:
     link.w  %fp, #0
+    move.l  %d2, %sp@-
     move.l  8(%fp), %d1
 	move.l  12(%fp),%d2
     move    #10, %d0
     trap    #15
+    move.l  %sp@+, %d2
     unlk    %fp
     rts
 

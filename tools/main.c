@@ -1,23 +1,43 @@
-#include <stdint.h>
+#include "services.h"
 
-extern void outc( char c );
-extern void outs( char* s );
-extern void outn( int n );
+//extern uint64_t __udivmoddi4 	( 	uint64_t  	num,
+//       		uint64_t  	den,
+//       		uint64_t *  	rem
+//       	);
 
+//char*
+//bin2str( int64_t n, int radix, char* buf ) {
+//	char digits[] = "0123456789ABCDEF";
+//	char* p = &buf[33];
+//	int64_t quo = n;
+//
+//	if (n < 0)
+//		quo = -quo;
+//
+//	*p-- = 0;
+//
+//	while (quo >= radix) {
+//		*p-- = digits[(quo%radix)];
+//		quo /= radix;
+//	}
+//
+//	*p = digits[quo];
+//
+//	if (n < 0)
+//		*--p = '-';
+//
+//	return p;
+//}
 
-int64_t
-myabs( int64_t x ) {
-  const int64_t bit31 = x >> 63;
-
-  return (x ^ bit31) - bit31;
-}
+uint64_t num = 19;
+uint64_t den = 5;
 
 void
 main() {
-	outn( myabs(5) );
-	outs( ", " );
-	outn( myabs(0) );
-	outs( ", " );
-	outn( myabs(-5) );
+//    static char buf[65];
+
+//	outs( bin2str(20, 10, buf) );
+
+    outl( num/den );
 	outc( '\n' );
 }
