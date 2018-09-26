@@ -1,5 +1,6 @@
 #include <stdint.h>
 
+extern void outnl();
 extern void outc( char c );
 extern void outf( double a );
 extern void outs( char* s );

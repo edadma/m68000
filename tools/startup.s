@@ -28,6 +28,16 @@ _start:
     jsr     main
     jmp     halt
 
+    .globl	outnl
+    .type	outnl, @function
+outnl:
+    link.w  %fp, #0
+    move.l  #'\n', %d1
+    move    #6, %d0
+    trap    #15
+    unlk    %fp
+    rts
+
     .globl	outc
     .type	outc, @function
 outc:

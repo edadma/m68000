@@ -1,1 +1,1 @@
-m68k-unknown-uclinux-uclibc-objcopy -I coff-m68k -O srec a.out $1.srec
+m68k-unknown-elf-objcopy -I coff-m68k -O srec a.out $1.srec

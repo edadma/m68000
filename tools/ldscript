@@ -1,6 +1,7 @@
-SEARCH_DIR(/home/ed/x-tools/m68k-unknown-uclinux-uclibc/lib/gcc/m68k-unknown-uclinux-uclibc/6.3.0/)
+SEARCH_DIR(/home/ed/x-tools/m68000/lib/gcc/m68k-unknown-elf/8.2.0)
+SEARCH_DIR(/home/ed/x-tools/m68000/m68k-unknown-elf/lib)
 /*
-SEARCH_DIR(/home/ed/x-tools/m68k-unknown-uclinux-uclibc/lib/gcc/m68k-unknown-uclinux-uclibc/6.3.0/../../../../m68k-unknown-uclinux-uclibc/lib/)
+SEARCH_DIR(/home/ed/x-tools/m68000/lib/gcc/m68k-unknown-uclinux-uclibc/8.2.0/../../../../m68k-unknown-uclinux-uclibc/lib/)
 SEARCH_DIR(/home/ed/x-tools/m68k-unknown-uclinux-uclibc/m68k-unknown-uclinux-uclibc/sysroot/lib/)
 SEARCH_DIR(/home/ed/x-tools/m68k-unknown-uclinux-uclibc/m68k-unknown-uclinux-uclibc/sysroot/usr/lib/)
 */
@@ -9,8 +10,8 @@ OUTPUT_FORMAT(srec)
 
 MEMORY
 {
-    rom : ORIGIN = 0x00000, LENGTH = 0x1000
-    ram : ORIGIN = 0x10000, LENGTH = 0x1000
+    rom : ORIGIN = 0x00000, LENGTH = 0x10000
+    ram : ORIGIN = 0x10000, LENGTH = 0x10000
 }
 
 SECTIONS
