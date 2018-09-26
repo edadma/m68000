@@ -67,7 +67,7 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 	}
 
 //	"int2str64" in {
-//		Run( "tests/int2str64.ghex" ) shouldBe
+//		Run( "tests/int2str64" ) shouldBe
 //			"""
 //				|0
 //				|123
@@ -80,7 +80,7 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 //				|-20000000000
 //			""".trim.stripMargin
 //	}
-//
+
 //	"int2str64u" in {
 //		Run( "tests/int2str64u.ghex" ) shouldBe
 //			"""
@@ -141,29 +141,29 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 			""".trim.stripMargin
 	}
 
-//	"quicksort16" in {
-//		Run( "tests/quicksort16.ghex" ) shouldBe
-//			"""
-//				|[1, 2, 3, 7, 7, 7, 7, 8, 9, 10]
-//				|[1, 2, 3, 5, 7, 7, 7, 8, 9, 10]
-//				|[1, 2, 3, 4, 5, 7, 7, 8, 9, 10]
-//				|[9, 10]
-//				|[10]
-//				|[]
-//			""".trim.stripMargin
-//	}
-//
-//	"quicksort8" in {
-//		Run( "tests/quicksort8.ghex" ) shouldBe
-//			"""
-//				|[1, 2, 3, 7, 7, 7, 7, 8, 9, 10]
-//				|[1, 2, 3, 5, 7, 7, 7, 8, 9, 10]
-//				|[1, 2, 3, 4, 5, 7, 7, 8, 9, 10]
-//				|[9, 10]
-//				|[10]
-//				|[]
-//			""".trim.stripMargin
-//	}
+	"quicksort16" in {
+		Run( "tests/quicksort16" ) shouldBe
+			"""
+				|[1, 2, 3, 7, 7, 7, 7, 8, 9, 10]
+				|[1, 2, 3, 5, 7, 7, 7, 8, 9, 10]
+				|[1, 2, 3, 4, 5, 7, 7, 8, 9, 10]
+				|[9, 10]
+				|[10]
+				|[]
+			""".trim.stripMargin
+	}
+
+	"quicksort8" in {
+		Run( "tests/quicksort8" ) shouldBe
+			"""
+				|[1, 2, 3, 7, 7, 7, 7, 8, 9, 10]
+				|[1, 2, 3, 5, 7, 7, 7, 8, 9, 10]
+				|[1, 2, 3, 4, 5, 7, 7, 8, 9, 10]
+				|[9, 10]
+				|[10]
+				|[]
+			""".trim.stripMargin
+	}
 
 	"bittwiddling" in {
 		Run( "tests/bittwiddling" ) shouldBe

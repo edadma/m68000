@@ -1,4 +1,4 @@
-extern void outc( char c );
+#include "../tools/services.h"
 
 
 void
@@ -14,10 +14,10 @@ println( char* s ) {
 }
 
 char*
-int2str64( long n, int radix, char* buf ) {
+int2str64( int64_t n, int radix, char* buf ) {
 	char digits[] = "0123456789ABCDEF";
 	char* p = &buf[33];
-	long quo = n;
+	int64_t quo = n;
 
 	if (n < 0)
 		quo = -quo;
