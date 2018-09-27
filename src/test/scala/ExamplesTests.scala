@@ -56,15 +56,15 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 			""".trim.stripMargin
 	}
 
-//	"int2stru" in {
-//		Run( "tests/int2stru" ) shouldBe
-//			"""
-//				|zero
-//				|zero
-//				|zero
-//				|zero
-//			""".trim.stripMargin
-//	}
+	"int2stru" in {
+		Run( "tests/int2stru" ) shouldBe
+			"""
+				|zero
+				|zero
+				|zero
+				|zero
+			""".trim.stripMargin
+	}
 
 	"int2str64" in {
 		Run( "tests/int2str64" ) shouldBe

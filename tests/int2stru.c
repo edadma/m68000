@@ -62,9 +62,8 @@ void
 main() {
 	char buf[34];
 
-//	prints( strcmp(int2stru(0, 10, buf), "0") );
-//	prints( strcmp(int2stru(123, 10, buf), "123") );
-//	prints( strcmp(int2stru(0x12AB, 16, buf), "12AB") );
-//	prints( strcmp(int2stru(0xF0000000, 16, buf), "F0000000") );
-	print( int2stru(0x82345678, 16, buf) );
+	prints( strcmp(int2stru(0, 10, buf), "0") );
+	prints( strcmp(int2stru(123, 10, buf), "123") );
+	prints( strcmp(int2stru(0x12AB, 16, buf), "12AB") );
+	prints( strcmp(int2stru(0xF0000000, 16, buf), "F0000000") );
 }
