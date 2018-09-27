@@ -1,1 +1,1 @@
-m68k-unknown-elf-ld --script ldscript -Map $1.map startup.o $1.o -lc -lgcc -o $1.srec
+m68k-ld --script ldscript -Map $1.map startup.o $1.o -lc -lgcc -o $1.srec

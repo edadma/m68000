@@ -1,1 +1,1 @@
-m68k-unknown-elf-gcc -m68000 -c startup.s $1.c
+m68k-gcc -c startup.s $1.c

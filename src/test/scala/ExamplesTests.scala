@@ -56,42 +56,42 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 			""".trim.stripMargin
 	}
 
-	"int2stru" in {
-		Run( "tests/int2stru" ) shouldBe
+//	"int2stru" in {
+//		Run( "tests/int2stru" ) shouldBe
+//			"""
+//				|zero
+//				|zero
+//				|zero
+//				|zero
+//			""".trim.stripMargin
+//	}
+
+	"int2str64" in {
+		Run( "tests/int2str64" ) shouldBe
 			"""
-				|zero
-				|zero
-				|zero
-				|zero
+				|0
+				|123
+				|12AB
+				|2000000000
+				|20000000000
+				|-123
+				|-12AB
+				|-2000000000
+				|-20000000000
 			""".trim.stripMargin
 	}
 
-//	"int2str64" in {
-//		Run( "tests/int2str64" ) shouldBe
-//			"""
-//				|0
-//				|123
-//				|12AB
-//				|2000000000
-//				|20000000000
-//				|-123
-//				|-12AB
-//				|-2000000000
-//				|-20000000000
-//			""".trim.stripMargin
-//	}
-
-//	"int2str64u" in {
-//		Run( "tests/int2str64u.ghex" ) shouldBe
-//			"""
-//				|0
-//				|123
-//				|12AB
-//				|2000000000
-//				|20000000000
-//				|F000000000000000
-//			""".trim.stripMargin
-//	}
+	"int2str64u" in {
+		Run( "tests/int2str64u" ) shouldBe
+			"""
+				|0
+				|123
+				|12AB
+				|2000000000
+				|20000000000
+				|F000000000000000
+			""".trim.stripMargin
+	}
 
 	"armstrong" in {
 		Run( "tests/armstrong" ) shouldBe
@@ -196,26 +196,26 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 			""".trim.stripMargin
 	}
 
-//	"bittwiddling64" in {
-//		Run( "tests/bittwiddling64" ) shouldBe
-//			"""
-//				|5, 0, 5
-//				|0, 20, 57, 77
-//				|20, 57
-//				|0, 1
-//				|1, 0
-//			""".trim.stripMargin
-//	}
+	"bittwiddling64" in {
+		Run( "tests/bittwiddling64" ) shouldBe
+			"""
+				|5, 0, 5
+				|0, 20, 57, 77
+				|20, 57
+				|0, 1
+				|1, 0
+			""".trim.stripMargin
+	}
 
-//	"bittwiddling64u" in {
-//		Run( "tests/bittwiddling64u.ghex" ) shouldBe
-//			"""
-//				|0, 20, 57, 77
-//				|20, 57
-//				|1, 0
-//			""".trim.stripMargin
-//	}
-//
+	"bittwiddling64u" in {
+		Run( "tests/bittwiddling64u" ) shouldBe
+			"""
+				|0, 20, 57, 77
+				|20, 57
+				|1, 0
+			""".trim.stripMargin
+	}
+
 //	"float64" in {
 //		Run( "tests/float64.ghex" ) shouldBe
 //			"""

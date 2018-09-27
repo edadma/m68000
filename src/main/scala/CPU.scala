@@ -564,10 +564,10 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     flags( 0, 0, false, s | d, false )
   }
 
-  def subtract( s: Int, d: Int, extended: Boolean ) = {
+  def subtract( s: Int, d: Int, size: Size, extended: Boolean ) = {
     val r = d - s
 
-    flags( (~s)&d&(~r) | s&(~d)&r, s&(~d) | r&(~d) | s&r, extended, r, true )
+    flags( cast((~s)&d&(~r) | s&(~d)&r, size), cast(s&(~d) | r&(~d) | s&r, size), extended, r, true )
   }
 
   def subtractx( s: Int, d: Int, size: Size ) = {
@@ -820,7 +820,7 @@ object CPU {
           "1001 rrr 1 ss eee aaa; s:0-2; e:2-7" -> (o => new SUB( o('r'), 1, addqsize(o), o('e'), o('a') )),
           "1001 rrr sss eee aaa; s:3,7" -> (o => new SUBA( o('r'), addasize(o), o('e'), o('a') )),
           "0101 ddd 1 ss eee aaa; s:0-2" -> (o => new SUBQ( addqdata(o), addqsize(o), o('e'), o('a') )),
-          "1001 xxx 1 ss 00 m yyy; s:0-2" -> (o => new SUBX( o('x'), addqsize(o), o('m'), o('y') )),
+          "1001 yyy 1 ss 00 m xxx; s:0-2" -> (o => new SUBX( o('x'), addqsize(o), o('m'), o('y') )),
           "0100100001000 rrr" -> (o => new SWAP( o('r') )),
           "0100101011 eee aaa" -> (o => new TAS( o('e'), o('a') )),
           "010011100100 vvvv" -> (o => new TRAP( o('v') )),

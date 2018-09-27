@@ -356,7 +356,7 @@ class CLR( size: Size, mode: Int, reg: Int ) extends Instruction {
 class CMP( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.subtract( cpu.read(mode, reg, size), cast(cpu.D(dreg), size), false )
+    cpu.subtract( cpu.read(mode, reg, size), cast(cpu.D(dreg), size), size, false )
   }
 
   def disassemble( cpu: CPU ) = cpu.binaryDstD( "CMP", size, mode, reg, dreg )
@@ -366,7 +366,7 @@ class CMP( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class CMPA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.subtract( cpu.read(mode, reg, size), cpu.readA(areg).asInstanceOf[Int], false )
+    cpu.subtract( cpu.read(mode, reg, size), cpu.readA(areg).asInstanceOf[Int], size, false )
   }
 
   def disassemble( cpu: CPU ) = cpu.binaryA( "CMPA", size, mode, reg, areg )
@@ -376,7 +376,7 @@ class CMPA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class CMPI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.subtract( cpu.immediate(size), cpu.read(mode, reg, size), false )
+    cpu.subtract( cpu.immediate(size), cpu.read(mode, reg, size), size, false )
   }
 
   def disassemble( cpu: CPU ) = cpu.immediate( "CMPI", size, mode, reg )
@@ -386,7 +386,7 @@ class CMPI( size: Size, mode: Int, reg: Int ) extends Instruction {
 class CMPM( size: Size, rx: Int, ry: Int ) extends Instruction with Addressing {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.subtract( cpu.read(AddressRegisterIndirectPostincrement, ry, size), cpu.read(AddressRegisterIndirectPostincrement, rx, size), false )
+    cpu.subtract( cpu.read(AddressRegisterIndirectPostincrement, ry, size), cpu.read(AddressRegisterIndirectPostincrement, rx, size), size, false )
   }
 
   def disassemble( cpu: CPU ) = mnemonic( "CMPM", size ) + s"(A$ry)+, (A$rx)+"
@@ -1125,9 +1125,9 @@ class SUB( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
 
   def apply( cpu: CPU ): Unit = {
     if (dir == 0)
-      cpu.writeD( cpu.subtract(cpu.read(mode, reg, size), cpu.readD(dreg, size), false), dreg, size )
+      cpu.writeD( cpu.subtract(cpu.read(mode, reg, size), cpu.readD(dreg, size), size, false), dreg, size )
     else
-      cpu.readWrite( mode, reg, size)( cpu.subtract(cpu.readD(reg, size), _, false) )
+      cpu.readWrite( mode, reg, size)( cpu.subtract(cpu.readD(reg, size), _, size, false) )
   }
 
   def disassemble( cpu: CPU ) = cpu.binary( "SUB", size, mode, reg, dir, dreg )
@@ -1137,7 +1137,7 @@ class SUB( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
 class SUBA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.writeA( cpu.subtract(cpu.read(mode, reg, size), cpu.readA(areg).asInstanceOf[Int], false), areg )
+    cpu.writeA( cpu.subtract(cpu.read(mode, reg, size), cpu.readA(areg).asInstanceOf[Int], size, false), areg )
   }
 
   def disassemble( cpu: CPU ) = cpu.binaryA( "SUBA", size, mode, reg, areg )
@@ -1147,7 +1147,7 @@ class SUBA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class SUBQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.readWrite( mode, reg, size )( cpu.subtract(data, _, false) )
+    cpu.readWrite( mode, reg, size )( cpu.subtract(data, _, size, false) )
   }
 
   def disassemble( cpu: CPU ) = mnemonic( "SUBQ", size ) + s"#$data, ${cpu.operand(mode, reg, size)}"
@@ -1158,17 +1158,17 @@ class SUBX( regx: Int, size: Size, rm: Int, regy: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
     if (rm == 0)
-      cpu.writeD( cpu.subtractx(cpu.readD(regx, size), cpu.readD(regy, size), size), regx, size )
+      cpu.writeD( cpu.subtractx(cpu.readD(regx, size), cpu.readD(regy, size), size), regy, size )
     else
-      cpu.readWrite( AddressRegisterIndirectPredecrement, regy, size )( cpu.subtractx(_, cpu.read(AddressRegisterIndirectPredecrement, regx, size), size) )
+      cpu.readWrite( AddressRegisterIndirectPredecrement, regy, size )( cpu.subtractx(cpu.read(AddressRegisterIndirectPredecrement, regx, size), _, size) )
   }
 
   def disassemble( cpu: CPU ) =
     if (rm == 0)
-      mnemonic( "SUBX", size ) + s"D$regy, D$regx"
+      mnemonic( "SUBX", size ) + s"D$regx, D$regy"
     else
-      mnemonic( "SUBX", size ) + cpu.operand(AddressRegisterIndirectPredecrement, regy, size ) +
-        ", " + cpu.operand(AddressRegisterIndirectPredecrement, regx, size )
+      mnemonic( "SUBX", size ) + cpu.operand(AddressRegisterIndirectPredecrement, regx, size ) +
+        ", " + cpu.operand(AddressRegisterIndirectPredecrement, regy, size )
 
 }
 
