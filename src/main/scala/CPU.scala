@@ -485,13 +485,13 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def add( s: Int, d: Int, size: Size, extended: Boolean ) = {
     val r = s + d
 
-    flags( cast(s&d&(~r)|(~s)&(~d)&r, size), cast(s&d|(~r)&d|s&(~r), size), extended, r, true )
+    flags( cast(s&d&(~r) | (~s)&(~d)&r, size), cast((s&d) | (~r)&(s|d), size), extended, r, true )
   }
 
   def addx( s: Int, d: Int, size: Size ) = {
     val r = s + d + (if (X) 1 else 0)
 
-    flags( cast(s&d&(~r)|(~s)&(~d)&r, size), cast(s&d|(~r)&d|s&(~r), size), true, r, true )
+    flags( cast(s&d&(~r)|(~s)&(~d)&r, size), cast((s&d) | (~r)&(s|d), size), true, r, true )
   }
 
   def asl( r: Int, d: Int, size: Size ) =
@@ -502,38 +502,38 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       val mask = ones( r )
       val shifted = (res >> bits( size )).toInt & mask
 
-      flags( shifted == 0 || shifted == mask, ~(d - r + 1), false, res.toInt, false )
+      flags( shifted == 0 || shifted == mask, ~(d - r + 1), false, res.toInt, true )
     }
 
   def asr( r: Int, d: Int, size: Size ) =
     if (r == 0)
       flags( 0, 0, false, d, false )
     else
-      flags( 0, cast(d << (bits(size) - r), size), false, d >> r, false )
+      flags( 0, cast(d << (bits(size) - r), size), false, d >> r, true )
 
   def lsr( r: Int, d: Int, size: Size ) =
     if (r == 0)
       flags( 0, 0, false, d, false )
     else
-      flags( 0, cast(d << (bits(size) - r), size), false, ucast(d, size) >>> r, false )
+      flags( 0, cast(d << (bits(size) - r), size), false, ucast(d, size) >>> r, true )
 
   def lsl( r: Int, d: Int, size: Size ) =
     if (r == 0)
       flags( 0, 0, false, d, false )
     else
-      flags( 0, cast(d, size) - r + 1, false, d << r, false )
+      flags( 0, cast(d, size) - r + 1, false, d << r, true )
 
   def rol( r: Int, d: Int, size: Size ) =
     if (r == 0)
       flags( 0, 0, false, d, false )
     else
-      flags( 0, cast(d, size) - r + 1, false, (d << r) | (d >>> (bits(size) - r)), false )
+      flags( 0, cast(d, size) - r + 1, false, (d << r) | (d >>> (bits(size) - r)), true )
 
   def ror( r: Int, d: Int, size: Size ) =
     if (r == 0)
       flags( 0, 0, false, d, false )
     else
-      flags( 0, d << (bits(size) - r), false, (d >>> r) | (d << (bits(size) - r)), false )
+      flags( 0, d << (bits(size) - r), false, (d >>> r) | (d << (bits(size) - r)), true )
 
   def roxl( r: Int, d: Int, size: Size ) =
     r match {

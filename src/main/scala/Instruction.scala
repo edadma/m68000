@@ -306,10 +306,10 @@ class BTST( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
     val bit =
       breg match {
         case None => cpu.fetchByte
-        case Some( b ) => b
+        case Some( r ) => cpu.D(r)
       }
 
-    cpu.Z = testBit( data, bit )
+    cpu.Z = !testBit( data, bit&0x1F )
   }
 
   def disassemble( cpu: CPU ) =

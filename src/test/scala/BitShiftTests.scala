@@ -114,4 +114,30 @@ class BitShiftTests extends FreeSpec with PropertyChecks with Matchers with Test
     } shouldBe (0xF0, "")
   }
 
+  "lsr" in {
+    test { cpu =>
+      ucast( cpu.lsr(0, 0x80, ByteSize), ByteSize )
+    } shouldBe (0x80, "")
+
+    test { cpu =>
+      ucast( cpu.lsr(1, 0x80, ByteSize), ByteSize )
+    } shouldBe (0x40, "")
+
+    test { cpu =>
+      ucast( cpu.lsr(1, 0x81, ByteSize), ByteSize )
+    } shouldBe (0x40, "xc")
+
+    test { cpu =>
+      ucast( cpu.lsr(2, 0x80, ByteSize), ByteSize )
+    } shouldBe (0x20, "")
+
+    test { cpu =>
+      ucast( cpu.lsr(2, 0x81, ByteSize), ByteSize )
+    } shouldBe (0x20, "")
+
+    test { cpu =>
+      ucast( cpu.lsr(3, 0x83, ByteSize), ByteSize )
+    } shouldBe (0x10, "")
+  }
+
 }

@@ -5,7 +5,7 @@ import java.io.{File, PrintStream}
 
 
 object Main extends App {
-  val program = "bittwiddling64"//main
+  val program = "main"//
   val mem =
     new Memory {
       def init: Unit = {
