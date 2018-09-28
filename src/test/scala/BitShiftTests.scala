@@ -60,7 +60,7 @@ class BitShiftTests extends FreeSpec with PropertyChecks with Matchers with Test
     } shouldBe (0x0F, "")
 	}
 
-  "roxr" in {
+  "roxr byte" in {
     test { cpu =>
       cpu.X = false
       ucast( cpu.roxr(0, 0x80, ByteSize), ByteSize )
@@ -112,6 +112,64 @@ class BitShiftTests extends FreeSpec with PropertyChecks with Matchers with Test
       cpu.X = true
       ucast( cpu.roxr(3, 0x83, ByteSize), ByteSize )
     } shouldBe (0xF0, "")
+  }
+
+  "roxr int" in {
+    test { cpu =>
+      cpu.X = false
+      ucast( cpu.roxr(0, 0x80, IntSize), IntSize )
+    } shouldBe (0x80, "")
+    test { cpu =>
+      cpu.X = true
+      ucast( cpu.roxr(0, 0x80, IntSize), IntSize )
+    } shouldBe (0x80, "xc")
+
+    test { cpu =>
+      cpu.X = false
+      ucast( cpu.roxr(1, 0x80, IntSize), IntSize )
+    } shouldBe (0x40, "")
+    test { cpu =>
+      cpu.X = true
+      ucast( cpu.roxr(1, 0x80, IntSize), IntSize )
+    } shouldBe (0x80000040, "n")
+    test { cpu =>
+      cpu.X = true
+      ucast( cpu.roxr(1, 0, IntSize), IntSize )
+    } shouldBe (0x80000000, "n")
+    test { cpu =>
+      cpu.X = false
+      ucast( cpu.roxr(1, 0x81, IntSize), IntSize )
+    } shouldBe (0x40, "xc")
+    test { cpu =>
+      cpu.X = true
+      ucast( cpu.roxr(1, 0x81, IntSize), IntSize )
+    } shouldBe (0x80000040, "xnc")
+
+    test { cpu =>
+      cpu.X = false
+      ucast( cpu.roxr(2, 0x80, IntSize), IntSize )
+    } shouldBe (0x20, "")
+    test { cpu =>
+      cpu.X = true
+      ucast( cpu.roxr(2, 0x80, IntSize), IntSize )
+    } shouldBe (0x40000020, "")
+    test { cpu =>
+      cpu.X = false
+      ucast( cpu.roxr(2, 0x81, IntSize), IntSize )
+    } shouldBe (0x80000020, "n")
+    test { cpu =>
+      cpu.X = true
+      ucast( cpu.roxr(2, 0x81, IntSize), IntSize )
+    } shouldBe (0xC0000020, "n")
+
+    test { cpu =>
+      cpu.X = false
+      ucast( cpu.roxr(3, 0x83, IntSize), IntSize )
+    } shouldBe (0xC0000010, "n")
+    test { cpu =>
+      cpu.X = true
+      ucast( cpu.roxr(3, 0x83, IntSize), IntSize )
+    } shouldBe (0xE0000010, "n")
   }
 
   "lsr" in {

@@ -1004,7 +1004,7 @@ class ROMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
 class ROReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val c = if (ir == 0) count else cpu.readD( count, size )
+    val c = if (ir == 0) if (count == 0) 8 else count else cpu.readD( count, size )
     val operand = cpu.readD(dreg, size)
 
     cpu.writeD( if (dir == 0) cpu.ror(c, operand, size) else cpu.rol(c, operand, size), dreg, size )
@@ -1022,7 +1022,7 @@ class ROReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Inst
 class ROXMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.readWrite( mode, reg, ShortSize )( o => if (dir == 0) cpu.ror(1, o, ShortSize) else cpu.rol(1, o, ShortSize) )
+    cpu.readWrite( mode, reg, ShortSize )( o => if (dir == 0) cpu.roxr(1, o, ShortSize) else cpu.roxl(1, o, ShortSize) )
   }
 
   def disassemble( cpu: CPU ) = {
@@ -1036,10 +1036,10 @@ class ROXMem( dir: Int, mode: Int, reg: Int ) extends Instruction {
 class ROXReg( count: Int, dir: Int, size: Size, ir: Int, dreg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val c = if (ir == 0) count else cpu.readD( count, size )
+    val c = if (ir == 0) if (count == 0) 8 else count else cpu.readD( count, size )
     val operand = cpu.readD(dreg, size)
 
-    cpu.writeD( if (dir == 0) cpu.ror(c, operand, size) else cpu.rol(c, operand, size), dreg, size )
+    cpu.writeD( if (dir == 0) cpu.roxr(c, operand, size) else cpu.roxl(c, operand, size), dreg, size )
   }
 
   def disassemble( cpu: CPU ) = {
