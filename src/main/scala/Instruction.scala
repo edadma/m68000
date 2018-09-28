@@ -1144,6 +1144,16 @@ class SUBA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
 }
 
+class SUBI( size: Size, mode: Int, reg: Int ) extends Instruction {
+
+  def apply( cpu: CPU ): Unit = {
+    cpu.readWrite( mode, reg, size )( cpu.subtract(cpu.immediate(size), _, size, false) )
+  }
+
+  def disassemble( cpu: CPU ) = cpu.immediate( "SUBI", size, mode, reg )
+
+}
+
 class SUBQ( data: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {

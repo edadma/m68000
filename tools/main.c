@@ -7,4 +7,10 @@ void
 main() {
     outf( a + b );
 	outnl();
+    outf( a - b );
+	outnl();
+    outf( a * b );
+	outnl();
+    outf( a / b );
+	outnl();
 }
