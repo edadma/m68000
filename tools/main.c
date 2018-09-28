@@ -4,5 +4,5 @@
 
 void
 main() {
-	outs( "asdf\n" );
+	puts( "asdf\n" );
 }

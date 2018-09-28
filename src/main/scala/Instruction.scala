@@ -63,7 +63,9 @@ class ADDA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class ADDI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.readWrite( mode, reg, size )( cpu.add(_, cpu.immediate(size), size, false) )
+    val imm = cpu.immediate(size)
+
+    cpu.readWrite( mode, reg, size )( cpu.add(_, imm, size, false) )
   }
 
   def disassemble( cpu: CPU ) = cpu.immediate( "ADDI", size, mode, reg )
@@ -114,7 +116,9 @@ class AND( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
 class ANDI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.readWrite( mode, reg, size )( cpu.and(_, cpu.immediate(size)) )
+    val imm = cpu.immediate(size)
+
+    cpu.readWrite( mode, reg, size )( cpu.and(_, imm) )
   }
 
   def disassemble( cpu: CPU ) = cpu.immediate( "ANDI", size, mode, reg )
@@ -497,7 +501,9 @@ class EOR( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class EORI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.readWrite( mode, reg, size )( cpu.eor(_, cpu.immediate(size)) )
+    val imm = cpu.immediate(size)
+
+    cpu.readWrite( mode, reg, size )( cpu.eor(_, imm) )
   }
 
   def disassemble( cpu: CPU ) = cpu.immediate( "EORI", size, mode, reg )
@@ -941,7 +947,9 @@ class OR( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruc
 class ORI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.readWrite( mode, reg, size )( cpu.or(_, cpu.immediate(size)) )
+    val imm = cpu.immediate(size)
+
+    cpu.readWrite( mode, reg, size )( cpu.or(_, imm) )
   }
 
   def disassemble( cpu: CPU ) = cpu.immediate( "ORI", size, mode, reg )
@@ -1163,7 +1171,9 @@ class SUBA( areg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 class SUBI( size: Size, mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.readWrite( mode, reg, size )( cpu.subtract(cpu.immediate(size), _, size, false) )
+    val imm = cpu.immediate(size)
+
+    cpu.readWrite( mode, reg, size )( cpu.subtract(imm, _, size, false) )
   }
 
   def disassemble( cpu: CPU ) = cpu.immediate( "SUBI", size, mode, reg )
