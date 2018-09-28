@@ -1,6 +1,6 @@
     .section    .rodata
 
-    .long       __stack_end__
+    .long       __stack_init__
     .long       _start
 
     .text

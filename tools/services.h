@@ -6,4 +6,4 @@ extern void outf( double a );
 extern void outs( char* s );
 extern void outn( int n );
 extern void outl( int64_t n );
-extern void halt();
+extern void halt() __attribute__ ((noreturn));
