@@ -11,9 +11,9 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 		Run( "tests/hello" ) shouldBe "Hello world!"
 	}
 
-//	"pi_approx" in {
-//		Run( "tests/pi_approx.ghex" ) shouldBe "3.141592653589791339641124"
-//	}
+	"pi_approx" in {
+		Run( "tests/pi_approx" ) shouldBe "3.141592653589791339641124"
+	}
 
 	"strcmp" in {
 		Run( "tests/strcmp" ) shouldBe
@@ -216,33 +216,33 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 			""".trim.stripMargin
 	}
 
-//	"float64" in {
-//		Run( "tests/float64.ghex" ) shouldBe
-//			"""
-//				|true
-//				|true
-//				|true
-//				|true
-//				|false
-//				|false
-//				|true
-//				|true
-//				|true
-//				|3.5
-//				|-3.5
-//				|true
-//				|true
-//				|true
-//				|true
-//				|true
-//				|true
-//				|true
-//				|true
-//				|true
-//				|true
-//				|true
-//				|true
-// 			""".trim.stripMargin
-//	}
+	"float64" in {
+		Run( "tests/float64" ) shouldBe
+			"""
+				|true
+				|true
+				|true
+				|true
+				|false
+				|false
+				|true
+				|true
+				|true
+				|3.5
+				|-3.5
+				|true
+				|true
+				|true
+				|true
+				|true
+				|true
+				|true
+				|true
+				|true
+				|true
+				|true
+				|true
+ 			""".trim.stripMargin
+	}
 
 }

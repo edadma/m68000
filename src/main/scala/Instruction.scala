@@ -929,9 +929,9 @@ class OR( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instruc
 
   def apply( cpu: CPU ): Unit = {
     if (dir == 0)
-      cpu.writeD( cpu.eor(cpu.read(mode, reg, size), cpu.readD(dreg, size)), dreg, size )
+      cpu.writeD( cpu.or(cpu.read(mode, reg, size), cpu.readD(dreg, size)), dreg, size )
     else
-      cpu.write( cpu.eor(cpu.read(mode, reg, size), cpu.readD(dreg, size)), mode, dreg, size )
+      cpu.readWrite( mode, dreg, size )( cpu.or(_, cpu.readD(dreg, size)) )
   }
 
   def disassemble( cpu: CPU ) = cpu.binary( "OR", size, mode, reg, dir, dreg )
@@ -944,7 +944,7 @@ class ORI( size: Size, mode: Int, reg: Int ) extends Instruction {
     cpu.readWrite( mode, reg, size )( cpu.or(_, cpu.immediate(size)) )
   }
 
-  def disassemble( cpu: CPU ) = cpu.unary( "ORI", size, mode, reg )
+  def disassemble( cpu: CPU ) = cpu.immediate( "ORI", size, mode, reg )
 
 }
 
