@@ -207,14 +207,18 @@ class Bcc( cond: Int, disp: Int ) extends Instruction {
 class BCHG( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val bit =
-      breg match {
-        case None => cpu.fetchByte
-        case Some( b ) => b
-      }
+    val bit = {
+      val b =
+        breg match {
+          case None => cpu.fetchByte
+          case Some(r) => cpu.D(r)
+        }
+
+      if (mode > 2) b & 7 else b & 0x1F
+    }
 
     cpu.readWrite( mode, reg, BitSize ){ x =>
-      cpu.Z = testBit( x, bit )
+      cpu.Z = !testBit( x, bit )
       flipBit( x, bit )
     }
   }
@@ -231,14 +235,18 @@ class BCHG( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 class BCLR( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val bit =
-      breg match {
-        case None => cpu.fetchByte
-        case Some( b ) => b
-      }
+    val bit = {
+      val b =
+        breg match {
+          case None => cpu.fetchByte
+          case Some(r) => cpu.D(r)
+        }
+
+      if (mode > 2) b & 7 else b & 0x1F
+    }
 
     cpu.readWrite( mode, reg, BitSize ) { x =>
-      cpu.Z = testBit( x, bit )
+      cpu.Z = !testBit( x, bit )
       clearBit( x, bit )
     }
   }
@@ -265,14 +273,18 @@ class BKPT( bkpt: Int ) extends Instruction {
 class BSET( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    val bit =
-      breg match {
-        case None => cpu.fetchByte
-        case Some( b ) => b
-      }
+    val bit = {
+      val b =
+        breg match {
+          case None => cpu.fetchByte
+          case Some(r) => cpu.D(r)
+        }
+
+      if (mode > 2) b & 7 else b & 0x1F
+    }
 
     cpu.readWrite( mode, reg, BitSize ) { x =>
-      cpu.Z = testBit( x, bit )
+      cpu.Z = !testBit( x, bit )
       setBit(x, bit)
     }
   }
@@ -303,13 +315,17 @@ class BTST( breg: Option[Int], mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
     val data = cpu.read( mode, reg, BitSize )
-    val bit =
-      breg match {
-        case None => cpu.fetchByte
-        case Some( r ) => cpu.D(r)
-      }
+    val bit = {
+      val b =
+        breg match {
+          case None => cpu.fetchByte
+          case Some(r) => cpu.D(r)
+        }
 
-    cpu.Z = !testBit( data, bit&0x1F )
+      if (mode > 2) b & 7 else b & 0x1F
+    }
+
+    cpu.Z = !testBit( data, bit )
   }
 
   def disassemble( cpu: CPU ) =

@@ -369,8 +369,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case DataRegisterDirect if size == BitSize => D(reg)
       case DataRegisterDirect => readD( reg, size )
       case AddressRegisterDirect => cast( readA(reg).asInstanceOf[Int], size )
-      case AddressRegisterIndirect|AddressRegisterIndirectPostincrement|AddressRegisterIndirectPredecrement|
-           AddressRegisterIndirectWithDisplacement|AddressRegisterIndirectWithIndex =>
+      case AddressRegisterIndirect|AddressRegisterIndirectWithDisplacement|AddressRegisterIndirectWithIndex =>
+        memoryRead( address(mode, reg, size), size, false )
+      case AddressRegisterIndirectPostincrement|AddressRegisterIndirectPredecrement =>
         memoryRead( address(mode, reg, size), size, reg == 7 )
       case OtherModes =>
         reg match {
@@ -385,8 +386,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     mode match {
       case DataRegisterDirect => writeD( data, reg, size )
       case AddressRegisterDirect => writeA( regwrite(data, readA(reg).asInstanceOf[Int], size), reg )
-      case AddressRegisterIndirect|AddressRegisterIndirectPostincrement|AddressRegisterIndirectPredecrement|
-           AddressRegisterIndirectWithDisplacement|AddressRegisterIndirectWithIndex =>
+      case AddressRegisterIndirect|AddressRegisterIndirectWithDisplacement|AddressRegisterIndirectWithIndex =>
+        memoryWrite( data, address(mode, reg, size), size, false )
+      case AddressRegisterIndirectPostincrement|AddressRegisterIndirectPredecrement =>
         memoryWrite( data, address(mode, reg, size), size, reg == 7 )
       case OtherModes =>
         reg match {
@@ -399,17 +401,21 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def readWrite( mode: Int, reg: Int, size: Size )( op: Int => Int ) = {
     mode match {
       case DataRegisterDirect|AddressRegisterDirect => write( op(read(mode, reg, size)), mode, reg, size )
-      case AddressRegisterIndirect|AddressRegisterIndirectPostincrement|AddressRegisterIndirectPredecrement|
-           AddressRegisterIndirectWithDisplacement =>
+      case AddressRegisterIndirect|AddressRegisterIndirectWithDisplacement|AddressRegisterIndirectWithIndex =>
         val addr = address( mode, reg, size )
 
-        memoryWrite( op(memoryRead(addr, size, reg == 7)), addr, size, reg == 7 )
+        memoryWrite( op(memoryRead(addr, size, false)), addr, size, false )
+      case AddressRegisterIndirectPostincrement|AddressRegisterIndirectPredecrement =>
+        val addr = address( mode, reg, size )
+        val aligned = reg == 7
+
+        memoryWrite( op(memoryRead(addr, size, aligned)), addr, size, aligned )
       case OtherModes =>
         reg match {
           case AbsoluteShort|AbsoluteLong|ProgramCounterWithDisplacement =>
             val addr = address( mode, reg, size )
 
-            memoryWrite( op(memoryRead(addr, size, reg == 7)), addr, size, false )
+            memoryWrite( op(memoryRead(addr, size, false)), addr, size, false )
         }
     }
   }
