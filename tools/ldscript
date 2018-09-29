@@ -16,7 +16,8 @@ MEMORY
 
 SECTIONS
 {
-    __stack_size__ = 0x1000;
+    __stack_size__ = 0x10000;
+    __heap_size__ = 0x10000;
 
     .rodata : { *(.rodata*) } > rom
     .text : { *(.text*) } > rom
@@ -38,6 +39,7 @@ SECTIONS
         _end = .;
     } > ram
 
+    . += __heap_size__;
     . += __stack_size__;
     . = ALIGN (16);
     __stack_init__ = .;

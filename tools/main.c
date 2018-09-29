@@ -1,8 +1,7 @@
 #include <stdio.h>
-#include "services.h"
 
 
 void
 main() {
-	puts( "asdf\n" );
+    printf( "asdf %d\n", 123 );
 }

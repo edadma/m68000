@@ -170,9 +170,7 @@ abstract class Memory extends Addressable {
 
 	def find( addr: Long ) =
 		lookup( addr ) match {
-			case null =>
-        println( addr )
-        sys.error( addr.toHexString + " is not an addressable memory location" )
+			case null => sys.error( addr.toHexString + " is not an addressable memory location" )
 			case r => r
 		}
 

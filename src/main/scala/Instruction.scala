@@ -793,7 +793,7 @@ class MOVEM( dir: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
     mnemonic( "MOVEM", size ) +
       (if (dir == 0)
-        ranges( rs ) + ", " + cpu.operand( mode, reg )
+        ranges( rs sorted ) + ", " + cpu.operand( mode, reg )
       else
         cpu.operand( mode, reg ) + ", " + ranges( rs ))
   }
