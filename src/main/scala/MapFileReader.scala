@@ -7,7 +7,7 @@ object MapFileReader extends App {
 
   println( apply(io.Source.fromFile("test/main.map")) )
 
-  lazy val labelRegex = " {16}0x([^ ]+) {16}([^ ]+).*"r
+  lazy val labelRegex = " {16}0x([^ ]+) {16}([^. ]+).*"r
 
   def apply( src: io.Source ): (HashMap[String, Long], HashMap[Long, String]) = {
     val symbols = new HashMap[String, Long]

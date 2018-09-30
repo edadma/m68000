@@ -17,7 +17,7 @@ MEMORY
 SECTIONS
 {
     __stack_size__ = 0x10000;
-    __heap_size__ = 0x10000;
+    __heap_size__ = 1M;
 
     .rodata : { *(.rodata*) } > rom
     .text : { *(.text*) } > rom
