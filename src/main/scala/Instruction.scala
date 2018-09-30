@@ -479,7 +479,7 @@ class DIVU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
         cpu.Z = q == 0
         cpu.C = false
         cpu.V = false
-        cpu.D(dreg) = ((a%b).asInstanceOf[Short]<<16)|(q.asInstanceOf[Short]&0xFFFF)
+        cpu.D(dreg) = ((a%b).asInstanceOf[Int]<<16)|(q.asInstanceOf[Int]&0xFFFF)
       }
     }
   }
