@@ -5,7 +5,7 @@ import java.io.{File, PrintStream}
 
 
 object Main extends App {
-  val program = "main"//
+  val program = "main"
   val mem =
     new Memory {
       def init: Unit = {
@@ -16,12 +16,12 @@ object Main extends App {
     }
   val cpu =
     new CPUWithServices( mem ) {
-//      trace = true
+      trace = true
       traceout = new PrintStream( "trace" )
       symbols = MapFileReader( io.Source.fromFile(s"tools/$program.map") )._2
     }
 
   cpu.reset
   cpu.run
-//  cpu.traceout.close
+  cpu.traceout.close
 }

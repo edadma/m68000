@@ -1,1 +1,1 @@
-m68k-gcc -nostdlib -nodefaultlibs -S -c $1.c
+m68k-gcc -nostdlib -nodefaultlibs -S -gstabs -c $1.c

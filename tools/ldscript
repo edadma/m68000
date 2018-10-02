@@ -6,7 +6,7 @@ SEARCH_DIR(/home/ed/x-tools/m68k-unknown-uclinux-uclibc/m68k-unknown-uclinux-ucl
 SEARCH_DIR(/home/ed/x-tools/m68k-unknown-uclinux-uclibc/m68k-unknown-uclinux-uclibc/sysroot/usr/lib/)
 */
 
-OUTPUT_FORMAT(srec)
+/*OUTPUT_FORMAT(srec)*/
 
 MEMORY
 {

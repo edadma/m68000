@@ -1,1 +1,3 @@
-m68k-ld --script ldscript -Map $1.map startup.o syscalls.o $1.o -lc -lgcc -o $1.srec
+m68k-ld --script ldscript -Map $1.map startup.o syscalls.o $1.o -lc -lgcc -o $1.elf
+m68k-objcopy -O srec main.elf main.srec
+m68k-objdump -g main.elf >main.debug
