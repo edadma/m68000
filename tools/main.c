@@ -2,8 +2,12 @@
 #include <stdlib.h>
 
 
-int
+void
 main() {
-    printf( "|%5s| |%5d| |%5x| |%5.1f| %e\n", "asdf", 123, 123, 3.4, atof("3.4") );
-    return 0;
+    for (int i = 0; i < 10000000; i++) {}
+}
+
+void __attribute__ ((interrupt))
+autovector_level1_isr() {
+    printf( "interrupt" );
 }

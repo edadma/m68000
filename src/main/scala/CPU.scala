@@ -56,12 +56,11 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
           case Interrupt( level, None ) => exception( VectorTable.autoVectors + level<<2 )
           case Interrupt( _, Some(vector) ) => exception( VectorTable.interruptVectors + vector<<2 )
         }
-      else
-        service
+
+      service
     }
 
-    if (interrupts isEmpty)
-      interruptsAvailable = false
+    interruptsAvailable = false
   }
 
   def breakpoint( bkpt: Int ) = false
@@ -217,7 +216,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     if (trace)
       tracewrite match {
         case None =>
-        case Some( (address, oldvalue, newvalue, size) ) =>
+        case Some( (address, oldvalue, newvalue, _) ) =>
           Console.withOut( traceout ) {
             println(f"${address.toHexString.toUpperCase}%6s  ${hexInt(oldvalue)} -> ${hexInt(newvalue)}")
           }
@@ -259,13 +258,11 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
         service
 
       if (stopped)
-        Thread.sleep( 10 )
+        Thread.sleep( 5 )
       else
         execute
     }
   }
-
-//  memory.problem = problem
 
   //
   // addressing

@@ -2,6 +2,30 @@
 
     .long       __stack_init__
     .long       _start
+    .long       0   /* bus error */
+    .long       0   /* address error */
+    .long       0   /* illegal instruction */
+    .long       0   /* zero divide */
+    .long       0   /* CHK instruction */
+    .long       0   /* TRAPV instruction */
+    .long       0   /* priviledge violation */
+    .long       0   /* trace */
+    .long       0   /* 1010 instruction trap */
+    .long       0   /* 1111 instruction trap */
+    .long       0   /* reserved */
+    .long       0   /* reserved */
+    .long       0   /* reserved */
+    .long       0   /* uninitialized interrupt */
+    .long       0   /* reserved */
+    .long       0   /* reserved */
+    .long       0   /* reserved */
+    .long       0   /* reserved */
+    .long       0   /* reserved */
+    .long       0   /* reserved */
+    .long       0   /* reserved */
+    .long       0   /* reserved */
+    .long       0   /* spurious interrupt */
+    .long       autovector_level1_isr
 
     .text
     .globl	_start
@@ -25,107 +49,6 @@ _start:
     move.b  %a0@+, %a1@+
     jmp     .3
 .4:
+    move    #0x2000, %sr
     jsr     main
     jmp     halt
-
-    .globl	outnl
-    .type	outnl, @function
-outnl:
-    link.w  %fp, #0
-    move.l  #'\n', %d1
-    move    #6, %d0
-    trap    #15
-    unlk    %fp
-    rts
-
-    .globl	outc
-    .type	outc, @function
-outc:
-    link.w  %fp, #0
-    move.l  8(%fp), %d1
-    move    #6, %d0
-    trap    #15
-    unlk    %fp
-    rts
-
-    .globl	outn
-    .type	outn, @function
-outn:
-    link.w  %fp, #0
-    move.l  8(%fp), %d1
-    move    #3, %d0
-    trap    #15
-    unlk    %fp
-    rts
-
-    .globl	outl
-    .type	outl, @function
-outl:
-    link.w  %fp, #0
-    move.l  %d2, %sp@-
-    move.l  8(%fp), %d1
-	move.l  12(%fp),%d2
-    move    #15, %d0
-    trap    #15
-    move.l  %sp@+, %d2
-    unlk    %fp
-    rts
-
-    .globl	outu
-    .type	outu, @function
-outu:
-    link.w  %fp, #0
-    move.l  8(%fp), %d1
-    move    #11, %d0
-    trap    #15
-    unlk    %fp
-    rts
-
-    .globl	outx
-    .type	outx, @function
-outx:
-    link.w  %fp, #0
-    move.l  8(%fp), %d1
-    move    #12, %d0
-    trap    #15
-    unlk    %fp
-    rts
-
-    .globl	outf
-    .type	outf, @function
-outf:
-    link.w  %fp, #0
-    move.l  %d2, %sp@-
-    move.l  8(%fp), %d1
-	move.l  12(%fp),%d2
-    move    #10, %d0
-    trap    #15
-    move.l  %sp@+, %d2
-    unlk    %fp
-    rts
-
-    .globl	outln
-    .type	outln, @function
-outln:
-    link.w  %fp, #0
-    move.l  8(%fp), %a1
-    move    #13, %d0
-    trap    #15
-    unlk    %fp
-    rts
-
-    .globl	outs
-    .type	outs, @function
-outs:
-    link.w  %fp, #0
-    move.l  8(%fp), %a1
-    move    #14, %d0
-    trap    #15
-    unlk    %fp
-    rts
-
-    .globl	halt
-    .type	halt, @function
-halt:
-    move    #9, %d0
-    trap    #15

@@ -2,6 +2,7 @@
 package xyz.hyperreal.m68k
 
 import java.io.{File, PrintStream}
+import java.util.{TimerTask, Timer}
 
 
 object Main extends App {
@@ -16,13 +17,22 @@ object Main extends App {
     }
   val cpu =
     new CPUWithServices( mem ) {
-//      trace = true
-      traceout = new PrintStream( "trace" )
-      symbols = MapFileReader( io.Source.fromFile(s"tools/$program.map") )._2
-      debug = DebugFileReader( io.Source.fromFile(s"tools/$program.debug") )
+      //      trace = true
+      traceout = new PrintStream("trace")
+      symbols = MapFileReader(io.Source.fromFile(s"tools/$program.map"))._2
+      debug = DebugFileReader(io.Source.fromFile(s"tools/$program.debug"))
+    }
+  val timer = new Timer
+  val timerTask =
+    new TimerTask {
+      def run: Unit = {
+        cpu.interrupt( new Interrupt(1, None) )
+      }
     }
 
+//  timer.scheduleAtFixedRate( timerTask, 100, 250 )
   cpu.reset
   cpu.run
+  timer.cancel
 //  cpu.traceout.close
 }
