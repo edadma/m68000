@@ -19,6 +19,7 @@ object Main extends App {
       trace = true
       traceout = new PrintStream( "trace" )
       symbols = MapFileReader( io.Source.fromFile(s"tools/$program.map") )._2
+      debug = DebugFileReader( io.Source.fromFile(s"tools/$program.debug") )
     }
 
   cpu.reset

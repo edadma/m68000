@@ -9,7 +9,7 @@ object DebugFileReader extends App {
 
   lazy val lineRegex = """ */\* file ([^ ]+) line ([^ ]+) addr 0x([^ ]+) \*/"""r
 
-  def apply( src: io.Source ): HashMap[Long, (String, String)] = {
+  def apply( src: io.Source ): Map[Long, (String, String)] = {
     val code = new HashMap[Long, (String, String)]
 
     for (line <- src.getLines)
@@ -18,7 +18,7 @@ object DebugFileReader extends App {
         case _ =>
       }
 
-    code
+    code.toMap
   }
 
 }

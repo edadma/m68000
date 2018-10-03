@@ -24,6 +24,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   private [m68k] var instruction = 0
   private [m68k] var prog: Addressable = _
   private [m68k] var symbols: HashMap[Long, String] = HashMap()
+  private [m68k] var debug: Map[Long, (String, String)] = Map()
   private [m68k] var labels = 0
 
   private val interrupts = new PriorityQueue[Interrupt]
@@ -126,7 +127,12 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
         case Some( label ) => print( label + ": " )
       }
 
-      println( disassembly )
+      print( disassembly )
+
+      debug get pc match {
+        case None => println
+        case Some( (lineno, file) ) => println( s"    $lineno: $file" )
+      }
       PC = pc
     } else
       println( f"PC=${PC.toHexString.toUpperCase}%6s" )
