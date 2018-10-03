@@ -16,7 +16,7 @@ object Main extends App {
     }
   val cpu =
     new CPUWithServices( mem ) {
-      trace = true
+//      trace = true
       traceout = new PrintStream( "trace" )
       symbols = MapFileReader( io.Source.fromFile(s"tools/$program.map") )._2
       debug = DebugFileReader( io.Source.fromFile(s"tools/$program.debug") )
@@ -24,5 +24,5 @@ object Main extends App {
 
   cpu.reset
   cpu.run
-  cpu.traceout.close
+//  cpu.traceout.close
 }

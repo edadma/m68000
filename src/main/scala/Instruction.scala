@@ -1151,7 +1151,7 @@ class SUB( dreg: Int, dir: Int, size: Size, mode: Int, reg: Int ) extends Instru
     if (dir == 0)
       cpu.writeD( cpu.subtract(cpu.read(mode, reg, size), cpu.readD(dreg, size), size, false), dreg, size )
     else
-      cpu.readWrite( mode, reg, size)( cpu.subtract(cpu.readD(reg, size), _, size, false) )
+      cpu.readWrite( mode, reg, size)( cpu.subtract(cpu.readD(dreg, size), _, size, false) )
   }
 
   def disassemble( cpu: CPU ) = cpu.binary( "SUB", size, mode, reg, dir, dreg )

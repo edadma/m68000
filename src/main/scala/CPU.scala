@@ -31,7 +31,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   private var interruptsAvailable = false
 
   var counter = 0L
+
   var trace = false
+  var tracewrite: Option[(Long, Int, Int, Size)] = None
   var traceout = Console.out
 
 	protected [m68k] var running = false
@@ -201,6 +203,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def execute: Unit = {
     if (trace)
       Console.withOut( traceout ) {
+        tracewrite = None
         registers
         disassemble
         println
@@ -210,6 +213,15 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     fetch
     opcodes(instruction)( this )
     counter += 1
+
+    if (trace)
+      tracewrite match {
+        case None =>
+        case Some( (address, oldvalue, newvalue, size) ) =>
+          Console.withOut( traceout ) {
+            println(f"${address.toHexString.toUpperCase}%6s  ${hexInt(oldvalue)} -> ${hexInt(newvalue)}")
+          }
+      }
   }
 
   def fetch = instruction = fetchShort&0xFFFF
@@ -269,13 +281,17 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case IntSize => memory.readInt( address )
     }
 
-  def memoryWrite( data: Int, address: Long, size: Size, aligned: Boolean ) =
+  def memoryWrite( data: Int, address: Long, size: Size, aligned: Boolean ) = {
+    if (trace)
+      tracewrite = Some( (address, memoryRead(address, size, aligned), data, size) )
+
     size match {
-      case BitSize|ByteSize if aligned => memory.writeShort( address, data )
-      case BitSize|ByteSize => memory.writeByte( address, data )
-      case ShortSize => memory.writeShort( address, data )
-      case IntSize => memory.writeInt( address, data )
+      case BitSize | ByteSize if aligned => memory.writeShort(address, data)
+      case BitSize | ByteSize => memory.writeByte(address, data)
+      case ShortSize => memory.writeShort(address, data)
+      case IntSize => memory.writeInt(address, data)
     }
+  }
 
   def readA( reg: Int ) =
     reg match {
