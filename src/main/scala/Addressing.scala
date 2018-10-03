@@ -15,6 +15,7 @@ trait Addressing {
   val AbsoluteShort = 0
   val AbsoluteLong = 1
   val ProgramCounterWithDisplacement = 2
+  val ProgramCounterWithIndex = 3
   val ImmediateData = 4
 
 }

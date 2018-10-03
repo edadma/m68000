@@ -11,6 +11,10 @@ class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
 		Run( "tests/hello" ) shouldBe "Hello world!"
 	}
 
+	"printf" in {
+		Run( "tests/printf" ) shouldBe "| asdf| |  123| |   7b| |  3.4| 3.400000e+00"
+	}
+
 	"pi_approx" in {
 		Run( "tests/pi_approx" ) shouldBe "3.141592653589791339641124"
 	}

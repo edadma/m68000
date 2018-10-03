@@ -383,6 +383,21 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
           case AbsoluteShort => fetchShort.toLong
           case AbsoluteLong => fetchInt.toLong
           case ProgramCounterWithDisplacement => PC + fetchShort
+          case ProgramCounterWithIndex =>
+            val pc = PC
+            val ext = fetchShort
+            val r = (ext >> 12)&7
+            val idx =
+              if ((ext&0x8000) == 0)
+                readD( r, if ((ext&0x0800) == 0) ShortSize else IntSize )
+              else
+              if ((ext&0x0800) == 0)
+                readA( r ).toShort
+              else
+                readA( r )
+            val disp = ext.toByte
+
+            pc + idx + disp
         }
     }
 
@@ -397,7 +412,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
         memoryRead( address(mode, reg, size), size, reg == 7 )
       case OtherModes =>
         reg match {
-          case AbsoluteShort|AbsoluteLong|ProgramCounterWithDisplacement =>
+          case AbsoluteShort|AbsoluteLong|ProgramCounterWithDisplacement|ProgramCounterWithIndex =>
             memoryRead( address(mode, reg, size), size, false )
           case ImmediateData => immediate( size )
         }
