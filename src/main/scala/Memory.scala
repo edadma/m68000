@@ -78,7 +78,7 @@ class RAM( val name: String, val start: Long, end: Long ) extends Addressable {
 
 	def writeByte( addr: Long, value: Int ) = mem( (addr - start).asInstanceOf[Int] ) = value.asInstanceOf[Byte]
 
-	override def toString = s"$name RAM: ${hexLong(start)}-${hexLong(end)}"
+	override def toString = s"$name RAM: ${hexInt(start.toInt)}-${hexInt(end.toInt)}"
 }
 
 class ROM( val name: String, val start: Long, end: Long ) extends Addressable {
@@ -96,7 +96,7 @@ class ROM( val name: String, val start: Long, end: Long ) extends Addressable {
 
 	override def programByte( addr: Long, value: Int ) = mem( (addr - start).asInstanceOf[Int] ) = value.asInstanceOf[Byte]
 
-	override def toString = s"$name ROM: ${hexLong(start)}-${hexLong(start + size - 1)}"
+	override def toString = s"$name ROM: ${hexInt(start.toInt)}-${hexInt(start.toInt + size - 1)}"
 
 }
 
@@ -121,11 +121,18 @@ object ROM {
 
 trait Device extends Addressable {
 
+  protected var cpu: CPU = null
+
+  def connect( cpu: CPU ): Unit = {
+    this.cpu = cpu
+    cpu.resettable( this )
+  }
+
 	def init {}
 
-	def disable {}
+	def reset {}
 
-	override def toString = s"$name device: ${hexLong(start)}-${hexLong(start + size - 1)}"
+	override def toString = s"$name device: ${hexInt(start.toInt)}-${hexInt(start.toInt + size - 1)}"
 
 }
 
@@ -133,7 +140,7 @@ abstract class SingleAddressDevice extends Device {
 
 	val size = 1
 
-	override def toString = s"$name device: ${hexLong(start)}"
+	override def toString = s"$name device: ${hexInt(start.toInt)}"
 
 }
 
@@ -215,7 +222,7 @@ abstract class Memory extends Addressable {
 			case -1 => sys.error( "not found: " + name )
 			case ind =>
 				if (regions(ind) isDevice)
-					regions(ind).asInstanceOf[Device].disable
+					regions(ind).asInstanceOf[Device].reset
 					
 				regions remove ind
 		}
@@ -235,7 +242,7 @@ abstract class Memory extends Addressable {
 	
 	def removeDevices =
 		for (r <- seqDevice) {
-			r.disable
+			r.reset
 			regions -= r
 		}
 		
@@ -258,7 +265,7 @@ abstract class Memory extends Addressable {
 
 	def add( region: Addressable ) {
 		regions find (r => r.start <= region.start && region.start < r.start + r.size) match {
-			case Some(r) => sys.error( hexLong(region.start) + ", " + hexInt(region.size) + " overlaps " + hexLong(r.start) + ", " + hexInt(r.size) )
+			case Some(r) => sys.error( hexInt(region.start.toInt) + ", " + hexInt(region.size) + " overlaps " + hexInt(r.start.toInt) + ", " + hexInt(r.size) )
 			case None =>
 		}
 

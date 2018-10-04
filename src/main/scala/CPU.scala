@@ -30,7 +30,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   private val interrupts = new PriorityQueue[Interrupt]
   private var interruptsAvailable = false
 
-  private val resets = new ListBuffer[() => Unit]
+  private val devices = new ListBuffer[Device]
 
   var counter = 0L
 
@@ -51,8 +51,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     interruptsAvailable = true
   }
 
-  def resettable( action: => Unit ): Unit = {
-    resets += (() => action)
+  def resettable( dev: Device ): Unit = {
+    devices += dev
   }
 
   def service: Unit = synchronized {
@@ -204,8 +204,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   }
 
   def resetSignal: Unit = {
-    for (r <- resets)
-      r
+    for (d <- devices)
+      d.reset
   }
 
   def execute: Unit = {
