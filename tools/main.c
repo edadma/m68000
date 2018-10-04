@@ -14,5 +14,5 @@ main() {
 void __attribute__ ((interrupt))
 autovector_level1_isr() {
     outln( "interrupt" );
-    TIMER = 0;
+//    TIMER = 0;
 }

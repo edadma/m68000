@@ -57,18 +57,20 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def service: Unit = synchronized {
     if (interrupts nonEmpty) {
-      val req = interrupts.dequeue
+      val req = interrupts.head
 
-      if (req.level == 7 || req.level > ((SR&SRBit.I)>>SRBit.I_shift))
-        req match {
+      if (req.level == 7 || req.level > ((SR&SRBit.I)>>SRBit.I_shift)) {
+        interrupts.dequeue match {
           case Interrupt( level, None ) => exception( level, VectorTable.autoVectors + ((level - 1)<<2) )
           case Interrupt( level, Some(vector) ) => exception( level, VectorTable.interruptVectors + (vector<<2) )
         }
 
-      service
+        service
+      }
     }
 
-    interruptsAvailable = false
+    if (interrupts isEmpty)
+      interruptsAvailable = false
   }
 
   def breakpoint( bkpt: Int ) = false
