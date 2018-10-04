@@ -37,6 +37,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   var trace = false
   var tracewrite: Option[(Long, Int, Int, Size)] = None
   var traceout = Console.out
+  var tracestart = -1L
+  var tracelimit = Long.MaxValue
 
 	protected [m68k] var running = false
   protected [m68k] var stopped = false
@@ -59,8 +61,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
       if (req.level == 7 || req.level > ((SR&SRBit.I)>>SRBit.I_shift))
         req match {
-          case Interrupt( level, None ) => exception( VectorTable.autoVectors + ((level - 1)<<2) )
-          case Interrupt( _, Some(vector) ) => exception( VectorTable.interruptVectors + (vector<<2) )
+          case Interrupt( level, None ) => exception( level, VectorTable.autoVectors + ((level - 1)<<2) )
+          case Interrupt( level, Some(vector) ) => exception( level, VectorTable.interruptVectors + (vector<<2) )
         }
 
       service
@@ -88,7 +90,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def supervisor =
     if ((SR&SRBit.S) == 0) {
-      exception( VectorTable.privilegeViolation )
+      exception( -1, VectorTable.privilegeViolation )
       false
     } else
       true
@@ -209,25 +211,35 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def execute: Unit = {
     if (trace)
       Console.withOut( traceout ) {
+        if (tracestart == -1)
+          tracestart = counter
+
         tracewrite = None
         registers
         disassemble
         println
+        println( prog )
         traceout.flush
       }
 
+    if (trace) println(123)
     fetch
     opcodes(instruction)( this )
     counter += 1
 
-    if (trace)
+    if (trace) {
       tracewrite match {
         case None =>
-        case Some( (address, oldvalue, newvalue, _) ) =>
-          Console.withOut( traceout ) {
+        case Some((address, oldvalue, newvalue, _)) =>
+          Console.withOut(traceout) {
             println(f"${address.toHexString.toUpperCase}%6s  ${hexInt(oldvalue)} -> ${hexInt(newvalue)}")
+            traceout.flush
           }
       }
+
+      if (counter > tracestart + tracelimit)
+        trace = false
+    }
   }
 
   def fetch = instruction = fetchShort&0xFFFF
@@ -662,10 +674,12 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case Conditional.LessEqual => Z || N && !V || !N && V
     }
 
-  def exception( vector: Int ): Unit = {
-    println( memoryRead(vector, IntSize, false).toHexString )
-    trace = true
+  def exception( level: Int, vector: Int ): Unit = {
     push( fromSR, ShortSize )
+
+    if (level > 0)
+      SR |= level<<SRBit.I_shift
+
     SR |= SRBit.S
     SR &= ~SRBit.T
     pushAddress( PC )

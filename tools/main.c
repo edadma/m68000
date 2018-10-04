@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "services.h"
 
 
 void
@@ -9,5 +10,5 @@ main() {
 
 void __attribute__ ((interrupt))
 autovector_level1_isr() {
-    printf( "interrupt" );
+    outln( "interrupt" );
 }

@@ -18,7 +18,7 @@ object ILLEGAL extends Instruction {
 
   def apply( cpu: CPU ) =
     if (!cpu.illegal)
-      cpu.exception( VectorTable.illegalInstruction )
+      cpu.exception( -1, VectorTable.illegalInstruction )
 
   def disassemble( cpu: CPU ): String = "ILLEGAL"
 
@@ -268,7 +268,7 @@ class BKPT( bkpt: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit =
     if (!cpu.breakpoint( bkpt ))
-      cpu.exception( VectorTable.illegalInstruction )
+      cpu.exception( -1, VectorTable.illegalInstruction )
 
   def disassemble( cpu: CPU ) = s"${mnemonic("BKPT")}#$bkpt"
 
@@ -349,7 +349,7 @@ class CHK( dreg: Int, size: Size, mode: Int, reg: Int ) extends Instruction {
 
     if (d < 0) {
       cpu.N = true
-      cpu.exception( VectorTable.CHKInstruction )
+      cpu.exception( -1, VectorTable.CHKInstruction )
     } else if (d > upper) {
       cpu.N = false
     }
@@ -441,7 +441,7 @@ class DIVS( dreg: Int, mode: Int, reg: Int ) extends Instruction {
     val b = cpu.read( mode, reg, ShortSize )
 
     if (b == 0)
-      cpu.exception( VectorTable.integerDivideByZero )
+      cpu.exception( -1, VectorTable.integerDivideByZero )
     else {
       val q = a/b
 
@@ -468,7 +468,7 @@ class DIVU( dreg: Int, mode: Int, reg: Int ) extends Instruction {
     val b = cpu.read( mode, reg, ShortSize )&0xFFFF
 
     if (b == 0)
-      cpu.exception( VectorTable.integerDivideByZero )
+      cpu.exception( -1, VectorTable.integerDivideByZero )
     else {
       val q = a/b
 
@@ -633,7 +633,7 @@ object LINEA extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
     if (!cpu.lineA)
-      cpu.exception( VectorTable.lineA )
+      cpu.exception( -1, VectorTable.lineA )
   }
 
   def disassemble( cpu: CPU ) = s"LINEA"
@@ -644,7 +644,7 @@ object LINEF extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
     if (!cpu.lineF)
-      cpu.exception( VectorTable.lineF )
+      cpu.exception( -1, VectorTable.lineF )
   }
 
   def disassemble( cpu: CPU ) = s"LINEF"
@@ -1079,8 +1079,8 @@ object RTE extends Instruction {
 
   def apply( cpu: CPU ): Unit =
     if (cpu.supervisor) {
-      cpu.toSR( cpu.pop(ShortSize) )
       cpu.jumpto( cpu.popAddress )
+      cpu.toSR( cpu.pop(ShortSize) )
     }
 
   def disassemble( cpu: CPU ) = "RTE"
@@ -1244,7 +1244,7 @@ class TRAP( vector: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
     if (!cpu.trap( vector )) {
-      cpu.exception( VectorTable.TRAPInstruction + (vector<<2) )
+      cpu.exception( -1, VectorTable.TRAPInstruction + (vector<<2) )
     }
   }
 
@@ -1256,7 +1256,7 @@ object TRAPV extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
     if (cpu.V) {
-      cpu.exception( VectorTable.TRAPVInstruction )
+      cpu.exception( -1, VectorTable.TRAPVInstruction )
     }
   }
 

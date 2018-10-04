@@ -18,7 +18,8 @@ object Main extends App {
   val cpu =
     new CPUWithServices( mem ) {
 //      trace = true
-//      traceout = new PrintStream("trace")
+      tracelimit = 50
+      traceout = new PrintStream("trace")
       symbols = MapFileReader(io.Source.fromFile(s"tools/$program.map"))._2
       debug = DebugFileReader(io.Source.fromFile(s"tools/$program.debug"))
     }
@@ -30,10 +31,10 @@ object Main extends App {
       }
     }
 
-  timer.schedule( timerTask, 100 )
+  timer.scheduleAtFixedRate( timerTask, 100, 500 )
   cpu.reset
   cpu.run
   cpu.resettable( timer.cancel )
   timer.cancel
-//  cpu.traceout.close
+  if (cpu.traceout != Console.out) cpu.traceout.close
 }
