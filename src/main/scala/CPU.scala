@@ -30,6 +30,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   private val interrupts = new PriorityQueue[Interrupt]
   private var interruptsAvailable = false
 
+  private val resets = new ListBuffer[() => Unit]
+
   var counter = 0L
 
   var trace = false
@@ -47,14 +49,18 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     interruptsAvailable = true
   }
 
+  def resettable( action: => Unit ): Unit = {
+    resets += (() => action)
+  }
+
   def service: Unit = synchronized {
     if (interrupts nonEmpty) {
       val req = interrupts.dequeue
 
       if (req.level == 7 || req.level > ((SR&SRBit.I)>>SRBit.I_shift))
         req match {
-          case Interrupt( level, None ) => exception( VectorTable.autoVectors + level<<2 )
-          case Interrupt( _, Some(vector) ) => exception( VectorTable.interruptVectors + vector<<2 )
+          case Interrupt( level, None ) => exception( VectorTable.autoVectors + ((level - 1)<<2) )
+          case Interrupt( _, Some(vector) ) => exception( VectorTable.interruptVectors + (vector<<2) )
         }
 
       service
@@ -196,7 +202,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   }
 
   def resetSignal: Unit = {
-
+    for (r <- resets)
+      r
   }
 
   def execute: Unit = {
@@ -250,19 +257,25 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 			halt
 		}
 
-  def run: Unit = {
-    running = true
+  def run: Unit =
+    try {
+      running = true
 
-    while (running) {
-      if (interruptsAvailable)
-        service
+      while (running) {
+        if (interruptsAvailable)
+          service
 
-      if (stopped)
-        Thread.sleep( 5 )
-      else
-        execute
+        if (stopped)
+          Thread.sleep( 5 )
+        else
+          execute
+      }
+    } catch {
+      case e: Exception =>
+        e.printStackTrace
+        running = false
+        resetSignal
     }
-  }
 
   //
   // addressing
@@ -650,6 +663,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     }
 
   def exception( vector: Int ): Unit = {
+    println( memoryRead(vector, IntSize, false).toHexString )
+    trace = true
     push( fromSR, ShortSize )
     SR |= SRBit.S
     SR &= ~SRBit.T
