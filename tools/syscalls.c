@@ -1,5 +1,6 @@
 #include "services.h"
 #include <stdlib.h>
+#include <time.h>
 #include <sys/stat.h>
 #include <errno.h>
 #undef errno
@@ -75,4 +76,13 @@ int getpid(void) {
 int kill(int pid, int sig) {
     errno = EINVAL;
     return -1;
+}
+
+int
+gettimeofday( struct timeval *__restrict __p, void *__restrict __tz ) {
+    int64_t time = currentTime();
+
+    __p->tv_sec = time/1000;
+    __p->tv_usec = (time%1000)*1000;
+    return 0;
 }

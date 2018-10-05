@@ -99,3 +99,12 @@ outs:
 halt:
     move    #9, %d0
     trap    #15
+
+    .globl	currentTime
+    .type	currentTime, @function
+currentTime:
+    link.w  %fp, #0
+    move    #7, %d0
+    trap    #15
+    unlk    %fp
+    rts

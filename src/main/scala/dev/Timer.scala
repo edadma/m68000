@@ -9,7 +9,7 @@ import xyz.hyperreal.m68k.{Interrupt, WriteOnlyDevice}
 class Timer( val name: String, level: Int, control: Int ) extends WriteOnlyDevice {
 
   val start = control&0xFFFFFFFFL
-  val timer = new JTimer
+  var timer: JTimer = null
   var running = false
   val timerTask =
     new TimerTask {
@@ -21,6 +21,7 @@ class Timer( val name: String, level: Int, control: Int ) extends WriteOnlyDevic
   override def reset: Unit = {
     if (running) {
       timer.cancel
+      timer = null
       running = false
     }
   }
@@ -29,6 +30,7 @@ class Timer( val name: String, level: Int, control: Int ) extends WriteOnlyDevic
     value match {
       case 0 => reset
       case ms =>
+        timer = new JTimer
         timer.scheduleAtFixedRate( timerTask, 0, ms&0xFF )
         running = true
     }

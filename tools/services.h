@@ -8,3 +8,4 @@ extern void outln( char* s );
 extern void outn( int n );
 extern void outl( int64_t n );
 extern void halt() __attribute__ ((noreturn));
+extern int64_t currentTime();

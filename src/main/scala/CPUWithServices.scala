@@ -54,6 +54,11 @@ class CPUWithServices( mem: Memory ) extends CPU( mem ) {
           case 4 => D(1) = io.StdIn.readInt
           case 5 => D(1) = io.StdIn.readChar
           case 6 => print( D(1).toChar )
+          case 7 =>
+            val time = compat.Platform.currentTime
+
+            D(0) = (time >> 32).toInt
+            D(1) = time.toInt
           case 8 => D(1) = LocalTime.now.get( ChronoField.MILLI_OF_DAY )/10
           case 9 => halt
           case 10 => print( java.lang.Double.longBitsToDouble((D(1).toLong<<32) | (D(2)&0xFFFFFFFFL)) )
