@@ -717,6 +717,14 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
           case AbsoluteShort => s"(${target(fetchShort, locals)}).W"
           case AbsoluteLong => s"(${target(fetchInt, locals)}).L"
           case ProgramCounterWithDisplacement => s"$fetchShort(PC)"
+          case ProgramCounterWithIndex =>
+            val ext = fetchShort
+            val s = if ((ext&0x0800) == 0) "W" else "L"
+            val r = (ext >> 12)&7
+            val x = if ((ext&0x8000) == 0) "D" else "A"
+            val d = ext.toByte
+
+            s"($d, PC, $x$r.$s)"
           case ImmediateData => s"#${immediate( size )}"
         }
     }
