@@ -69,6 +69,7 @@ class CPUWithServices( mem: Memory ) extends CPU( mem ) {
             println
           case 14 => prtz
           case 15 => print( (D(1).toLong<<32) | (D(2)&0xFFFFFFFFL) )
+          case 16 => println( D(1) )
           case _ => sys.error( s"unknown task number: ${D(0)}" )
         }
 

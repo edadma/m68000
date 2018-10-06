@@ -1,6 +1,6 @@
-    .globl	outnl
-    .type	outnl, @function
-outnl:
+    .globl	outln
+    .type	outln, @function
+outln:
     link.w  %fp, #0
     move.l  #'\n', %d1
     move    #6, %d0
@@ -24,6 +24,16 @@ outn:
     link.w  %fp, #0
     move.l  8(%fp), %d1
     move    #3, %d0
+    trap    #15
+    unlk    %fp
+    rts
+
+    .globl	outnln
+    .type	outnln, @function
+outnln:
+    link.w  %fp, #0
+    move.l  8(%fp), %d1
+    move    #15, %d0
     trap    #15
     unlk    %fp
     rts
@@ -74,9 +84,9 @@ outf:
     unlk    %fp
     rts
 
-    .globl	outln
-    .type	outln, @function
-outln:
+    .globl	outsln
+    .type	outsln, @function
+outsln:
     link.w  %fp, #0
     move.l  8(%fp), %a1
     move    #13, %d0
