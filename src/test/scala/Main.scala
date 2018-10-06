@@ -22,7 +22,11 @@ object Main extends App {
 //      tracelimit = 50
       traceout = new PrintStream("trace")
       symbols = MapFileReader(io.Source.fromFile(s"tools/$program.map"))._2
-      debug = DebugFileReader(io.Source.fromFile(s"tools/$program.debug"))
+
+      val (code, vars) = DebugFileReader(io.Source.fromFile(s"tools/$program.debug"))
+
+      debug = code
+      symbols ++= vars
     }
 
   timer connect cpu
