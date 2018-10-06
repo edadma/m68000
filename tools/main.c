@@ -15,6 +15,8 @@ main() {
     time_t rawtime;
     struct tm* tm;
 
+    putenv( "TZ=EST+5EDT,M3.2.0/2,M11.1.0/2" );
+    tzset();
     time( &rawtime );
     outl( rawtime );
     outnl();

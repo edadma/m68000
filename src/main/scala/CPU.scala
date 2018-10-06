@@ -220,11 +220,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
         registers
         disassemble
         println
-        println( prog )
         traceout.flush
       }
 
-    if (trace) println(123)
     fetch
     opcodes(instruction)( this )
     counter += 1

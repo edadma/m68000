@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <errno.h>
 #undef errno
 extern int errno;
@@ -33,7 +34,8 @@ read(int file, char *ptr, int len) {
     return 0;
 }
 
-int write(int file, char *ptr, int len) {
+int
+write(int file, char *ptr, int len) {
     int todo;
 
     for (todo = 0; todo < len; todo++) {
@@ -43,7 +45,8 @@ int write(int file, char *ptr, int len) {
     return len;
 }
 
-caddr_t sbrk(int incr) {
+caddr_t
+sbrk(int incr) {
     extern char _end;		/* Defined by the linker */
     static char *heap_end;
     char *prev_heap_end;

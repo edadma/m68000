@@ -827,7 +827,7 @@ class MOVEtoSR( mode: Int, reg: Int ) extends Instruction {
       cpu.toSR( cpu.read(mode, reg, ShortSize) )
   }
 
-  def disassemble( cpu: CPU ) = s"${mnemonic("MOVE")}${cpu.operand( mode, reg )}, SR"
+  def disassemble( cpu: CPU ) = s"${mnemonic("MOVE")}${cpu.operand( mode, reg, ShortSize )}, SR"
 
 }
 
