@@ -16,11 +16,11 @@ object Main extends App {
   Options( args ) {
     case "--help" :: _ =>
       """
-        			|Motorola 68000 Emulator v0.1_snapshot_1
-        			|Usage:  --help      display this help and exit
-        			|        -l <file>   load hexdump <file> and enter REPL
-        			|        -le <file>  load hexdump <file> and execute
-      			""".trim.stripMargin.lines foreach println
+        |Motorola 68000 Emulator v0.1_snapshot_1
+        |Usage:  --help      display this help and exit
+        |        -l <file>   load hexdump <file> and enter REPL
+        |        -le <file>  load hexdump <file> and execute
+      """.trim.stripMargin.lines foreach println
       enterREPL = false
       Nil
     case "-l" :: file :: _ =>

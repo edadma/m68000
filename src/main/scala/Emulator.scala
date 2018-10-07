@@ -1,5 +1,7 @@
 package xyz.hyperreal.m68k
 
+import java.io.File
+
 import scala.collection.immutable.TreeMap
 import scala.collection.mutable.HashMap
 
@@ -12,10 +14,10 @@ class Emulator {
         removeDevices
         regions.clear
         add( new ROM("program", 0, 0xFFFF) )
-        add( new RAM("ram", 0, 0x1FFFF) )
+        add( new RAM("ram", 0x10000, 0x10000 + 2*1024*1024 - 1) )
       }
     }
-  val cpu = new CPU( mem )
+  val cpu = new CPUWithServices( mem )
 
   private val registry = new HashMap[String, (String, Memory, CPU) => Unit]
 
@@ -105,50 +107,9 @@ class Emulator {
   //				case Some( s ) => sys.error( "symbol not an integer: " + s )
   //			}
 
-  //	def disassemble( start: Long, lines: Int ): String = {
-  //		val buf = new StringBuilder
-  //		var addr =
-  //			if (start == -1)
-  //				discur
-  //			else
-  //				start
-  //
-  //		for (_ <- 1 to lines) {
-  //			if (!mem.memory( addr ))
-  //				return buf.toString
-  //
-  //			val opcode = mem.readByte( addr )
-  //
-  //			val label =
-  //				(reverseSymbols get addr match {
-  //					case None => ""
-  //					case Some( l ) => display( l )
-  //				})
-  //
-  ////			if (cpu.breakpoints( addr ))
-  ////				buf append Console.CYAN_B
-  //
-  //			buf append( hexLong(addr) + "  " + hexByte(opcode) + " " )
-  //			addr += 1
-  //
-  //
-  //					for (i <- 0 until size)
-  //						buf append( hexByte(cpu.readByte(addr + i)) + " " )
-  //
-  //					addr += size
-  //
-  //					buf append( " "*((2 - size)*3 + 2) )
-  //					buf append( label + " "*(15 - label.length + 1) )
-  //					buf append( mnemonic.toUpperCase + " " )
-  //					buf append( display )
-  //
-  //			buf append( Console.RESET )
-  //			buf += '\n'
-  //		}
-  //
-  //		discur = addr
-  //		buf.toString dropRight 1
-  //	}
+  def disassemble( start: Long, lines: Int ): String = {
+
+  }
 
   def load( file: String ) {
     if (cpu.isRunning)
@@ -156,7 +117,7 @@ class Emulator {
 
     mem.removeROM
     mem.reset
-    mem.addHexdump( io.Source.fromFile(file) )
+    SREC( mem, new File(file) )
     discur = mem.code
     //		clearBreakpoints
     reset
