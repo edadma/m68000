@@ -108,7 +108,10 @@ class Emulator {
   //			}
 
   def disassemble( start: Long, lines: Int ): String = {
+    val pc = cpu.PC
 
+    cpu.PC = discur
+    cpu.disassemble
   }
 
   def load( file: String ) {
@@ -118,7 +121,7 @@ class Emulator {
     mem.removeROM
     mem.reset
     SREC( mem, new File(file) )
-    discur = mem.code
+    discur = cpu.memoryReadAddress(VectorTable.PC)
     //		clearBreakpoints
     reset
   }

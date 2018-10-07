@@ -80,7 +80,7 @@ object Main extends App {
 
     def dump( start: Int, lines: Int ) = out.println( emu.dump(start, lines) )
 
-    //		def disassemble( start: Int, lines: Int ) = out.println( mach.disassemble(start, lines) )
+    def disassemble( start: Int, lines: Int ) = out.println( emu.disassemble(start, lines) )
 
     //		def printBreakpoints = out.println( mach.breakpoints map {case (b, l) => hexShort(b) + (if (l != "") "/" + l else "")} mkString " " )
 
@@ -111,10 +111,10 @@ object Main extends App {
           //					case List( "breakpoint"|"b", bp ) =>
           //						mach.setBreakpoint( mach.target(bp) )
           //						printBreakpoints
-          //					case List( "disassemble"|"u", addr )  =>
-          //						disassemble( mach.target( addr ), 15 )
-          //					case List( "disassemble"|"u" )  =>
-          //						disassemble( -1, 15 )
+          case List( "disassemble"|"u", addr )  =>
+            disassemble( emu.target( addr ), 15 )
+          case List( "disassemble"|"u" )  =>
+            disassemble( -1, 15 )
           case List( "clear"|"c", addr1, addr2 ) =>
             for (i <- hex( addr1 ) until hex( addr2 ))
               emu.mem.programByte( i, 0 )
