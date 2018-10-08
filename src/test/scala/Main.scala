@@ -29,7 +29,7 @@ object Main extends App {
       symbols ++= vars
     }
 
-  timer connect cpu
+  timer connectTo cpu
   cpu.reset
   cpu.run
   cpu.resetSignal

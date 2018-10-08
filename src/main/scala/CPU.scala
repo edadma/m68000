@@ -114,7 +114,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
 	def isRunning = running
 
-  def disassemble: Unit = {
+  def disassemble = {
+    val buf = new StringBuilder
+
     if (memory.valid( PC )) {
       val pc = PC
 
@@ -126,47 +128,53 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       val words = (PC - extension).toInt/2
 
       PC = extension
-      print( f"${pc.toHexString.toUpperCase}%6s  ${hexShort(instruction)} " )
+      buf ++= f"${pc.toHexString.toUpperCase}%6s  ${hexShort(instruction)} "
 
       for (_ <- 0 until words)
-        print( hexShort(fetchShort) + " " )
+        buf ++= hexShort(fetchShort) + " "
 
-      print( " "*((4 - words)*5) + " " )
+      buf ++= " "*((4 - words)*5) + " "
 
       symbols get pc match {
         case None =>
-        case Some( label ) => print( label + ": " )
+        case Some( label ) => buf ++= label + ": "
       }
 
-      print( disassembly )
+      buf ++= disassembly
 
       debug get pc match {
-        case None => println
-        case Some( (lineno, file) ) => println( s"    $lineno: $file" )
+        case None => buf += '\n'
+        case Some( (lineno, file) ) => buf ++= s"    $lineno: $file\n"
       }
+
       PC = pc
     } else
-      println( f"PC=${PC.toHexString.toUpperCase}%6s" )
+      buf ++= f"PC=${PC.toHexString.toUpperCase}%6s"
+
+    buf.toString
   }
 
-  def registers: Unit = {
-    for (i <- 0 to 7)
-      print( s"D$i=${hexInt(D(i))} " )
-
-    println
+  def registers = {
+    val buf = new StringBuilder
 
     for (i <- 0 to 7)
-      print( s"A$i=${hexInt(readA(i).asInstanceOf[Int])} " )
+      buf ++= s"D$i=${hexInt(D(i))} "
 
-    println
+    buf += '\n'
 
-    println( "T S  III   XNZVC" )
+    for (i <- 0 to 7)
+      buf ++= s"A$i=${hexInt(readA(i).asInstanceOf[Int])} \n"
+
+    buf += '\n'
+
+    buf ++= "T S  III   XNZVC\n"
 
     def star( bit: Int ) = if ((SR&bit) != 0) "*" else " "
 
     def cond( on: Boolean ) = if (on) "*" else " "
 
-    println( s"${star(SRBit.T)} ${star(SRBit.S)}  ${star(SRBit.I2)}${star(SRBit.I1)}${star(SRBit.I0)}   ${cond(X)}${cond(N)}${cond(Z)}${cond(V)}${cond(C)}" )
+    buf ++= s"${star(SRBit.T)} ${star(SRBit.S)}  ${star(SRBit.I2)}${star(SRBit.I1)}${star(SRBit.I0)}   ${cond(X)}${cond(N)}${cond(Z)}${cond(V)}${cond(C)}\n"
+    buf.toString
   }
 
   def ccr = {
