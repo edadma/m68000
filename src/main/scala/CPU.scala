@@ -163,7 +163,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     buf += '\n'
 
     for (i <- 0 to 7)
-      buf ++= s"A$i=${hexInt(readA(i).asInstanceOf[Int])} \n"
+      buf ++= s"A$i=${hexInt(readA(i).asInstanceOf[Int])} "
 
     buf += '\n'
 
@@ -175,16 +175,6 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
     buf ++= s"${star(SRBit.T)} ${star(SRBit.S)}  ${star(SRBit.I2)}${star(SRBit.I1)}${star(SRBit.I0)}   ${cond(X)}${cond(N)}${cond(Z)}${cond(V)}${cond(C)}\n"
     buf.toString
-  }
-
-  def ccr = {
-    println("XNZVC")
-
-    def star(bit: Int) = if ((SR & bit) != 0) "*" else " "
-
-    def cond(on: Boolean) = if (on) "*" else " "
-
-    println(s"${cond(X)}${cond(N)}${cond(Z)}${cond(V)}${cond(C)}")
   }
 
   def problem( error: String ) = {
@@ -225,8 +215,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
           tracestart = counter
 
         tracewrite = None
-        registers
-        disassemble
+        print( registers )
+        print( disassemble )
         println
         traceout.flush
       }

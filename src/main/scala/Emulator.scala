@@ -67,7 +67,10 @@ class Emulator {
     registry(name) = installer
   }
 
-  def run = cpu.run
+  def run {
+    cpu.run
+    cpu.resetSignal
+  }
 
   def reset = {
     cpu.reset

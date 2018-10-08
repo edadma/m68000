@@ -26,15 +26,16 @@ main() {
 //    strftime( buffer, 80, "%x - %I:%M%p", tm );
 //    printf( "Formatted date & time : |%s|\n", buffer );
 
-    char* p = strdup( "TZ=EST+5EDT,M3.2.0/2,M11.1.0/2" );
-    char* equal = strchr( p, '=' );
-
-    *equal = '\0';
-
-    int rval = setenv( p, equal + 1, 1 );
-
-    outnln( rval );
-    free( p );
+//    char* p = strdup( "TZ=EST+5EDT,M3.2.0/2,M11.1.0/2" );
+//    char* equal = strchr( p, '=' );
+//
+//    *equal = '\0';
+//
+//    int rval = setenv( p, equal + 1, 1 );
+//
+//    outnln( rval );
+//    free( p );
+    outsln( "asdf" );
 }
 
 void __attribute__ ((interrupt))
