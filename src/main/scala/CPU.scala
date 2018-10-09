@@ -288,7 +288,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   // addressing
   //
 
-  def memoryReadAddress( address: Int ) = memory.readInt( address )&0xFFFFFF
+  def memoryReadAddress( address: Int ) = memory.readInt( address )
 
   def memoryRead( address: Int, size: Size, aligned: Boolean ) =
     size match {
@@ -351,9 +351,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def writeA( data: Int, reg: Int ) =
     reg match {
-      case 7 if (SR&SRBit.S) != 0 => SSP = data&MAX_ADDRESS
-      case 7 => USP = data&MAX_ADDRESS
-      case _ => A(reg) = data&MAX_ADDRESS
+      case 7 if (SR&SRBit.S) != 0 => SSP = data
+      case 7 => USP = data
+      case _ => A(reg) = data
     }
 
   def readD( reg: Int, size: Size ) = cast( D(reg), size )
