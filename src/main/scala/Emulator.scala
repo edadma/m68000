@@ -75,7 +75,7 @@ class Emulator {
 
   def reset = {
     cpu.reset
-    discur = mem.code
+    discur = cpu.memoryReadAddress( VectorTable.PC )
   }
 
   def step = cpu.step
@@ -114,6 +114,9 @@ class Emulator {
   def disassemble( start: Long, lines: Int, out: PrintStream ) {
     val pc = cpu.PC
 
+    if (start > -1)
+      discur = start
+
     for (_ <- 1 to lines) {
       cpu.PC = discur
       discur += cpu.disassemble( out )
@@ -135,7 +138,6 @@ class Emulator {
 
     cpu.debug = code
     cpu.symbols ++= vars
-    discur = cpu.memoryReadAddress( VectorTable.PC )
     //		clearBreakpoints
     reset
   }

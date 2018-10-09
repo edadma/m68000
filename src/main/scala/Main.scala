@@ -76,9 +76,9 @@ object Main extends App {
       emu.cpu.registers( out )
     }
 
-    def dump( start: Int, lines: Int ) = out.println( emu.dump(start, lines) )
+    def dump( start: Long, lines: Int ) = out.println( emu.dump(start, lines) )
 
-    def disassemble( start: Int, lines: Int ) = emu.disassemble( start, lines, out )
+    def disassemble( start: Long, lines: Int ) = emu.disassemble( start, lines, out )
 
     //		def printBreakpoints = out.println( mach.breakpoints map {case (b, l) => hexShort(b) + (if (l != "") "/" + l else "")} mkString " " )
 
