@@ -9,6 +9,8 @@
 #define TIMER (*(char*)0xFFFFFF00)
 
 
+char ch = 'a';
+
 void
 main() {
 //    TIMER = 250;
@@ -35,7 +37,9 @@ main() {
 //
 //    outnln( rval );
 //    free( p );
-    outsln( "asdf" );
+    outn( ch );
+    ch = 'b';
+    outn( ch );
 }
 
 void __attribute__ ((interrupt))

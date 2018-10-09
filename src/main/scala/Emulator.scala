@@ -112,17 +112,22 @@ class Emulator {
   //			}
 
   def disassemble( start: Int, lines: Int, out: PrintStream ) {
-    val pc = cpu.PC
+    def disassemble( out: PrintStream ) {
+      val pc = cpu.PC
 
-    if (start > -1)
-      discur = start
+      if (start > -1)
+        discur = start
 
-    for (_ <- 1 to lines) {
-      cpu.PC = discur
-      discur += cpu.disassemble( out )
+      for (_ <- 1 to lines) {
+        cpu.PC = discur
+        discur += cpu.disassemble( false, out )
+      }
+
+      cpu.PC = pc
     }
 
-    cpu.PC = pc
+    disassemble( )
+    disassemble( out )
   }
 
   def load( file: String ) {

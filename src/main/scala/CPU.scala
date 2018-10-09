@@ -116,7 +116,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
 	def isRunning = running
 
-  def disassemble( out: PrintStream ) = {
+  def disassemble( compact: Boolean, out: PrintStream ) = {
     if (memory.valid( PC )) {
       val pc = PC
 
@@ -125,7 +125,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
       val extension = PC
       val disassembly = opcodes(instruction).disassemble( this )
-      val words = (PC - extension).toInt/2
+      val words = (PC - extension)/2
 
       PC = extension
       out.print( f"${pc.toHexString.toUpperCase}%6s  ${hexShort(instruction)} " )
@@ -135,12 +135,14 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
       out.print( " "*((4 - words)*5) + " " )
 
-      symbols get pc match {
-        case None =>
-        case Some( label ) => out.print( label + ": " )
-      }
+      val label =
+        symbols get pc match {
+          case None => ""
+          case Some( label ) => label + ": "
+        }
 
-      out.print( disassembly )
+      out.print( label + " "*(15 - label.length min 15) )
+      out.print( disassembly + " "*(25 - disassembly.length min 25) )
 
       debug get pc match {
         case None => out.println
@@ -213,7 +215,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
         tracewrite = None
         registers( traceout )
-        disassemble( traceout )
+        disassemble( true, traceout )
         traceout.println
         traceout.flush
       }

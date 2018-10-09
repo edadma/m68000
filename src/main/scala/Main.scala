@@ -72,8 +72,8 @@ object Main extends App {
 //      } )
 
     def registers = {
-      emu.cpu.disassemble( out )
       emu.cpu.registers( out )
+      emu.cpu.disassemble( true, out )
     }
 
     def dump( start: Int, lines: Int ) = emu.dump( start, lines, out )
@@ -130,9 +130,9 @@ object Main extends App {
             emu.run
           case List( "execute"|"e" ) =>
             emu.run
-          //					case List( "execute&wait"|"ew", addr ) =>
-          //						mach.cpu.pc = mach.target( addr )
-          //						runAndWait
+          case List( "execute&wait"|"ew", addr ) =>
+            emu.cpu.PC = emu.target( addr )
+            runAndWait
           case List( "execute&wait"|"ew" ) =>
             runAndWait
           case List( "help"|"h" ) =>
@@ -174,7 +174,7 @@ object Main extends App {
           case List( "memory"|"m" ) =>
             out.println( emu.mem )
           case List( "quit"|"q" ) =>
-            //						mach.stop
+//            emu.stop
             emu.mem.removeDevices
             sys.exit
 //          case List( "registers"|"r", reg, value ) =>
