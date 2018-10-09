@@ -1,7 +1,9 @@
 //@
 package xyz.hyperreal.m68k
 
-import scala.collection.mutable.{ListBuffer, PriorityQueue, HashMap}
+import java.io.PrintStream
+
+import scala.collection.mutable.{HashMap, ListBuffer, PriorityQueue}
 
 
 case class Interrupt( level: Int, vector: Option[Int] ) extends Ordered[Interrupt] {
@@ -114,9 +116,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
 	def isRunning = running
 
-  def disassemble = {
-    val buf = new StringBuilder
-
+  def disassemble( out: PrintStream ) = {
     if (memory.valid( PC )) {
       val pc = PC
 
@@ -128,57 +128,54 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       val words = (PC - extension).toInt/2
 
       PC = extension
-      buf ++= f"${pc.toHexString.toUpperCase}%6s  ${hexShort(instruction)} "
+      out.print( f"${pc.toHexString.toUpperCase}%6s  ${hexShort(instruction)} " )
 
       for (_ <- 0 until words)
-        buf ++= hexShort(fetchShort) + " "
+        out.print( hexShort(fetchShort) + " " )
 
-      buf ++= " "*((4 - words)*5) + " "
+      out.print( " "*((4 - words)*5) + " " )
 
       symbols get pc match {
         case None =>
-        case Some( label ) => buf ++= label + ": "
+        case Some( label ) => out.print( label + ": " )
       }
 
-      buf ++= disassembly
+      out.print( disassembly )
 
       debug get pc match {
-        case None => buf += '\n'
-        case Some( (lineno, file) ) => buf ++= s"    $lineno: $file\n"
+        case None => out.println
+        case Some( (lineno, file) ) => out.println( s"    $lineno: $file" )
       }
 
       PC = pc
-    } else
-      buf ++= f"PC=${PC.toHexString.toUpperCase}%6s"
-
-    buf.toString
+      (words + 1)*2
+    } else {
+      out.print( f"PC=${PC.toHexString.toUpperCase}%6s" )
+      0
+    }
   }
 
-  def registers = {
-    val buf = new StringBuilder
+  def registers( out: PrintStream ) = {
+    for (i <- 0 to 7)
+      out.print( s"D$i=${hexInt(D(i))} " )
+
+    out.println
 
     for (i <- 0 to 7)
-      buf ++= s"D$i=${hexInt(D(i))} "
+      out.print( s"A$i=${hexInt(readA(i).asInstanceOf[Int])} " )
 
-    buf += '\n'
-
-    for (i <- 0 to 7)
-      buf ++= s"A$i=${hexInt(readA(i).asInstanceOf[Int])} "
-
-    buf += '\n'
-
-    buf ++= "T S  III   XNZVC\n"
+    out.println
+    out.println( "T S  III   XNZVC" )
 
     def star( bit: Int ) = if ((SR&bit) != 0) "*" else " "
 
     def cond( on: Boolean ) = if (on) "*" else " "
 
-    buf ++= s"${star(SRBit.T)} ${star(SRBit.S)}  ${star(SRBit.I2)}${star(SRBit.I1)}${star(SRBit.I0)}   ${cond(X)}${cond(N)}${cond(Z)}${cond(V)}${cond(C)}\n"
-    buf.toString
+    out.print( s"${star(SRBit.T)} ${star(SRBit.S)}  ${star(SRBit.I2)}${star(SRBit.I1)}${star(SRBit.I0)}   ${cond(X)}${cond(N)}${cond(Z)}${cond(V)}${cond(C)}\n" )
   }
 
   def problem( error: String ) = {
-    registers
+    registers( Console.err )
     sys.error( s"error at ${PC.toHexString} (${"%08x".format(instruction)}): $error" )
   }
 
@@ -215,9 +212,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
           tracestart = counter
 
         tracewrite = None
-        print( registers )
-        print( disassemble )
-        println
+        registers( traceout )
+        disassemble( traceout )
+        traceout.println
         traceout.flush
       }
 

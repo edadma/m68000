@@ -1,10 +1,9 @@
 //@
 package xyz.hyperreal.m68k
 
-import java.io.PrintWriter
+import java.io.{PrintStream, PrintWriter}
 
 import jline.console.ConsoleReader
-
 import xyz.hyperreal.args.Options
 
 
@@ -56,7 +55,7 @@ object Main extends App {
 
   def REPL {
     val reader = new ConsoleReader
-    val out = new PrintWriter( reader.getTerminal.wrapOutIfNeeded(System.out), true )
+    val out = new PrintStream( reader.getTerminal.wrapOutIfNeeded(System.out), true )
     var line: String = null
     var reload = ""
 
@@ -73,14 +72,13 @@ object Main extends App {
 //      } )
 
     def registers = {
-      emu.cpu.fetch
-      emu.cpu.disassemble
-      emu.cpu.registers
+      emu.cpu.disassemble( out )
+      emu.cpu.registers( out )
     }
 
     def dump( start: Int, lines: Int ) = out.println( emu.dump(start, lines) )
 
-    def disassemble( start: Int, lines: Int ) = out.println( emu.disassemble(start, lines) )
+    def disassemble( start: Int, lines: Int ) = emu.disassemble( start, lines, out )
 
     //		def printBreakpoints = out.println( mach.breakpoints map {case (b, l) => hexShort(b) + (if (l != "") "/" + l else "")} mkString " " )
 
@@ -179,7 +177,7 @@ object Main extends App {
             //						mach.stop
             emu.mem.removeDevices
             sys.exit
-          //					case List( "registers"|"r", reg, value ) =>
+//          case List( "registers"|"r", reg, value ) =>
           //						val n = mach.target( value )
           //
           //						reg.toLowerCase match {
@@ -199,7 +197,7 @@ object Main extends App {
           //
           //						registers
           case List( "registers"|"r" ) =>
-            emu.cpu.registers
+            registers
           case List( "reload"|"rl" ) =>
             interp( reload )
           case List( "reset"|"re" ) =>

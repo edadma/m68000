@@ -1,6 +1,7 @@
+//@
 package xyz.hyperreal.m68k
 
-import java.io.File
+import java.io.{File, PrintStream}
 
 import scala.collection.immutable.TreeMap
 import scala.collection.mutable.HashMap
@@ -110,11 +111,15 @@ class Emulator {
   //				case Some( s ) => sys.error( "symbol not an integer: " + s )
   //			}
 
-  def disassemble( start: Long, lines: Int ): String = {
+  def disassemble( start: Long, lines: Int, out: PrintStream ) {
     val pc = cpu.PC
 
-    cpu.PC = discur
-    cpu.disassemble
+    for (_ <- 1 to lines) {
+      cpu.PC = discur
+      discur += cpu.disassemble( out )
+    }
+
+    cpu.PC = pc
   }
 
   def load( file: String ) {
@@ -123,8 +128,14 @@ class Emulator {
 
     mem.removeROM
     mem.reset
-    SREC( mem, new File(file) )
-    discur = cpu.memoryReadAddress(VectorTable.PC)
+    SREC( mem, new File(file + ".srec") )
+    cpu.symbols = MapFileReader(io.Source.fromFile(s"$file.map"))._2
+
+    val (code, vars) = DebugFileReader(io.Source.fromFile(s"$file.debug"))
+
+    cpu.debug = code
+    cpu.symbols ++= vars
+    discur = cpu.memoryReadAddress( VectorTable.PC )
     //		clearBreakpoints
     reset
   }
