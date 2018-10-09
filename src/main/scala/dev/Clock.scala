@@ -4,7 +4,7 @@ package xyz.hyperreal.m68k.dev
 import xyz.hyperreal.m68k.Device
 
 
-class Clock( val start: Long ) extends Device {
+class Clock( val start: Int ) extends Device {
 
   val name = "RTC"
   val size = 5
@@ -18,7 +18,7 @@ class Clock( val start: Long ) extends Device {
   var year = 0
   var day = 0
 
-  def writeByte( addr: Long, value: Int ): Unit = {
+  def writeByte( addr: Int, value: Int ): Unit = {
     addr - start match {
       case Register.control =>
         value match {
@@ -27,7 +27,7 @@ class Clock( val start: Long ) extends Device {
     }
   }
 
-  def readByte( addr:  Long ): Int = ???
+  def readByte( addr:  Int ): Int = ???
 
   object Control {
     val set = 0

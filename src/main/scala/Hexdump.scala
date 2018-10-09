@@ -8,14 +8,14 @@ object Hexdump {
   val SECTION = "^Hex dump of section '(.*)':"r
   val DATA = """^  0x(\w+) (\w+)(?: (\w+)(?: (\w+)(?: (\w+))?)?)? .*"""r
 
-  case class Section( name: String, start: Long, data: Vector[Byte] )
+  case class Section( name: String, start: Int, data: Vector[Byte] )
 
   def read( src: io.Source ) = {
     val lines = src.getLines zip Iterator.from( 1 )
     val sections = new ListBuffer[Section]
     var section = false
     var name: String = null
-    var start: Long = 0
+    var start: Int = 0
     val data = new ArrayBuffer[Byte]
 
     def add: Unit = {

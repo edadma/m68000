@@ -41,8 +41,8 @@ class Emulator {
         mem add new ROM( "main" + ind, hex(m group 1), hex(m group 2) )
     }	)
 
-  var dumpcur: Long = 0
-  var discur: Long = 0
+  var dumpcur: Int = 0
+  var discur: Int = 0
   var symbols = Map[String, Any]()
   var reverseSymbols = Map[Any, String]()
   var segments = TreeMap[Int, (String, Int)]()
@@ -82,11 +82,11 @@ class Emulator {
 
   //	def stop = cpu.stop
 
-  def readByte( addr: Long ) = mem.readByte( addr )
+  def readByte( addr: Int ) = mem.readByte( addr )
 
-  def readWord( addr: Long ) = mem.readShort( addr )
+  def readWord( addr: Int ) = mem.readShort( addr )
 
-  def program( addr: Long, b: Int ) = mem.programByte( addr, b )
+  def program( addr: Int, b: Int ) = mem.programByte( addr, b )
 
   def display( label: String ) =
     label indexOf '.' match {
@@ -111,7 +111,7 @@ class Emulator {
   //				case Some( s ) => sys.error( "symbol not an integer: " + s )
   //			}
 
-  def disassemble( start: Long, lines: Int, out: PrintStream ) {
+  def disassemble( start: Int, lines: Int, out: PrintStream ) {
     val pc = cpu.PC
 
     if (start > -1)
@@ -144,8 +144,7 @@ class Emulator {
 
   //	def save( file: String ) = 	SREC.write( mem, new File(file), file.getBytes.toVector )
 
-  def dump( start: Long, lines: Int ) = {
-    val buf = new StringBuilder
+  def dump( start: Int, lines: Int, out: PrintStream ) = {
     val addr =
       if (start == -1)
         dumpcur - dumpcur%16
@@ -154,40 +153,39 @@ class Emulator {
 
     def printByte( b: Option[Int] ) =
       if (b isEmpty)
-        buf.append( "-- " )
+        out.print( "-- " )
       else
-        buf.append( "%02x ".format(b.get&0xFF).toUpperCase )
+        out.print( "%02x ".format(b.get&0xFF).toUpperCase )
 
-    def printChar( c: Option[Int] ) = buf.append( if (c.nonEmpty && ' ' <= c.get && c.get <= '~') c.get.asInstanceOf[Char] else '.' )
+    def printChar( c: Option[Int] ) = out.print( if (c.nonEmpty && ' ' <= c.get && c.get <= '~') c.get.asInstanceOf[Char] else '.' )
 
-    def read( addr: Long ) =
+    def read( addr: Int ) =
       if (mem.addressable( addr ) && mem.memory( addr ))
         Some( mem.readByte(addr) )
       else
         None
 
-    for (line <- addr until ((addr + 16*lines) min 0x10000) by 16) {
-      buf.append( "%8x  ".format(line).toUpperCase )
+    for (line <- addr until ((addr + 16*lines) min ADDRESS_RANGE) by 16) {
+      out.print( "%8x  ".format(line).toUpperCase )
 
-      for (i <- line until ((line + 16) min 0x10000)) {
+      for (i <- line until ((line + 16) min ADDRESS_RANGE)) {
         if (i%16 == 8)
-          buf.append( ' ' )
+          out.print( ' ' )
 
         printByte( read(i) )
       }
 
       val bytes = ((line + 16) min 0x10000) - line
 
-      buf.append( " "*(((16 - bytes)*3 + 1 + (if (bytes < 9) 1 else 0)).toInt) )
+      out.print( " "*(((16 - bytes)*3 + 1 + (if (bytes < 9) 1 else 0)).toInt) )
 
-      for (i <- line until ((line + 16) min 0x10000))
+      for (i <- line until ((line + 16) min ADDRESS_RANGE))
         printChar( read(i) )
 
-      buf += '\n'
+      out.println
     }
 
-    dumpcur = (addr + 16*8) min 0x10000
-    buf.toString dropRight 1
+    dumpcur = addr + 16*lines
   }
 
   //	def clearBreakpoints = cpu.breakpoints = Set[Int]()

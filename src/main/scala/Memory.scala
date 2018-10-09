@@ -8,13 +8,13 @@ trait Addressable {
 
 	def name: String
 	
-	def start: Long
+	def start: Int
 	
 	def size: Int
 	
-	def readByte( addr: Long ): Int
+	def readByte( addr: Int ): Int
 	
-	def writeByte( addr: Long, value: Int )
+	def writeByte( addr: Int, value: Int )
 	
 	def isRAM = isInstanceOf[RAM]
 	
@@ -22,46 +22,46 @@ trait Addressable {
 	
 	def isDevice = isInstanceOf[Device]
 	
-	def programByte( addr: Long, value: Int ) = writeByte( addr, value )
+	def programByte( addr: Int, value: Int ) = writeByte( addr, value )
 
-	def programShort( addr: Long, value: Int ): Unit = {
+	def programShort( addr: Int, value: Int ): Unit = {
 		programByte( addr, value&0xFF )
 		programByte( addr + 1, value>>8 )
 	}
 
-	def programInt( addr: Long, value: Int ) {
+	def programInt( addr: Int, value: Int ) {
 		programShort( addr, value&0xFFFF )
 		programShort( addr + 2, value>>16 )
 	}
 
-	def programLong( addr: Long, value: Long ) {
+	def programLong( addr: Int, value: Long ) {
 		programInt( addr, value.asInstanceOf[Int] )
 		programInt( addr + 4, (value>>32).asInstanceOf[Int] )
 	}
 
-	def readShort( addr: Long) = (readByte( addr ) << 8) | (readByte( addr + 1 )&0xFF)
+	def readShort( addr: Int) = (readByte( addr ) << 8) | (readByte( addr + 1 )&0xFF)
 
-	def writeShort( addr: Long, value: Int ) {
+	def writeShort( addr: Int, value: Int ) {
 		writeByte( addr, value>>8 )
 		writeByte( addr + 1, value&0xFF )
 	}
 
-	def readInt( addr: Long ) = (readShort( addr )<<16) | (readShort( addr + 2 )&0xFFFF)
+	def readInt( addr: Int ) = (readShort( addr )<<16) | (readShort( addr + 2 )&0xFFFF)
 
-	def writeInt( addr: Long, value: Int ) {
+	def writeInt( addr: Int, value: Int ) {
 		writeShort( addr, value>>16 )
 		writeShort( addr + 2, value&0xFFFF )
 	}
 
-	def readLong( addr: Long ) = (readInt( addr ).asInstanceOf[Long]<<32) | (readInt( addr + 4 )&0xFFFFFFFFL)
+	def readLong( addr: Int ) = (readInt( addr ).asInstanceOf[Long]<<32) | (readInt( addr + 4 )&0xFFFFFFFFL)
 
-	def writeLong( addr: Long, value: Long ) {
+	def writeLong( addr: Int, value: Long ) {
 		writeInt( addr, (value>>32).asInstanceOf[Int] )
 		writeInt( addr + 4, value.asInstanceOf[Int] )
 	}
 }
 
-class RAM( val name: String, val start: Long, end: Long ) extends Addressable {
+class RAM( val name: String, val start: Int, end: Int ) extends Addressable {
 
 	require( start >= 0 )
 	require( end >= start )
@@ -74,14 +74,14 @@ class RAM( val name: String, val start: Long, end: Long ) extends Addressable {
 		for (i <- 0 until size)
 			mem(i) = 0
 
-	def readByte( addr: Long ) = mem( (addr - start).asInstanceOf[Int] )
+	def readByte( addr: Int ) = mem( (addr - start).asInstanceOf[Int] )
 
-	def writeByte( addr: Long, value: Int ) = mem( (addr - start).asInstanceOf[Int] ) = value.asInstanceOf[Byte]
+	def writeByte( addr: Int, value: Int ) = mem( (addr - start).asInstanceOf[Int] ) = value.asInstanceOf[Byte]
 
 	override def toString = s"$name RAM: ${hexInt(start.toInt)}-${hexInt(end.toInt)}"
 }
 
-class ROM( val name: String, val start: Long, end: Long ) extends Addressable {
+class ROM( val name: String, val start: Int, end: Int ) extends Addressable {
 
 	require( start >= 0 )
 	require( end >= start )
@@ -90,11 +90,11 @@ class ROM( val name: String, val start: Long, end: Long ) extends Addressable {
 
 	protected val mem = new Array[Byte]( size )
 
-	def readByte( addr: Long ) = mem( (addr - start).asInstanceOf[Int] )
+	def readByte( addr: Int ) = mem( (addr - start).asInstanceOf[Int] )
 
-	def writeByte( addr: Long, value: Int ) = sys.error( "read only memory: " + (addr&0xffff).toHexString + " (tried to write " + (value&0xff).toHexString + ")" )
+	def writeByte( addr: Int, value: Int ) = sys.error( "read only memory: " + (addr&0xffff).toHexString + " (tried to write " + (value&0xff).toHexString + ")" )
 
-	override def programByte( addr: Long, value: Int ) = mem( (addr - start).asInstanceOf[Int] ) = value.asInstanceOf[Byte]
+	override def programByte( addr: Int, value: Int ) = mem( (addr - start).asInstanceOf[Int] ) = value.asInstanceOf[Byte]
 
 	override def toString = s"$name ROM: ${hexInt(start.toInt)}-${hexInt(start.toInt + size - 1)}"
 
@@ -105,13 +105,13 @@ object ROM {
     apply( name, 0, Hex(data) )
 	}
 
-	def apply( name: String, start: Long, data: Seq[Byte] ) = {
+	def apply( name: String, start: Int, data: Seq[Byte] ) = {
 		new ROM( name, start, start + data.length - 1 ) {
 			data.copyToArray( mem )
 		}
 	}
 
-	def code( name: String, start: Long, data: Seq[Int] ) = {
+	def code( name: String, start: Int, data: Seq[Int] ) = {
 		new ROM( name, start, start + data.length*2 - 1 ) {
 			for ((inst, idx) <- data zipWithIndex)
 				programShort( start + idx*2, inst )
@@ -146,13 +146,13 @@ abstract class SingleAddressDevice extends Device {
 
 abstract class ReadOnlyDevice extends SingleAddressDevice {
 
-	def writeByte( addr: Long, value: Int ) = sys.error( "read only device" )
+	def writeByte( addr: Int, value: Int ) = sys.error( "read only device" )
 
 }
 
 abstract class WriteOnlyDevice extends SingleAddressDevice {
 
-	def readByte( addr: Long ) = sys.error( "write only device" )
+	def readByte( addr: Int ) = sys.error( "write only device" )
 
 }
 
@@ -160,22 +160,22 @@ abstract class Memory extends Addressable {
 
 	val name = "System memory"
 	protected val regions = new ArrayBuffer[Addressable]
-	protected var first: Long = 0
-	protected var end: Long = 0
+	protected var first: Int = 0
+	protected var end: Int = 0
 
 	def init
 
 	init
 
-	protected def lookup( addr: Long ) =
+	protected def lookup( addr: Int ) =
 		regions.indexWhere( r => r.start <= addr && r.start + r.size > addr ) match {
 			case -1 => null
 			case ind => regions(ind)
 		}
 
-	def valid( addr: Long ) = lookup( addr ) ne null
+	def valid( addr: Int ) = lookup( addr ) ne null
 
-	def find( addr: Long ) =
+	def find( addr: Int ) =
 		lookup( addr ) match {
 			case null => sys.error( addr.toHexString + " is not an addressable memory location" )
 			case r => r
@@ -185,37 +185,37 @@ abstract class Memory extends Addressable {
 
 	def size = (end - first).asInstanceOf[Int]
 
-	def readByte( addr: Long ) = find( addr ).readByte( addr )
+	def readByte( addr: Int ) = find( addr ).readByte( addr )
 	
-	def writeByte( addr: Long, value: Int ) = find( addr ).writeByte( addr, value )
+	def writeByte( addr: Int, value: Int ) = find( addr ).writeByte( addr, value )
 
-	override def readShort( addr: Long ) = find( addr ).readShort( addr )
+	override def readShort( addr: Int ) = find( addr ).readShort( addr )
 
-	override def writeShort( addr: Long, value: Int ) = find( addr ).writeShort( addr, value )
+	override def writeShort( addr: Int, value: Int ) = find( addr ).writeShort( addr, value )
 
-	override def readInt( addr: Long ) = find( addr ).readInt( addr )
+	override def readInt( addr: Int ) = find( addr ).readInt( addr )
 
-	override def writeInt( addr: Long, value: Int ) = find( addr ).writeInt( addr, value )
+	override def writeInt( addr: Int, value: Int ) = find( addr ).writeInt( addr, value )
 
-	override def readLong( addr: Long ) = find( addr ).readLong( addr )
+	override def readLong( addr: Int ) = find( addr ).readLong( addr )
 
-	override def writeLong( addr: Long, value: Long ) = find( addr ).writeLong( addr, value )
+	override def writeLong( addr: Int, value: Long ) = find( addr ).writeLong( addr, value )
 
-	override def programByte( addr: Long, value: Int ) = find( addr ).programByte( addr, value )
+	override def programByte( addr: Int, value: Int ) = find( addr ).programByte( addr, value )
 	
-	def addressable( addr: Long ) = lookup( addr ) ne null
+	def addressable( addr: Int ) = lookup( addr ) ne null
 	
-	protected def find( addr: Long, pred: Addressable => Boolean ) =
+	protected def find( addr: Int, pred: Addressable => Boolean ) =
 		lookup( addr ) match {
 			case null => false
 			case r => pred( r )
 		}
 	
-	def device( addr: Long ) = find( addr, _.isDevice )
+	def device( addr: Int ) = find( addr, _.isDevice )
 	
-	def memory( addr: Long ) = find( addr, r => r.isRAM || r.isROM )
+	def memory( addr: Int ) = find( addr, r => r.isRAM || r.isROM )
 	
-	def rom( addr: Long ) = find( addr, _.isROM )
+	def rom( addr: Int ) = find( addr, _.isROM )
 	
 	def remove( name: String ) {
 		regions.indexWhere( _.name == name ) match {
@@ -250,7 +250,7 @@ abstract class Memory extends Addressable {
 		val roms = seqROM
 		
 		if (roms isEmpty)
-			0L
+			0
 		else
 			roms.head.start
 	}

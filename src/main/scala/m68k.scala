@@ -7,6 +7,9 @@ import scala.collection.mutable.ListBuffer
 
 package object m68k {
 
+  val MAX_ADDRESS = 0xFFFFFF
+  val ADDRESS_RANGE = 0x1000000
+
 	def boolean2int( b: Boolean ) = if (b) 1 else 0
 
   def dtol( d: Double ) = java.lang.Double.doubleToLongBits( d )

@@ -3,41 +3,41 @@ package xyz.hyperreal.m68k
 import jline.console.ConsoleReader
 
 
-class StdIOChar( val start: Long ) extends SingleAddressDevice {
+class StdIOChar( val start: Int ) extends SingleAddressDevice {
 	
 	val name = "stdio-char"
 	
-	def readByte( addr: Long ) = io.StdIn.readChar.toInt
+	def readByte( addr: Int ) = io.StdIn.readChar.toInt
 	
-	def writeByte( addr: Long, value: Int ) = print( value.toChar )
+	def writeByte( addr: Int, value: Int ) = print( value.toChar )
 	
 }
 
-class StdIOInt( val start: Long ) extends SingleAddressDevice {
+class StdIOInt( val start: Int ) extends SingleAddressDevice {
 	
 	val name = "stdio-int"
 	
-	def readByte( addr: Long ) = io.StdIn.readInt
+	def readByte( addr: Int ) = io.StdIn.readInt
 	
-	def writeByte( addr: Long, value: Int ) = print( value )
+	def writeByte( addr: Int, value: Int ) = print( value )
 	
 }
 
-class StdIOHex( val start: Long ) extends SingleAddressDevice {
+class StdIOHex( val start: Int ) extends SingleAddressDevice {
 	
 	val name = "stdio-hex"
 	
-	def readByte( addr: Long ) = hex( io.StdIn.readLine )
+	def readByte( addr: Int ) = hex( io.StdIn.readLine )
 	
-	def writeByte( addr: Long, value: Int ) = print( value.toHexString )
+	def writeByte( addr: Int, value: Int ) = print( value.toHexString )
 	
 }
 
-class JLineInt( val start: Long, reader: ConsoleReader ) extends SingleAddressDevice {
+class JLineInt( val start: Int, reader: ConsoleReader ) extends SingleAddressDevice {
 	
 	val name = "stdio-int"
 	
-	def readByte( addr: Long ) = {
+	def readByte( addr: Int ) = {
 		val p = reader.getPrompt
 		val res = reader.readLine("").toInt
 		
@@ -45,15 +45,15 @@ class JLineInt( val start: Long, reader: ConsoleReader ) extends SingleAddressDe
 		res
 	}
 	
-	def writeByte( addr: Long, value: Int ) = print( value )
+	def writeByte( addr: Int, value: Int ) = print( value )
 	
 }
 
-class JLineHex( val start: Long, reader: ConsoleReader ) extends SingleAddressDevice {
+class JLineHex( val start: Int, reader: ConsoleReader ) extends SingleAddressDevice {
 	
 	val name = "stdio-hex"
 	
-	def readByte( addr: Long ) = {
+	def readByte( addr: Int ) = {
 		val p = reader.getPrompt
 		val res = hex( reader.readLine("") )
 		
@@ -61,15 +61,15 @@ class JLineHex( val start: Long, reader: ConsoleReader ) extends SingleAddressDe
 		res
 	}
 	
-	def writeByte( addr: Long, value: Int ) = print( value.toHexString )
+	def writeByte( addr: Int, value: Int ) = print( value.toHexString )
 	
 }
 
-class RNG( val start: Long ) extends ReadOnlyDevice {
+class RNG( val start: Int ) extends ReadOnlyDevice {
 	
 	val name = "rng"
 	
-	def readByte( addr: Long ) = util.Random.nextInt( 0x100 )
+	def readByte( addr: Int ) = util.Random.nextInt( 0x100 )
 	
 }
 

@@ -48,9 +48,9 @@ object SREC {
 			val end = rom.start + rom.size
 			
 			for (rec <- rom.start until end by 16) {
-				val len = 16L min (end - rec)
+				val len = 16 min (end - rec)
 				
-				record( '1', rec >> 8, rec, for (i <- 0L until len) yield rom.readByte(rec + i) )
+				record( '1', rec >> 8, rec, for (i <- 0 until len) yield rom.readByte(rec + i) )
 				s1count += 1
 			}
 		}

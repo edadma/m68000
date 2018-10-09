@@ -13,10 +13,10 @@ case class Interrupt( level: Int, vector: Option[Int] ) extends Ordered[Interrup
 class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   private [m68k] val D = new Array[Int]( 8 )
-  private [m68k] val A = new Array[Long]( 7 )
-  private [m68k] var PC = 0L
-  private [m68k] var USP = 0L
-  private [m68k] var SSP = 0L
+  private [m68k] val A = new Array[Int]( 7 )
+  private [m68k] var PC = 0
+  private [m68k] var USP = 0
+  private [m68k] var SSP = 0
   private [m68k] var C = false
   private [m68k] var V = false
   private [m68k] var Z = false
@@ -25,8 +25,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   private [m68k] var SR = 0
   private [m68k] var instruction = 0
   private [m68k] var prog: Addressable = _
-  private [m68k] var symbols: HashMap[Long, String] = HashMap()
-  private [m68k] var debug: Map[Long, (String, String)] = Map()
+  private [m68k] var symbols: HashMap[Int, String] = HashMap()
+  private [m68k] var debug: Map[Int, (String, String)] = Map()
   private [m68k] var labels = 0
 
   private val interrupts = new PriorityQueue[Interrupt]
@@ -87,7 +87,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   reset
 
-  def jumpto(address: Long ): Unit = {
+  def jumpto(address: Int ): Unit = {
     prog = memory.find( address )
     PC = address
   }
@@ -288,9 +288,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   // addressing
   //
 
-  def memoryReadAddress( address: Long ) = memory.readInt( address )&0xFFFFFFFFL
+  def memoryReadAddress( address: Int ) = memory.readInt( address )&0xFFFFFF
 
-  def memoryRead( address: Long, size: Size, aligned: Boolean ) =
+  def memoryRead( address: Int, size: Size, aligned: Boolean ) =
     size match {
       case BitSize|ByteSize if aligned => memory.readShort( address ).asInstanceOf[Byte].asInstanceOf[Int]
       case BitSize|ByteSize => memory.readByte( address )
@@ -298,7 +298,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       case IntSize => memory.readInt( address )
     }
 
-  def memoryWrite( data: Int, address: Long, size: Size, aligned: Boolean ) = {
+  def memoryWrite( data: Int, address: Int, size: Size, aligned: Boolean ) = {
     if (trace)
       tracewrite = Some( (address, memoryRead(address, size, aligned), data, size) )
 
@@ -349,18 +349,18 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
         res
     }
 
-  def writeA( data: Long, reg: Int ) =
+  def writeA( data: Int, reg: Int ) =
     reg match {
-      case 7 if (SR&SRBit.S) != 0 => SSP = data&0xFFFFFFFFL
-      case 7 => USP = data&0xFFFFFFFFL
-      case _ => A(reg) = data&0xFFFFFFFFL
+      case 7 if (SR&SRBit.S) != 0 => SSP = data&MAX_ADDRESS
+      case 7 => USP = data&MAX_ADDRESS
+      case _ => A(reg) = data&MAX_ADDRESS
     }
 
   def readD( reg: Int, size: Size ) = cast( D(reg), size )
 
   def relative( disp: Int ) = target( displacement(disp) )
 
-  def target( addr: Long, locals: Boolean = true ) =
+  def target( addr: Int, locals: Boolean = true ) =
     symbols get addr match {
       case None if locals =>
         labels += 1
@@ -397,8 +397,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
         readA( reg ) + idx + disp
       case OtherModes =>
         reg match {
-          case AbsoluteShort => fetchShort.toLong
-          case AbsoluteLong => fetchInt.toLong
+          case AbsoluteShort => fetchShort
+          case AbsoluteLong => fetchInt
           case ProgramCounterWithDisplacement => PC + fetchShort
           case ProgramCounterWithIndex =>
             val pc = PC
@@ -489,7 +489,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def pop( size: Size ) = memoryRead( readAPostincrement(7, size), size, true )
 
-  def popAddress = pop( IntSize )&0xFFFFFFFFL
+  def popAddress = pop( IntSize )&MAX_ADDRESS
 
   //
   // ALU

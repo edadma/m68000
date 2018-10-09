@@ -3,12 +3,12 @@ package xyz.hyperreal.m68k.dev
 
 import java.util.{TimerTask, Timer => JTimer}
 
-import xyz.hyperreal.m68k.{Interrupt, WriteOnlyDevice}
+import xyz.hyperreal.m68k.{MAX_ADDRESS, Interrupt, WriteOnlyDevice}
 
 
 class Timer( val name: String, level: Int, control: Int ) extends WriteOnlyDevice {
 
-  val start = control&0xFFFFFFFFL
+  val start = control&MAX_ADDRESS
   var timer: JTimer = null
   var running = false
   val timerTask =
@@ -26,7 +26,7 @@ class Timer( val name: String, level: Int, control: Int ) extends WriteOnlyDevic
     }
   }
 
-	def writeByte( addr: Long, value: Int ): Unit = {
+	def writeByte( addr: Int, value: Int ): Unit = {
     value match {
       case 0 => reset
       case ms =>

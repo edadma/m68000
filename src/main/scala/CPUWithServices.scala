@@ -24,7 +24,7 @@ class CPUWithServices( mem: Memory ) extends CPU( mem ) {
         print( memoryRead(c, ByteSize, false).toChar )
 
     def prtz = {
-      def prtz( addr: Long ): Unit =
+      def prtz( addr: Int ): Unit =
         memoryRead( addr, ByteSize, false ) match {
           case 0 =>
           case c =>
