@@ -128,11 +128,10 @@ class Emulator {
       cpu.PC = pc
     }
 
-    disassemble( new PrintStream(new OutputStream() {
-                def write( b: Int ) {
-                    //DO NOTHING
-                }
-            }))
+    disassemble(
+      new PrintStream( new OutputStream() {
+        def write( b: Int ) {}
+      }) )
     discur = cur
     disassemble( out )
   }
