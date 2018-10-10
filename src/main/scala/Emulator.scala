@@ -1,7 +1,7 @@
 //@
 package xyz.hyperreal.m68k
 
-import java.io.{File, PrintStream}
+import java.io.{File, OutputStream, PrintStream}
 
 import scala.collection.immutable.TreeMap
 import scala.collection.mutable.HashMap
@@ -112,11 +112,13 @@ class Emulator {
   //			}
 
   def disassemble( start: Int, lines: Int, out: PrintStream ) {
+    if (start > -1)
+      discur = start
+
+    val cur = discur
+
     def disassemble( out: PrintStream ) {
       val pc = cpu.PC
-
-      if (start > -1)
-        discur = start
 
       for (_ <- 1 to lines) {
         cpu.PC = discur
@@ -126,7 +128,12 @@ class Emulator {
       cpu.PC = pc
     }
 
-    disassemble( )
+    disassemble( new PrintStream(new OutputStream() {
+                def write( b: Int ) {
+                    //DO NOTHING
+                }
+            }))
+    discur = cur
     disassemble( out )
   }
 
