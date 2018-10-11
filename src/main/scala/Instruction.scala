@@ -199,7 +199,7 @@ class Bcc( cond: Int, disp: Int ) extends Instruction {
     val addr = cpu.displacement( disp )
 
     if (cpu.testcc( cond ))
-      cpu.jumpto( addr )
+      cpu.jumpTo( addr )
   }
 
   def disassemble( cpu: CPU ) = {
@@ -308,7 +308,7 @@ class BSR( disp: Int ) extends Instruction {
     val addr = cpu.displacement( disp )
 
     cpu.pushAddress( cpu.PC )
-    cpu.jumpto( addr )
+    cpu.jumpTo( addr )
   }
 
   def disassemble( cpu: CPU ) = s"${mnemonic("BSR")}${cpu.relative(disp)}"
@@ -426,7 +426,7 @@ class DBcc( cond: Int, reg: Int ) extends Instruction {
       if (res == -1)
         cpu.PC += 2
       else
-        cpu.jumpto( cpu.PC + cpu.fetchShort )
+        cpu.jumpTo( cpu.PC + cpu.fetchShort )
     }
   }
 
@@ -599,7 +599,7 @@ class EXT( size: Size, reg: Int ) extends Instruction {
 class JMP( mode: Int, reg: Int ) extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.jumpto( cpu.address(mode, reg) )
+    cpu.jumpTo( cpu.address(mode, reg) )
   }
 
   def disassemble( cpu: CPU ) = mnemonic( "JMP" ) + cpu.targetea( mode, reg )
@@ -612,7 +612,7 @@ class JSR( mode: Int, reg: Int ) extends Instruction {
     val addr = cpu.address( mode, reg )
 
     cpu.pushAddress( cpu.PC )
-    cpu.jumpto( addr )
+    cpu.jumpTo( addr )
   }
 
   def disassemble( cpu: CPU ) = mnemonic( "JSR" ) + cpu.targetea( mode, reg )
@@ -1079,7 +1079,7 @@ object RTE extends Instruction {
 
   def apply( cpu: CPU ): Unit =
     if (cpu.supervisor) {
-      cpu.jumpto( cpu.popAddress )
+      cpu.jumpTo( cpu.popAddress )
       cpu.toSR( cpu.pop(ShortSize) )
     }
 
@@ -1091,7 +1091,7 @@ object RTR extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
     cpu.toCCR( cpu.pop(ShortSize) )
-    cpu.jumpto( cpu.popAddress )
+    cpu.jumpTo( cpu.popAddress )
   }
 
   def disassemble( cpu: CPU ) = "RTR"
@@ -1101,7 +1101,7 @@ object RTR extends Instruction {
 object RTS extends Instruction {
 
   def apply( cpu: CPU ): Unit = {
-    cpu.jumpto( cpu.popAddress )
+    cpu.jumpTo( cpu.popAddress )
   }
 
   def disassemble( cpu: CPU ) = "RTS"

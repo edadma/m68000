@@ -1,9 +1,10 @@
 //@
 package xyz.hyperreal.m68k
 
-import java.io.{PrintStream, PrintWriter}
+import java.io.{File, PrintStream, PrintWriter}
 
 import jline.console.ConsoleReader
+import jline.console.history.FileHistory
 import xyz.hyperreal.args.Options
 
 
@@ -11,6 +12,8 @@ object Main extends App {
 
   lazy val emu = new Emulator
   var enterREPL = true
+  val aRegRegex = "a([0-7])"r
+  val dRegRegex = "d([0-7])"r
 
   Options( args ) {
     case "--help" :: _ =>
@@ -59,8 +62,20 @@ object Main extends App {
     var line: String = null
     var reload = ""
 
+    val historyFile = new File( System.getProperty("user.home") + "/.m68k-repl-history" )
+
+    if (!historyFile.exists)
+      historyFile.createNewFile
+
+    val history = new FileHistory( historyFile )
+
+    sys.ShutdownHookThread {
+      history.flush
+    }
+
     reader.setBellEnabled( false )
     reader.setPrompt( "> " )
+    reader.setHistory( history )
 
 //    emu.reregister( "_stdioInt_",
 //      (p: String, mem: Memory, cpu: CPU) => {
@@ -174,28 +189,21 @@ object Main extends App {
           case List( "memory"|"m" ) =>
             out.println( emu.mem )
           case List( "quit"|"q" ) =>
-//            emu.stop
+            emu.stop
             emu.mem.removeDevices
             sys.exit
-//          case List( "registers"|"r", reg, value ) =>
-          //						val n = mach.target( value )
-          //
-          //						reg.toLowerCase match {
-          //							case "a" => mach.cpu.A = n
-          //							case "x" => mach.cpu.X = n
-          //							case "y" => mach.cpu.Y = n
-          //							case "sp" => mach.cpu.SP = n
-          //							case "pc" => mach.cpu.PC = n
-          //							case "n" => mach.cpu.set( N, n )
-          //							case "v" => mach.cpu.set( V, n )
-          //							case "b" => mach.cpu.set( B, n )
-          //							case "d" => mach.cpu.set( D, n )
-          //							case "i" => mach.cpu.set( I, n )
-          //							case "z" => mach.cpu.set( Z, n )
-          //							case "c" => mach.cpu.set( C, n )
-          //						}
-          //
-          //						registers
+          case List( "register"|"r", reg, value ) =>
+            val n = emu.target( value )
+
+            reg.toLowerCase match {
+              case aRegRegex( r ) => emu.cpu.writeA( n, r.toInt )
+              case dRegRegex( r ) => emu.cpu.D(r.toInt) = n
+              case "sr" => emu.cpu.toSR( n )
+              case "ccr" => emu.cpu.toCCR( n )
+              case "pc" => emu.cpu.jumpTo( n )
+            }
+
+            registers
           case List( "registers"|"r" ) =>
             registers
           case List( "reload"|"rl" ) =>
@@ -210,10 +218,13 @@ object Main extends App {
           case List( "step"|"s" ) =>
             emu.step
             registers
-          //					case List( "stop"|"st" ) =>
-          //						mach.stop
-          //						waitWhileRunning
-          //						registers
+//          case List( "step over"|"so" ) =>
+//            emu.step
+//            registers
+          case List( "stop"|"st" ) =>
+            emu.stop
+            waitWhileRunning
+            registers
           case List( "symbols"|"sy", symbol, value ) =>
             emu.symbols += (symbol -> emu.target( value ))
           case List( "symbols"|"sy" ) =>

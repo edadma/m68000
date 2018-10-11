@@ -80,7 +80,7 @@ class Emulator {
 
   def step = cpu.step
 
-  //	def stop = cpu.stop
+  def stop = cpu.stop
 
   def readByte( addr: Int ) = mem.readByte( addr )
 
@@ -177,7 +177,7 @@ class Emulator {
         None
 
     for (line <- addr until ((addr + 16*lines) min ADDRESS_RANGE) by 16) {
-      out.print( "%8x  ".format(line).toUpperCase )
+      out.print( "%6x  ".format(line).toUpperCase )
 
       for (i <- line until ((line + 16) min ADDRESS_RANGE)) {
         if (i%16 == 8)

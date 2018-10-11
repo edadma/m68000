@@ -4,6 +4,7 @@ package xyz.hyperreal.m68k
 import java.io.PrintStream
 
 import scala.collection.mutable.{HashMap, ListBuffer, PriorityQueue}
+import io.AnsiColor._
 
 
 case class Interrupt( level: Int, vector: Option[Int] ) extends Ordered[Interrupt] {
@@ -11,6 +12,8 @@ case class Interrupt( level: Int, vector: Option[Int] ) extends Ordered[Interrup
 }
 
 class CPU( private [m68k] val memory: Memory ) extends Addressing {
+
+  import Ansi._
 
   private [m68k] val D = new Array[Int]( 8 )
   private [m68k] val A = new Array[Int]( 7 )
@@ -87,7 +90,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   reset
 
-  def jumpto(address: Int ): Unit = {
+  def jumpTo(address: Int ): Unit = {
     prog = memory.find( address )
     PC = address
   }
@@ -117,6 +120,10 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 	def isRunning = running
 
   def disassemble( compact: Boolean, out: PrintStream ) = {
+    def ansi( s: String ): Unit =
+      if (out != Console.out)
+        out.print( s )
+
     if (memory.valid( PC )) {
       val pc = PC
 
@@ -138,10 +145,17 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       val label =
         symbols get pc match {
           case None => ""
-          case Some( label ) => label + ": "
+          case Some( l ) => l + ": "
         }
 
+      if (label nonEmpty)
+        ansi( DARK_GRAY_BG )//ansi( UNDERLINED )
+
       out.print( label + " "*(15 - label.length min 15) )
+
+      if (label nonEmpty)
+        ansi( DEFAULT_BG )
+
       out.print( disassembly + " "*(25 - disassembly.length min 25) )
 
       debug get pc match {
@@ -181,13 +195,13 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     sys.error( s"error at ${PC.toHexString} (${"%08x".format(instruction)}): $error" )
   }
 
-  def halt: Unit = {
+  def stop: Unit = {
     running = false
     stopped = false
   }
 
   def reset: Unit = {
-    halt
+    stop
     memory.reset
     resetSignal
 
@@ -199,7 +213,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
     SR = SRBit.S|SRBit.I
     SSP = memoryReadAddress( VectorTable.SSP )
-    jumpto( memoryReadAddress(VectorTable.PC) )
+    jumpTo( memoryReadAddress(VectorTable.PC) )
   }
 
   def resetSignal: Unit = {
@@ -215,7 +229,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
         tracewrite = None
         registers( traceout )
-        disassemble( true, traceout )
+        disassemble( false, traceout )
         traceout.println
         traceout.flush
       }
@@ -263,7 +277,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 		else {
 			running = true
 			execute
-			halt
+			stop
 		}
 
   def run: Unit =
@@ -680,7 +694,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     SR |= SRBit.S
     SR &= ~SRBit.T
     pushAddress( PC )
-    jumpto( memoryRead(vector, IntSize, false) )
+    jumpTo( memoryRead(vector, IntSize, false) )
   }
 
   def displacement( disp: Int ) =
