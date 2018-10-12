@@ -3,7 +3,7 @@ package xyz.hyperreal.m68k
 
 import java.io.PrintStream
 
-import scala.collection.mutable.{HashMap, ListBuffer, PriorityQueue}
+import scala.collection.mutable.{HashMap, HashSet, ListBuffer, PriorityQueue}
 import io.AnsiColor._
 
 
@@ -31,6 +31,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   private [m68k] var symbols: HashMap[Int, String] = HashMap()
   private [m68k] var debug: Map[Int, (String, String)] = Map()
   private [m68k] var labels = 0
+  private [m68k] val breakpointMap = new HashMap[Int, Boolean]
+  private [m68k] val watches = new HashSet[Int]
 
   private val interrupts = new PriorityQueue[Interrupt]
   private var interruptsAvailable = false
@@ -148,21 +150,29 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
           case Some( l ) => l + ": "
         }
 
-      if (label nonEmpty)
-        ansi( DARK_GRAY_BG )//ansi( UNDERLINED )
+      val bp = isBreakpoint( pc )
+
+      if (bp)
+        ansi( BREAKPOINT_BG )
+      else if (label nonEmpty)
+        ansi( LABEL_BG )
 
       out.print( label + " "*(15 - label.length min 15) )
 
-      if (label nonEmpty)
+      if (label.nonEmpty && !bp)
         ansi( DEFAULT_BG )
 
       out.print( disassembly + " "*(25 - disassembly.length min 25) )
 
       debug get pc match {
-        case None => out.println
-        case Some( (lineno, file) ) => out.println( s"    $lineno: $file" )
+        case None =>
+        case Some( (lineno, file) ) => out.print( s"    $lineno: $file" )
       }
 
+      if (bp)
+        ansi( DEFAULT_BG )
+
+      out.println
       PC = pc
       (words + 1)*2
     } else {
@@ -220,6 +230,16 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     for (d <- devices)
       d.reset
   }
+
+  def isBreakpoint( addr: Int ) = breakpointMap contains addr
+
+  def setBreakpoint( addr: Int ) = breakpointMap( addr ) = false
+
+  def clearBreakpoint( addr: Int ) = breakpointMap remove addr
+
+  def clearBreakpoints = breakpointMap.clear
+
+  def breakpoints = breakpointMap.keysIterator.toList.sorted
 
   def execute: Unit = {
     if (trace)
@@ -284,15 +304,28 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     try {
       running = true
 
-      while (running) {
-        if (interruptsAvailable)
-          service
+      def run: Unit = {
+        if (breakpointMap.contains( PC )) {
+          if (breakpointMap( PC ))
+            breakpointMap.remove( PC )
 
-        if (stopped)
-          Thread.sleep( 5 )
-        else
-          execute
+          running = false
+        } else {
+          if (running) {
+            if (interruptsAvailable)
+              service
+
+            if (stopped)
+              Thread.sleep( 5 )
+            else
+              execute
+
+            run
+          }
+        }
       }
+
+      run
     } catch {
       case e: Exception =>
         e.printStackTrace

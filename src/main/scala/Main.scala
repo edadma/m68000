@@ -113,17 +113,17 @@ object Main extends App {
 
       try {
         com match {
-          //					case List( "breakpoint"|"b" ) =>
-          //						printBreakpoints
+          case List( "breakpoint"|"b" ) =>
+//            printBreakpoints
           //					case List( "breakpoint"|"b", "--" ) =>
           //						mach.clearBreakpoints
           //						printBreakpoints
           //					case List( "breakpoint"|"b", bp ) if bp startsWith "-" =>
           //						mach.clearBreakpoint( mach.target(bp drop 1) )
           //						printBreakpoints
-          //					case List( "breakpoint"|"b", bp ) =>
-          //						mach.setBreakpoint( mach.target(bp) )
-          //						printBreakpoints
+          case List( "breakpoint"|"b", bp ) =>
+            emu.cpu.setBreakpoint( emu.target(bp) )
+ //           printBreakpoints
           case List( "disassemble"|"u", addr )  =>
             disassemble( emu.target( addr ), 15 )
           case List( "disassemble"|"u" )  =>
@@ -143,8 +143,10 @@ object Main extends App {
           case List( "execute"|"e", addr ) =>
             emu.cpu.PC = emu.target( addr )
             emu.run
+            registers
           case List( "execute"|"e" ) =>
             emu.run
+            registers
           case List( "execute&wait"|"ew", addr ) =>
             emu.cpu.PC = emu.target( addr )
             runAndWait

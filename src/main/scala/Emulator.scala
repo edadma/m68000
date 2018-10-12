@@ -188,7 +188,7 @@ class Emulator {
 
       val bytes = ((line + 16) min 0x10000) - line
 
-      out.print( " "*(((16 - bytes)*3 + 1 + (if (bytes < 9) 1 else 0)).toInt) )
+      out.print( " "*((16 - bytes)*3 + 1 + (if (bytes < 9) 1 else 0)) )
 
       for (i <- line until ((line + 16) min ADDRESS_RANGE))
         printChar( read(i) )
