@@ -1,11 +1,11 @@
 //@
 package xyz.hyperreal.m68k
 
-import java.io.{File, PrintStream, PrintWriter}
-
+import java.io.{File, PrintStream}
 import jline.console.ConsoleReader
 import jline.console.history.FileHistory
 import xyz.hyperreal.args.Options
+import collection.mutable.HashMap
 
 
 object Main extends App {
@@ -230,36 +230,11 @@ object Main extends App {
           case List( "symbols"|"sy", symbol, value ) =>
             emu.symbols += (symbol -> emu.target( value ))
           case List( "symbols"|"sy" ) =>
-            out.println( "name            value segment" )
-            out.println( "----            ----- -------" )
+            out.println( "name            value" )
+            out.println( "----            -----" )
+
             for ((s, v) <- emu.symbols.toList sortBy (_._1))
-              v match {
-                case str: String => out.printf( "%-15s %-5s\n", s, '"' + str + '"' )
-                case addr: Int =>
-                  val seg =
-                    emu.segments get addr match {
-                      case None =>
-                        if (emu.segments isEmpty)
-                          ""
-                        else {
-                          val range = emu.segments.range( emu.segments.min._1, addr )
-
-                          if (range isEmpty)
-                            ""
-                          else {
-                            val (base, (name, len)) = range.max
-
-                            if (addr < base + len)
-                              name
-                            else
-                              ""
-                          }
-                        }
-                      case Some( (name, _) ) => name
-                    }
-
-                  out.printf( "%-15s %-5s %s\n", s, hexShort(addr), seg )
-              }
+              out.println( f"$s%-15s $v%6x" )
           case List( "trace"|"t", "on" ) =>
             emu.cpu.trace = true
           case List( "trace"|"t", "off" ) =>
@@ -267,13 +242,11 @@ object Main extends App {
           case Nil|List( "" ) =>
           case _ => out.println( "error interpreting command" )
         }
+      } catch {
+        case e: Exception =>
+          //					out.println( e )
+          e.printStackTrace( out )
       }
-      catch
-        {
-          case e: Exception =>
-            //					out.println( e )
-            e.printStackTrace( out )
-        }
     }
 
     while ({line = reader.readLine; line != null}) {

@@ -28,7 +28,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   private [m68k] var SR = 0
   private [m68k] var instruction = 0
   private [m68k] var prog: Addressable = _
-  private [m68k] var symbols: HashMap[Int, String] = HashMap()
+  private [m68k] var reverseSymbols: HashMap[Int, String] = HashMap()
   private [m68k] var debug: Map[Int, (String, String)] = Map()
   private [m68k] var labels = 0
   private [m68k] val breakpointMap = new HashMap[Int, Boolean]
@@ -145,7 +145,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       out.print( " "*((4 - words)*5) + " " )
 
       val label =
-        symbols get pc match {
+        reverseSymbols get pc match {
           case None => ""
           case Some( l ) => l + ": "
         }
@@ -339,6 +339,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
         }
       }
 
+      if (breakpointMap.contains( PC ) && !stopped)
+        execute
+
       run
     } catch {
       case e: Exception =>
@@ -424,13 +427,13 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def relative( disp: Int ) = target( displacement(disp) )
 
   def target( addr: Int, locals: Boolean = true ) =
-    symbols get addr match {
+    reverseSymbols get addr match {
       case None if locals =>
         labels += 1
 
         val label = s"L$labels"
 
-        symbols(addr) = label
+        reverseSymbols(addr) = label
         label
       case None => "$" + addr.toHexString.toUpperCase
       case Some( label ) => label

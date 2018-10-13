@@ -19,6 +19,7 @@ class Emulator {
       }
     }
   val cpu = new CPUWithServices( mem )
+  val symbols: HashMap[String, Int] = HashMap()
 
   private val registry = new HashMap[String, (String, Memory, CPU) => Unit]
 
@@ -143,12 +144,12 @@ class Emulator {
     mem.removeROM
     mem.reset
     SREC( mem, new File(file + ".srec") )
-    cpu.symbols = MapFileReader(io.Source.fromFile(s"$file.map"))._2
+    cpu.reverseSymbols = MapFileReader(io.Source.fromFile(s"$file.map"))._2
 
     val (code, vars) = DebugFileReader(io.Source.fromFile(s"$file.debug"))
 
     cpu.debug = code
-    cpu.symbols ++= vars
+    cpu.reverseSymbols ++= vars
     //		clearBreakpoints
     reset
   }
