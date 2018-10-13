@@ -300,6 +300,18 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 			stop
 		}
 
+  def stepOver: Unit = {
+    val inst = opcodes( prog.readShort(PC)&0xFFFF )
+
+    if (inst.isInstanceOf[JSR] || inst.isInstanceOf[BSR]) {
+
+    } else if (inst.isInstanceOf[TRAP] || inst == TRAPV) {
+
+    } else {
+
+    }
+  }
+
   def run: Unit =
     try {
       running = true

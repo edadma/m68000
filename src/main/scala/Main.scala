@@ -220,9 +220,9 @@ object Main extends App {
           case List( "step"|"s" ) =>
             emu.step
             registers
-//          case List( "step over"|"so" ) =>
-//            emu.step
-//            registers
+          case List( "step over"|"so" ) =>
+            emu.step
+            registers
           case List( "stop"|"st" ) =>
             emu.stop
             waitWhileRunning
