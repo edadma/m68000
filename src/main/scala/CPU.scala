@@ -303,12 +303,14 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def stepOver: Unit = {
     val inst = opcodes( prog.readShort(PC)&0xFFFF )
 
+    step
+
     if (inst.isInstanceOf[JSR] || inst.isInstanceOf[BSR]) {
-
+      breakpointMap(subroutineReturnAddress) = true
+      run
     } else if (inst.isInstanceOf[TRAP] || inst == TRAPV) {
-
-    } else {
-
+      breakpointMap(exceptionReturnAddress) = true
+      run
     }
   }
 
@@ -551,6 +553,10 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def pop( size: Size ) = memoryRead( readAPostincrement(7, size), size, true )
 
   def popAddress = pop( IntSize )&MAX_ADDRESS
+
+  def subroutineReturnAddress = memoryRead( readA(7), IntSize, true )&MAX_ADDRESS
+
+  def exceptionReturnAddress = memoryRead( readA(7) + 2, IntSize, true )&MAX_ADDRESS
 
   //
   // ALU

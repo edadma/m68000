@@ -221,7 +221,7 @@ object Main extends App {
             emu.step
             registers
           case List( "step over"|"so" ) =>
-            emu.step
+            emu.stepOver
             registers
           case List( "stop"|"st" ) =>
             emu.stop

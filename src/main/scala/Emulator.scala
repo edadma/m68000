@@ -43,9 +43,6 @@ class Emulator {
 
   var dumpcur: Int = 0
   var discur: Int = 0
-  var symbols = Map[String, Any]()
-  var reverseSymbols = Map[Any, String]()
-  var segments = TreeMap[Int, (String, Int)]()
 
   def register( name: String, installer: (String, Memory, CPU) => Unit ) {
     if (registry contains name)
@@ -75,10 +72,13 @@ class Emulator {
 
   def reset = {
     cpu.reset
+    cpu.clearBreakpoints
     discur = cpu.memoryReadAddress( VectorTable.PC )
   }
 
   def step = cpu.step
+
+  def stepOver = cpu.stepOver
 
   def stop = cpu.stop
 

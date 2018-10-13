@@ -18,7 +18,7 @@ object Main extends App {
     }
   val cpu =
     new CPUWithServices( mem ) {
-      trace = true
+//      trace = true
 //      tracelimit = 50
       traceout = new PrintStream("trace")
       symbols = MapFileReader(io.Source.fromFile(s"tools/$program.map"))._2
