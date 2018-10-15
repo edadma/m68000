@@ -235,6 +235,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def setBreakpoint( addr: Int ) = breakpointMap( addr ) = false
 
+  def setSingleShotBreakpoint( addr: Int ) = breakpointMap( addr ) = true
+
   def clearBreakpoint( addr: Int ) = breakpointMap remove addr
 
   def clearBreakpoints = breakpointMap.clear
@@ -306,10 +308,10 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     step
 
     if (inst.isInstanceOf[JSR] || inst.isInstanceOf[BSR]) {
-      breakpointMap(subroutineReturnAddress) = true
+      setSingleShotBreakpoint( subroutineReturnAddress )
       run
     } else if (inst.isInstanceOf[TRAP] || inst == TRAPV) {
-      breakpointMap(exceptionReturnAddress) = true
+      setSingleShotBreakpoint( exceptionReturnAddress )
       run
     }
   }

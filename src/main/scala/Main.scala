@@ -139,11 +139,20 @@ object Main extends App {
             dump( emu.target(addr), 10 )
           case List( "dump"|"d" ) =>
             dump( -1, 10 )
+          case List( "execute"|"e", addr2 ) if addr2 startsWith "/" =>
+            emu.cpu.setSingleShotBreakpoint( emu.target(addr2 drop 1) )
+            emu.run
+            registers
           case List( "execute"|"e", addr ) =>
             emu.cpu.jumpTo( emu.target(addr) )
             emu.run
             registers
           case List( "execute"|"e" ) =>
+            emu.run
+            registers
+          case List( "execute"|"e", addr1, addr2 ) =>
+            emu.cpu.jumpTo( emu.target(addr1) )
+            emu.cpu.setSingleShotBreakpoint( emu.target(if (addr2 startsWith "/") addr2 drop 1 else addr2) )
             emu.run
             registers
           case List( "execute&wait"|"ew", addr ) =>
