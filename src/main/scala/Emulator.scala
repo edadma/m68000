@@ -68,6 +68,7 @@ class Emulator {
 
   def run {
     cpu.run
+    discur = cpu.PC
     cpu.resetSignal
   }
 
@@ -77,9 +78,15 @@ class Emulator {
     discur = cpu.memoryReadAddress( VectorTable.PC )
   }
 
-  def step = cpu.step
+  def step = {
+    cpu.step
+    discur = cpu.PC
+  }
 
-  def stepOver = cpu.stepOver
+  def stepOver = {
+    cpu.stepOver
+    discur = cpu.PC
+  }
 
   def stop = cpu.stop
 
@@ -105,12 +112,23 @@ class Emulator {
     if (isHex( ref ))
       hex( ref )
     else
-      -1
-  //			symbols get (if (ref endsWith ":") ref dropRight 1 else ref) match {
-  //				case Some( t: Int ) => t
-  //				case None => sys.error( "unknown label: " + ref )
-  //				case Some( s ) => sys.error( "symbol not an integer: " + s )
-  //			}
+      symbols get (if (ref endsWith ":") ref dropRight 1 else ref) match {
+        case Some( t: Int ) => t
+        case None => sys.error( "unknown label: " + ref )
+        case Some( s ) => sys.error( "symbol not an integer: " + s )
+      }
+
+  def breakpoints( out: PrintStream ) = {
+    for (b <- cpu.breakpoints) {
+      val s =
+        cpu.reverseSymbols get b match {
+          case None => ""
+          case Some( l ) => s"($l)"
+        }
+
+      out.println( f"$b%6x $s" )
+    }
+  }
 
   def disassemble( start: Int, lines: Int, out: PrintStream ) {
     if (start > -1)
@@ -144,13 +162,17 @@ class Emulator {
     mem.removeROM
     mem.reset
     SREC( mem, new File(file + ".srec") )
-    cpu.reverseSymbols = MapFileReader(io.Source.fromFile(s"$file.map"))._2
 
-    val (code, vars) = DebugFileReader(io.Source.fromFile(s"$file.debug"))
+    val (sym, rev) = MapFileReader(io.Source.fromFile(s"$file.map"))
+
+    cpu.reverseSymbols = rev
+
+    val (code, vars, varsrev) = DebugFileReader(io.Source.fromFile(s"$file.debug"))
 
     cpu.debug = code
-    cpu.reverseSymbols ++= vars
-    //		clearBreakpoints
+    cpu.reverseSymbols ++= varsrev
+    symbols ++= sym ++ vars
+    cpu.clearBreakpoints
     reset
   }
 

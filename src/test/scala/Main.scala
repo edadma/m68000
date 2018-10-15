@@ -6,7 +6,7 @@ import java.io.{File, PrintStream}
 
 object Main extends App {
   val program = "main"
-  val timer = new dev.Timer( "interrupt", 1, 0xFFFFFF00 )
+  val timer = new dev.Timer( "interrupt", 1, 0xFFFF00 )
   val mem =
     new Memory {
       def init: Unit = {
@@ -23,15 +23,16 @@ object Main extends App {
       traceout = new PrintStream("trace")
       reverseSymbols = MapFileReader(io.Source.fromFile(s"tools/$program.map"))._2
 
-      val (code, vars) = DebugFileReader(io.Source.fromFile(s"tools/$program.debug"))
+      val (code, _, varsrev) = DebugFileReader(io.Source.fromFile(s"tools/$program.debug"))
 
       debug = code
-      reverseSymbols ++= vars
+      reverseSymbols ++= varsrev
     }
 
   timer connectTo cpu
   cpu.reset
   cpu.run
   cpu.resetSignal
+
   if (cpu.traceout != Console.out) cpu.traceout.close
 }

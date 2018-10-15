@@ -6,10 +6,8 @@
 #include <errno.h>
 #include "services.h"
 
-#define TIMER (*(char*)0xFFFFFF00)
+#define TIMER (*(char*)0xFFFF00)
 
-
-char ch = 'a';
 
 void
 main() {
@@ -28,18 +26,14 @@ main() {
 //    strftime( buffer, 80, "%x - %I:%M%p", tm );
 //    printf( "Formatted date & time : |%s|\n", buffer );
 
-//    char* p = strdup( "TZ=EST+5EDT,M3.2.0/2,M11.1.0/2" );
-//    char* equal = strchr( p, '=' );
-//
-//    *equal = '\0';
-//
-//    int rval = setenv( p, equal + 1, 1 );
-//
-//    outnln( rval );
-//    free( p );
-    outn( ch );
-    ch = 'b';
-    outn( ch );
+    char* p = strdup( "TZ=EST+5EDT,M3.2.0/2,M11.1.0/2" );
+    char* equal = strchr( p, '=' );
+
+    *equal = '\0';
+
+    int rval = setenv( p, equal + 1, 1 );
+
+    free( p );
 }
 
 void __attribute__ ((interrupt))
