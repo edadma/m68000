@@ -36,7 +36,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   private val interrupts = new PriorityQueue[Interrupt]
   private var interruptsAvailable = false
-
+  private var curpc = 0
   private val devices = new ListBuffer[Device]
 
   var counter = 0L
@@ -233,6 +233,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def isWatch( addr: Int ) = watchMap contains addr
 
+  def watchEvent( addr: Int, pc: Int ) = watchMap(addr).append( pc )
+
   def setWatch( addr: Int ) = watchMap(addr) = new ListBuffer
 
   def clearWatch( addr: Int ) = watchMap remove addr
@@ -266,6 +268,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
         traceout.flush
       }
 
+    curpc = PC
     fetch
     opcodes(instruction)( this )
     counter += 1
@@ -326,9 +329,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     }
   }
 
-  def printWatches( out: PrintStream ) = out.println( watches map {case (addr, list) => hexAddress(addr) + ": " + list.mkString(", ")} mkString "\n" )
+  def printWatches( out: PrintStream ) = out.println( watches map {case (addr, list) => hexAddress(addr) + ": " + list.map(hexAddress(_)).mkString(", ")} mkString "\n" )
 
-  def run( out: PrintStream ): Unit =
+  def run( out: PrintStream ) {
     try {
       running = true
 
@@ -359,11 +362,13 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       run
     } catch {
       case e: Exception =>
-        printWatches( out )
         e.printStackTrace( out )
         running = false
         resetSignal
     }
+
+    printWatches( out )
+  }
 
   //
   // addressing
@@ -382,6 +387,9 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   def memoryWrite( data: Int, address: Int, size: Size, aligned: Boolean ) = {
     if (trace)
       tracewrite = Some( (address, memoryRead(address, size, aligned), data, size) )
+
+    if (isWatch( address ))
+      watchEvent( address, curpc )
 
     size match {
       case BitSize | ByteSize if aligned => memory.writeShort(address, data)

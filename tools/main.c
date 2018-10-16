@@ -8,6 +8,7 @@
 
 #define TIMER (*(char*)0xFFFF00)
 
+int a = 123;
 
 void
 main() {
@@ -26,14 +27,15 @@ main() {
 //    strftime( buffer, 80, "%x - %I:%M%p", tm );
 //    printf( "Formatted date & time : |%s|\n", buffer );
 
-    char* p = strdup( "TZ=EST+5EDT,M3.2.0/2,M11.1.0/2" );
-    char* equal = strchr( p, '=' );
-
-    *equal = '\0';
-
-    int rval = setenv( p, equal + 1, 1 );
-
-    free( p );
+//    char* p = strdup( "TZ=EST+5EDT,M3.2.0/2,M11.1.0/2" );
+//    char* equal = strchr( p, '=' );
+//
+//    *equal = '\0';
+//
+//    int rval = setenv( p, equal + 1, 1 );
+//
+//    free( p );
+    a = 456;
 }
 
 void __attribute__ ((interrupt))
