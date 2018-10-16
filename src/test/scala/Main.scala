@@ -28,7 +28,7 @@ object Main extends App {
       debug = code
       reverseSymbols ++= varsrev
 
-      setWatch( 0x10000 )
+      setWatch( 0x108B4 )
     }
 
   timer connectTo cpu

@@ -115,7 +115,6 @@ class Emulator {
       symbols get (if (ref endsWith ":") ref dropRight 1 else ref) match {
         case Some( t: Int ) => t
         case None => sys.error( "unknown label: " + ref )
-        case Some( s ) => sys.error( "symbol not an integer: " + s )
       }
 
   def breakpoints( out: PrintStream ) = {
