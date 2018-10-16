@@ -10,6 +10,8 @@ import collection.mutable.HashMap
 
 object Main extends App {
 
+  val reader = new ConsoleReader
+  val out = new PrintStream( reader.getTerminal.wrapOutIfNeeded(System.out), true )
   lazy val emu = new Emulator
   var enterREPL = true
   val aRegRegex = "a([0-7])"r
@@ -30,7 +32,7 @@ object Main extends App {
       Nil
     case "-le" :: file :: _ =>
       load( file )
-      emu.run
+      emu.run( out )
       enterREPL = false
       Nil
     case o :: _ if o startsWith "-" =>
@@ -57,8 +59,6 @@ object Main extends App {
   }
 
   def REPL {
-    val reader = new ConsoleReader
-    val out = new PrintStream( reader.getTerminal.wrapOutIfNeeded(System.out), true )
     var line: String = null
     var reload = ""
 
@@ -98,7 +98,7 @@ object Main extends App {
     //		def printBreakpoints = out.println( mach.breakpoints map {case (b, l) => hexShort(b) + (if (l != "") "/" + l else "")} mkString " " )
 
     def runAndWait {
-      emu.run
+      emu.run( out )
       waitUntilRunning
       waitWhileRunning
       registers
@@ -141,19 +141,19 @@ object Main extends App {
             dump( -1, 10 )
           case List( "execute"|"e", addr2 ) if addr2 startsWith "/" =>
             emu.cpu.setSingleShotBreakpoint( emu.target(addr2 drop 1) )
-            emu.run
+            emu.run( out )
             registers
           case List( "execute"|"e", addr ) =>
             emu.cpu.jumpTo( emu.target(addr) )
-            emu.run
+            emu.run( out )
             registers
           case List( "execute"|"e" ) =>
-            emu.run
+            emu.run( out )
             registers
           case List( "execute"|"e", addr1, addr2 ) =>
             emu.cpu.jumpTo( emu.target(addr1) )
             emu.cpu.setSingleShotBreakpoint( emu.target(if (addr2 startsWith "/") addr2 drop 1 else addr2) )
-            emu.run
+            emu.run( out )
             registers
           case List( "execute&wait"|"ew", addr ) =>
             emu.cpu.jumpTo( emu.target(addr) )
@@ -229,7 +229,7 @@ object Main extends App {
             emu.step
             registers
           case List( "step over"|"so" ) =>
-            emu.stepOver
+            emu.stepOver( out )
             registers
           case List( "stop"|"st" ) =>
             emu.stop

@@ -32,7 +32,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
   private [m68k] var debug: Map[Int, (String, String)] = Map()
   private [m68k] var labels = 0
   private [m68k] val breakpointMap = new HashMap[Int, Boolean]
-  private [m68k] val watches = new HashSet[Int]
+  private [m68k] val watchMap = new HashMap[Int, ListBuffer[Int]]
 
   private val interrupts = new PriorityQueue[Interrupt]
   private var interruptsAvailable = false
@@ -231,6 +231,16 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       d.reset
   }
 
+  def isWatch( addr: Int ) = watchMap contains addr
+
+  def setWatch( addr: Int ) = watchMap(addr) = new ListBuffer
+
+  def clearWatch( addr: Int ) = watchMap remove addr
+
+  def clearWatches = watchMap.clear
+
+  def watches = watchMap.toList sortBy (_._1) map {case (addr, buf) => (addr, buf.toList)}
+
   def isBreakpoint( addr: Int ) = breakpointMap contains addr
 
   def setBreakpoint( addr: Int ) = breakpointMap( addr ) = false
@@ -302,21 +312,23 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 			stop
 		}
 
-  def stepOver: Unit = {
+  def stepOver( out: PrintStream ): Unit = {
     val inst = opcodes( prog.readShort(PC)&0xFFFF )
 
     step
 
     if (inst.isInstanceOf[JSR] || inst.isInstanceOf[BSR]) {
       setSingleShotBreakpoint( subroutineReturnAddress )
-      run
+      run( out )
     } else if (inst.isInstanceOf[TRAP] || inst == TRAPV) {
       setSingleShotBreakpoint( exceptionReturnAddress )
-      run
+      run( out )
     }
   }
 
-  def run: Unit =
+  def printWatches( out: PrintStream ) = out.println( watches map {case (addr, list) => hexAddress(addr) + ": " + list.mkString(", ")} mkString "\n" )
+
+  def run( out: PrintStream ): Unit =
     try {
       running = true
 
@@ -347,7 +359,8 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
       run
     } catch {
       case e: Exception =>
-        e.printStackTrace
+        printWatches( out )
+        e.printStackTrace( out )
         running = false
         resetSignal
     }
