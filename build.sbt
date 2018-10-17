@@ -4,13 +4,9 @@ version := "0.1"
 
 scalaVersion := "2.12.7"
 
-//crossScalaVersions := Seq( "2.11.11" )
-
 scalacOptions ++= Seq( "-deprecation", "-feature", "-unchecked", "-language:postfixOps", "-language:implicitConversions", "-language:existentials" )
 
 organization := "xyz.hyperreal"
-
-//resolvers += Resolver.sonatypeRepo( "snapshots" )
 
 resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
 
@@ -20,16 +16,6 @@ libraryDependencies ++= Seq(
 	"org.scalatest" %% "scalatest" % "3.0.0" % "test",
 	"org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
 )
-
-libraryDependencies ++= Seq(
-//	"org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.1",
-//	"org.scala-lang.modules" %% "scala-xml" % "1.0.6"
-//	"org.scala-lang.modules" %% "scala-swing" % "2.0.0"
-)
-
-//libraryDependencies ++= Seq(
-//  "com.typesafe" % "config" % "1.3.1"
-//)
 
 libraryDependencies ++= Seq(
 	"xyz.hyperreal" %% "args" % "0.1",
