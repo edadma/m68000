@@ -20,6 +20,8 @@ package object m68k {
 
   def hexShort( a: Int ) = hexByte( a>>8 ) + hexByte( a )
 
+  def hexAddress( a: Int ) = hexByte( a>>16 ) + hexShort( a )
+
   def hexInt( a: Int ) = hexShort( a>>16 ) + hexShort( a )
 
   def hexLong( a: Long ) = hexInt( (a>>32).asInstanceOf[Int] ) + hexInt( a.asInstanceOf[Int] )

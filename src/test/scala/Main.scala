@@ -18,7 +18,7 @@ object Main extends App {
     }
   val cpu =
     new CPUWithServices( mem ) {
-//      trace = true
+      trace = true
 //      tracelimit = 50
       traceout = new PrintStream("trace")
       reverseSymbols = MapFileReader(io.Source.fromFile(s"tools/$program.map"))._2
@@ -27,11 +27,13 @@ object Main extends App {
 
       debug = code
       reverseSymbols ++= varsrev
+
+      setWatch( 0x108B4 )
     }
 
   timer connectTo cpu
   cpu.reset
-  cpu.run
+  cpu.run( Console.out )
   cpu.resetSignal
 
   if (cpu.traceout != Console.out) cpu.traceout.close

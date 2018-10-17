@@ -66,8 +66,8 @@ class Emulator {
     registry(name) = installer
   }
 
-  def run {
-    cpu.run
+  def run( out: PrintStream ) {
+    cpu.run( out )
     discur = cpu.PC
     cpu.resetSignal
   }
@@ -83,8 +83,8 @@ class Emulator {
     discur = cpu.PC
   }
 
-  def stepOver = {
-    cpu.stepOver
+  def stepOver( out: PrintStream ) = {
+    cpu.stepOver( out )
     discur = cpu.PC
   }
 
@@ -115,7 +115,6 @@ class Emulator {
       symbols get (if (ref endsWith ":") ref dropRight 1 else ref) match {
         case Some( t: Int ) => t
         case None => sys.error( "unknown label: " + ref )
-        case Some( s ) => sys.error( "symbol not an integer: " + s )
       }
 
   def breakpoints( out: PrintStream ) = {

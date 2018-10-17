@@ -17,7 +17,7 @@ object Run {
             }
           } )
 
-      cpu.run
+      cpu.run( Console.out )
     }
 
 }

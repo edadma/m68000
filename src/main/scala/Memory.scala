@@ -66,7 +66,7 @@ class RAM( val name: String, val start: Int, end: Int ) extends Addressable {
 	require( start >= 0 )
 	require( end >= start )
 
-	val size = (end - start + 1).asInstanceOf[Int]
+	val size = (end - start + 1)
 
 	protected val mem = new Array[Byte]( size )
 
@@ -74,11 +74,11 @@ class RAM( val name: String, val start: Int, end: Int ) extends Addressable {
 		for (i <- 0 until size)
 			mem(i) = 0
 
-	def readByte( addr: Int ) = mem( (addr - start).asInstanceOf[Int] )
+	def readByte( addr: Int ) = mem( (addr - start) )
 
-	def writeByte( addr: Int, value: Int ) = mem( (addr - start).asInstanceOf[Int] ) = value.asInstanceOf[Byte]
+	def writeByte( addr: Int, value: Int ) = mem( (addr - start) ) = value.asInstanceOf[Byte]
 
-	override def toString = s"$name RAM: ${hexInt(start.toInt)}-${hexInt(end.toInt)}"
+	override def toString = s"$name RAM: ${hexAddress(start.toInt)}-${hexAddress(end.toInt)}"
 }
 
 class ROM( val name: String, val start: Int, end: Int ) extends Addressable {
@@ -86,17 +86,17 @@ class ROM( val name: String, val start: Int, end: Int ) extends Addressable {
 	require( start >= 0 )
 	require( end >= start )
 
-	val size = (end - start + 1).asInstanceOf[Int]
+	val size = (end - start + 1)
 
 	protected val mem = new Array[Byte]( size )
 
-	def readByte( addr: Int ) = mem( (addr - start).asInstanceOf[Int] )
+	def readByte( addr: Int ) = mem( (addr - start) )
 
 	def writeByte( addr: Int, value: Int ) = sys.error( "read only memory: " + (addr&0xffff).toHexString + " (tried to write " + (value&0xff).toHexString + ")" )
 
-	override def programByte( addr: Int, value: Int ) = mem( (addr - start).asInstanceOf[Int] ) = value.asInstanceOf[Byte]
+	override def programByte( addr: Int, value: Int ) = mem( (addr - start) ) = value.asInstanceOf[Byte]
 
-	override def toString = s"$name ROM: ${hexInt(start.toInt)}-${hexInt(start.toInt + size - 1)}"
+	override def toString = s"$name ROM: ${hexAddress(start.toInt)}-${hexAddress(start.toInt + size - 1)}"
 
 }
 
@@ -132,7 +132,7 @@ trait Device extends Addressable {
 
 	def reset {}
 
-	override def toString = s"$name device: ${hexInt(start.toInt)}-${hexInt(start.toInt + size - 1)}"
+	override def toString = s"$name device: ${hexAddress(start)}-${hexAddress(start + size - 1)}"
 
 }
 
@@ -140,7 +140,7 @@ abstract class SingleAddressDevice extends Device {
 
 	val size = 1
 
-	override def toString = s"$name device: ${hexInt(start.toInt)}"
+	override def toString = s"$name device: ${hexAddress(start)}"
 
 }
 
@@ -183,7 +183,7 @@ abstract class Memory extends Addressable {
 
 	def start = first
 
-	def size = (end - first).asInstanceOf[Int]
+	def size = (end - first)
 
 	def readByte( addr: Int ) = find( addr ).readByte( addr )
 	
@@ -265,7 +265,7 @@ abstract class Memory extends Addressable {
 
 	def add( region: Addressable ) {
 		regions find (r => r.start <= region.start && region.start < r.start + r.size) match {
-			case Some(r) => sys.error( hexInt(region.start.toInt) + ", " + hexInt(region.size) + " overlaps " + hexInt(r.start.toInt) + ", " + hexInt(r.size) )
+			case Some(r) => sys.error( hexAddress(region.start) + ", " + hexAddress(region.size) + " overlaps " + hexAddress(r.start) + ", " + hexAddress(r.size) )
 			case None =>
 		}
 
