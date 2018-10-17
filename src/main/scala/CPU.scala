@@ -3,8 +3,7 @@ package xyz.hyperreal.m68k
 
 import java.io.PrintStream
 
-import scala.collection.mutable.{HashMap, HashSet, ListBuffer, PriorityQueue}
-import io.AnsiColor._
+import scala.collection.mutable.{HashMap, ListBuffer, PriorityQueue}
 
 
 case class Interrupt( level: Int, vector: Option[Int] ) extends Ordered[Interrupt] {

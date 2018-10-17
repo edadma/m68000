@@ -3,7 +3,6 @@ package xyz.hyperreal.m68k
 
 import java.io.{File, OutputStream, PrintStream}
 
-import scala.collection.immutable.TreeMap
 import scala.collection.mutable.HashMap
 
 

@@ -5,7 +5,6 @@ import java.io.{File, PrintStream}
 import jline.console.ConsoleReader
 import jline.console.history.FileHistory
 import xyz.hyperreal.args.Options
-import collection.mutable.HashMap
 
 
 object Main extends App {
