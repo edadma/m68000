@@ -162,13 +162,13 @@ object Main extends App {
             runAndWait
           case List( "help"|"h" ) =>
             """
-              |breakpoint (b) <addr>*           set/clear breakpoint at <addr>
+              |breakpoint (b) [-]<addr>*        set/clear breakpoint at <addr> (cleared if <addr> preceeded by '-')
               |disassemble (u) [<addr>*]        print disassembled code at <addr> or where left off
               |clear (c) [<addr1>* <addr2>*]    clear RAM, optionally from <addr1> up to but not including <addr2>
               |drop (dr) <region>               drop memory <region>
               |dump (d) [<addr>*]               print memory at <addr> or where left off
               |execute (e) [<addr>*]            execute instructions starting from current PC or <addr>
-              |execute&wait (ew) [<addr>*]      execute instructions starting from current PC or <addr> and wait to finish
+              |execute & wait (ew) [<addr>*]    execute instructions starting from current PC or <addr> and wait to finish
               |help (h)                         print this summary
               |load (l) <file>                  clear ROM, load SREC <file>, and reset CPU
               |memory (m)                       print memory map
@@ -245,8 +245,10 @@ object Main extends App {
               out.println( f"$s%-15s $v%6x" )
           case List( "trace"|"t", "on" ) =>
             emu.cpu.trace = true
+            emu.cpu.traceout = out
           case List( "trace"|"t", "off" ) =>
             emu.cpu.trace = false
+            emu.cpu.traceout = Console.out
           case Nil|List( "" ) =>
           case _ => out.println( "error interpreting command" )
         }

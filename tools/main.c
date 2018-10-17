@@ -8,11 +8,12 @@
 
 #define TIMER (*(char*)0xFFFF00)
 
+double theta = 1.2;
 
 void
 main() {
-//    TIMER = 250;
-//    for (int i = 0; i < 5000000; i++) {}
+    printf( "sin(5)^2 + cos(5)^2 = %g\n", pow(sin(theta), 2) + pow(cos(theta), 2) );  // should be 1, of course
+
 //    char buffer[80];
 //    time_t rawtime;
 //    struct tm* tm;
@@ -26,14 +27,14 @@ main() {
 //    strftime( buffer, 80, "%x - %I:%M%p", tm );
 //    printf( "Formatted date & time : |%s|\n", buffer );
 
-    char* p = strdup( "TZ=EST+5EDT,M3.2.0/2,M11.1.0/2" );
-    char* equal = strchr( p, '=' );
-
-    *equal = '\0';
-
-    int rval = setenv( p, equal + 1, 1 );
-
-    free( p );
+//    char* p = strdup( "TZ=EST+5EDT,M3.2.0/2,M11.1.0/2" );
+//    char* equal = strchr( p, '=' );
+//
+//    *equal = '\0';
+//
+//    int rval = setenv( p, equal + 1, 1 );
+//
+//    free( p );
 }
 
 void __attribute__ ((interrupt))
