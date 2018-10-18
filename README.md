@@ -1,12 +1,12 @@
 m68k
 ====
 
-*m68k* is a simulator for the venerable Motorola 68000 microprocessor written in the Scala programming language.
+*m68k* is an emulator for the venerable Motorola 68000 microprocessor written in the Scala programming language.
 
 Building a Toolchain
 --------------------
 
-A complete Gnu toolchain can be built using the [crosstool-ng](https://crosstool-ng.github.io/) project.  Firstly, a number of packages are needed to run crosstool-ng.  If you are using Linux Mint (as I am), then type
+A complete Gnu cross toolchain can be built using the [crosstool-ng](https://crosstool-ng.github.io/) project.  Firstly, a number of packages are needed to run crosstool-ng.  If you are using Linux Mint (as I am), then type
 
 ```bash
 sudo apt-get install -y gcc gperf bison flex texinfo help2man make libncurses5-dev \
@@ -45,6 +45,8 @@ Now type (in the home folder)
 source .profile
 ```
 
+or log out and log back in.
+
 Create the folder where crosstool-ng will store component tarballs.  Type (while in the home folder)
 
 ```bash
@@ -69,4 +71,4 @@ Build the toolchain by typing
 ct-ng build
 ```
 
-Crosstool-ng will download all needed components are build the entire cross development toolchain.  The toolchain will be installed under `x-tools/m68k` and the individual tools will be accessible with the prefix `m68k-`, so for example the cross C compiler will be `m68k-gcc`.
+Crosstool-ng will download all needed components and build the entire cross development toolchain.  The toolchain will be installed under `x-tools/m68k`.  The individual tools will be accessible with the prefix `m68k-`, so for example the cross C compiler will be `m68k-gcc`.
