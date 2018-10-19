@@ -103,14 +103,14 @@ sh gcc main.c
 sh ld main
 ```
 
-The about should create a 68000 executable called `main.srec`.  Don't worry about the "numeric overflow" warnings, result from extracting debug data that the emulator can use.
+The above should create a 68000 executable called `main.srec`.  Don't worry about the "numeric overflow" warnings, resulting from extracting debug data that the emulator can use.
 
 In the emulator terminal, type
 
     l main
     e
     
-You should see
+which loads `main.srec` into emulator "ROM" and then executes the program.  You should see
 
     sin(1.2)^2 + cos(1.2)^2 = 1
     
@@ -122,4 +122,6 @@ You should see
     
     >     
 
-The emulator always displays the current state of the processor and disassembles the instruction at the current PC address.  This little test program demonstrates that `printf` and math library functions work.
+The emulator always displays the current state of the processor and disassembles the instruction at the current PC address after executing any code.  This little test program demonstrates that `printf` and math library functions work.
+
+Type `help` to see all the emulator commands.
