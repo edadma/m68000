@@ -11,7 +11,7 @@ double theta = 1.2;
 
 void
 main() {
-    printf( "sin(5)^2 + cos(5)^2 = %g\n", pow(sin(theta), 2) + pow(cos(theta), 2) );  // should be 1, of course
+    printf( "sin(%g)^2 + cos(%g)^2 = %g\n", theta, theta, pow(sin(theta), 2) + pow(cos(theta), 2) );
 }
 
 void __attribute__ ((interrupt))

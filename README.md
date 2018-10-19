@@ -76,10 +76,14 @@ Crosstool-ng will download all needed components and build the entire cross deve
 Using the Emulator
 ------------------
 
-The emulator executable can be downloaded from [here](https://dl.bintray.com/edadma/generic/m68k-0.1.jar).  To run it type
+To test the newly built toolchain and start using the emulator, create a folder where a small 68000 test program can be built and also where the emulator executable can be placed.  I'm assuming that folder is called `m68k` under the root of your home folder.
+
+Downloaded the emulator executable from [here](https://dl.bintray.com/edadma/generic/m68k-0.1.jar) and move it to `m68k` (the folder just created).  Now, open two terminals to that folder, one to run the tools and the other to interact with the emulator.
+
+In one terminal type
 
 ```bash
-cd /path/to/downloads
+cd m68k
 java -jar m68k-0.1.jar
 ```
 
@@ -90,3 +94,31 @@ You should be greeted by
     
     > 
     
+Now type `setup`, and the emulator will generate a number of helpful files that will be needed.
+
+In the other terminal, type
+
+```bash
+sh gcc main.c
+sh ld main
+```
+
+The about should create a 68000 executable called `main.srec`.  Don't worry about the "numeric overflow" warnings, result from extracting debug data that the emulator can use.
+
+In the emulator terminal, type
+
+    l main
+    e
+    
+You should see
+
+    sin(1.2)^2 + cos(1.2)^2 = 1
+    
+    D0=00000009 D1=00000000 D2=00000000 D3=00000000 D4=00000000 D5=00000000 D6=00000000 D7=00000000 
+    A0=00010362 A1=00010A33 A2=000109C8 A3=00000000 A4=00000000 A5=00000000 A6=00000000 A7=00120A10 
+    T S  III   XNZVC
+      *             
+       77C  4E56 0000                 currentTime:   LINK     A6, #0              116: services.s
+    
+    >     
+
