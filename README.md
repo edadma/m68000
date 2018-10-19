@@ -122,3 +122,4 @@ You should see
     
     >     
 
+The emulator always displays the current state of the processor and disassembles the instruction at the current PC address.  This little test program demonstrates that `printf` and math library functions work.
