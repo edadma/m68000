@@ -2,6 +2,8 @@
 package xyz.hyperreal.m68k
 
 import java.io.{File, PrintStream}
+import java.nio.file.{Files, Paths}
+
 import jline.console.ConsoleReader
 import jline.console.history.FileHistory
 import xyz.hyperreal.args.Options
@@ -177,6 +179,7 @@ object Main extends App {
               |registers (r) <reg> <val>*       set CPU <reg>ister to <val>ue
               |reload (rl)                      redo last 'load' or 'assemble' command
               |reset (re)                       reset CPU registers setting PC from reset vector
+              |setup                            setup toolchain scripts, startup code, etc.
               |step (s) [<addr>*]               execute only next instruction at current PC or <addr>
               |stop (st)                        stop code execution
               |save (sa) <file>                 save all ROM contents to SREC file
@@ -220,6 +223,17 @@ object Main extends App {
           case List( "reset"|"re" ) =>
             emu.reset
             registers
+          case List( "setup" ) =>
+            def copy( file: String ): Unit = {
+              val res = getClass.getResourceAsStream( s"setup/$file" )
+
+              Files.copy( res, Paths get file )
+              res.close
+            }
+
+            List( "asm", "gcc", "ld", "ldscript", "main.c", "services.h",
+              "services.s", "startup.s", "syscalls.c"
+            ) foreach copy
           case List( "step"|"s", addr ) =>
             emu.cpu.jumpTo( emu.target(addr) )
             emu.step

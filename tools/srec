@@ -1,1 +1,0 @@
-m68k-unknown-elf-objcopy -I coff-m68k -O srec a.out $1.srec

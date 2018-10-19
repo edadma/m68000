@@ -72,3 +72,21 @@ ct-ng build
 ```
 
 Crosstool-ng will download all needed components and build the entire cross development toolchain.  The toolchain will be installed under `x-tools/m68k`.  The individual tools will be accessible with the prefix `m68k-`, so for example the cross C compiler will be `m68k-gcc`.
+
+Using the Emulator
+------------------
+
+The emulator executable can be downloaded from [here](https://dl.bintray.com/edadma/generic/m68k-0.1.jar).  To run it type
+
+```bash
+cd /path/to/downloads
+java -jar m68k-0.1.jar
+```
+
+You should be greeted by
+
+    Motorola 68000 Emulator v0.1
+    Type 'help' for list of commands.
+    
+    > 
+    

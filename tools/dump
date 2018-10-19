@@ -1,1 +1,0 @@
-m68k-unknown-elf-readelf -R .text -x .rodata -x .data -x .sdata a.out >$1.hex
