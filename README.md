@@ -6,7 +6,7 @@ m68k
 Building a Toolchain
 --------------------
 
-A complete Gnu cross toolchain can be built using the [crosstool-ng](https://crosstool-ng.github.io/) project.  Firstly, a number of packages are needed to run crosstool-ng.  If you are using Linux Mint (as I am), then type
+A complete Gnu cross toolchain for the 68000 can be built using the [crosstool-ng](https://crosstool-ng.github.io/) project.  Firstly, a number of packages are needed to run crosstool-ng.  If you are using Linux Mint (as I am), then type
 
 ```bash
 sudo apt-get install -y gcc gperf bison flex texinfo help2man make libncurses5-dev \
@@ -77,7 +77,7 @@ Crosstool-ng will download all needed components and build the entire cross deve
 Using the Emulator
 ------------------
 
-To test the newly built toolchain and start using the emulator, create a folder where a small 68000 test program can be built and also where the emulator executable can be placed.  I'm assuming that folder is called `m68k` under the root of your home folder.
+To test the newly built toolchain and start using the emulator, create a folder where a small 68000 test program can be built and also where the emulator executable can be placed.  I'm assuming that folder is called `m68k` in your home folder.
 
 Downloaded the emulator executable from [here](https://dl.bintray.com/edadma/generic/m68k-0.1.jar) and move it to `m68k` (the folder just created).  Now, open two terminals to that folder, one to run the tools and the other to interact with the emulator.
 
