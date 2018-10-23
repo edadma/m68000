@@ -59,12 +59,11 @@ Create a work folder where toolchain builds are done.  Type
 mkdir -p ct-ng-work/m68k
 ```
 
-Copy the `toolchain-config` file from the `m68k` repository into the newly created `ct-ng-work/m68k` folder, but call it `.config`.  Type
+Copy the file `toolchain/crosstool-ng-newlib/.config` file from the `m68k` repository into the newly created `ct-ng-work/m68k` folder.  Type
 
 ```bash
 cd ct-ng-work/m68k
-wget https://raw.githubusercontent.com/edadma/m68k/master/toolchain-config
-mv toolchain-config .config
+wget https://raw.githubusercontent.com/edadma/m68k/master/toolchain/crosstool-ng-newlib/.config
 ```
 
 Build the entire toolchain by typing
