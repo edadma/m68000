@@ -59,19 +59,21 @@ Create a work folder where toolchain builds are done.  Type
 mkdir -p ct-ng-work/m68k
 ```
 
-Copy the `toolchain-config` file from the `m68k` repo into the newly created `ct-ng-work/m68k` folder, but call it `.config`.  Type
+Copy the `toolchain-config` file from the `m68k` repository into the newly created `ct-ng-work/m68k` folder, but call it `.config`.  Type
 
 ```bash
-cp /path/to/m68k/toolchain-config ct-ng-work/m68k/.config
+cd ct-ng-work/m68k
+wget https://raw.githubusercontent.com/edadma/m68k/master/toolchain-config
+mv toolchain-config .config
 ```
 
-Build the toolchain by typing
+Build the entire toolchain by typing
 
 ```bash
 ct-ng build
 ```
 
-Crosstool-ng will download all needed components and build the entire cross development toolchain.  The toolchain will be installed under `x-tools/m68k`.  The individual tools will be accessible with the prefix `m68k-`, so for example the cross C compiler will be `m68k-gcc`.
+Crosstool-ng will download all needed components and build the entire cross development toolchain (could take up to an hour).  The toolchain will be installed under `x-tools/m68k`.  The individual tools will be accessible with the prefix `m68k-`, so for example the cross C compiler will be `m68k-gcc`.
 
 Using the Emulator
 ------------------
