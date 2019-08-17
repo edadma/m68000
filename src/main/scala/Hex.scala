@@ -10,7 +10,7 @@ object Hex {
 
   def apply( src: io.Source ): List[Byte] = apply( src.getLines )
 
-  def apply( src: String ): List[Byte] = apply( src.lines )
+  def apply( src: String ): List[Byte] = apply( src.split("\n").toList.iterator )
 
   def apply( src: Iterator[String] ) = {
     def skipline( s: Stream[Char] ): Stream[Char] =

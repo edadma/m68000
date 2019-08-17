@@ -55,7 +55,7 @@ class CPUWithServices( mem: Memory ) extends CPU( mem ) {
           case 5 => D(1) = io.StdIn.readChar
           case 6 => print( D(1).toChar )
           case 7 =>
-            val time = compat.Platform.currentTime
+            val time = System.currentTimeMillis
 
             D(0) = (time >> 32).toInt
             D(1) = time.toInt

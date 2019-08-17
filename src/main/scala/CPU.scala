@@ -995,14 +995,14 @@ object CPU {
       built = true
     }
 
-    opcodes
+    ArraySeq.unsafeWrapArray( opcodes )
   }
 
   private def generate( pattern: String ) = {
     case class Variable( v: Char, seq: collection.Seq[Int], bits: List[Int] )
 
     val Range = "([a-zA-Z]):(?:([0-9]+)-([0-9]+)((?:-[0-9]+)*)|([0-9]+(?:,[0-9]+)*))"r
-    val p = pattern replace (" ", "") split ";"
+    val p = pattern replace (" ", "") split ";" toIndexedSeq
 
     require( p.nonEmpty, "empty pattern" )
 

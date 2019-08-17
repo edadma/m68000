@@ -20,12 +20,13 @@ object Main extends App {
 
   Options( args ) {
     case "--help" :: _ =>
-      """
-        |Motorola 68000 Emulator v0.1
-        |Usage:  --help      display this help and exit
-        |        -l <file>   load hexdump <file> and enter REPL
-        |        -le <file>  load hexdump <file> and execute
-      """.trim.stripMargin.lines foreach println
+      println(
+        """
+          |Motorola 68000 Emulator v0.1
+          |Usage:  --help      display this help and exit
+          |        -l <file>   load hexdump <file> and enter REPL
+          |        -le <file>  load hexdump <file> and execute
+        """.trim.stripMargin )
       enterREPL = false
       Nil
     case "-l" :: file :: _ =>
@@ -162,32 +163,33 @@ object Main extends App {
           case List( "execute&wait"|"ew" ) =>
             runAndWait
           case List( "help"|"h" ) =>
-            """
-              |breakpoint (b) [-]<addr>*        set/clear breakpoint at <addr> (cleared if <addr> preceeded by '-')
-              |disassemble (u) [<addr>*]        print disassembled code at <addr> or where left off
-              |clear (c) [<addr1>* <addr2>*]    clear RAM, optionally from <addr1> up to but not including <addr2>
-              |drop (dr) <region>               drop memory <region>
-              |dump (d) [<addr>*]               print memory at <addr> or where left off
-              |execute (e) [<addr>*]            execute instructions starting from current PC or <addr>
-              |execute & wait (ew) [<addr>*]    execute instructions starting from current PC or <addr> and wait to finish
-              |help (h)                         print this summary
-              |load (l) <file>                  clear ROM, load SREC <file>, and reset CPU
-              |memory (m)                       print memory map
-              |memory (m) <addr>* <data>*...    write <data> (space separated bytes) to memory at <addr>
-              |quit (q)                         exit the REPL
-              |registers (r)                    print CPU registers
-              |registers (r) <reg> <val>*       set CPU <reg>ister to <val>ue
-              |reload (rl)                      redo last 'load' or 'assemble' command
-              |reset (re)                       reset CPU registers setting PC from reset vector
-              |setup                            setup toolchain scripts, startup code, etc.
-              |step (s) [<addr>*]               execute only next instruction at current PC or <addr>
-              |stop (st)                        stop code execution
-              |save (sa) <file>                 save all ROM contents to SREC file
-              |symbols (sy)                     print symbol table
-              |symbols (sy) <symbol> <val>*     add <symbol> with associated <val>ue to symbol table
-              |trace (t) on/off                 turn CPU trace on or off
-              |* can either be a hexadecimal value or label (optionally followed by a colon)
-            """.trim.stripMargin.lines foreach out.println
+            println(
+              """
+                |breakpoint (b) [-]<addr>*        set/clear breakpoint at <addr> (cleared if <addr> preceeded by '-')
+                |disassemble (u) [<addr>*]        print disassembled code at <addr> or where left off
+                |clear (c) [<addr1>* <addr2>*]    clear RAM, optionally from <addr1> up to but not including <addr2>
+                |drop (dr) <region>               drop memory <region>
+                |dump (d) [<addr>*]               print memory at <addr> or where left off
+                |execute (e) [<addr>*]            execute instructions starting from current PC or <addr>
+                |execute & wait (ew) [<addr>*]    execute instructions starting from current PC or <addr> and wait to finish
+                |help (h)                         print this summary
+                |load (l) <file>                  clear ROM, load SREC <file>, and reset CPU
+                |memory (m)                       print memory map
+                |memory (m) <addr>* <data>*...    write <data> (space separated bytes) to memory at <addr>
+                |quit (q)                         exit the REPL
+                |registers (r)                    print CPU registers
+                |registers (r) <reg> <val>*       set CPU <reg>ister to <val>ue
+                |reload (rl)                      redo last 'load' or 'assemble' command
+                |reset (re)                       reset CPU registers setting PC from reset vector
+                |setup                            setup toolchain scripts, startup code, etc.
+                |step (s) [<addr>*]               execute only next instruction at current PC or <addr>
+                |stop (st)                        stop code execution
+                |save (sa) <file>                 save all ROM contents to SREC file
+                |symbols (sy)                     print symbol table
+                |symbols (sy) <symbol> <val>*     add <symbol> with associated <val>ue to symbol table
+                |trace (t) on/off                 turn CPU trace on or off
+                |* can either be a hexadecimal value or label (optionally followed by a colon)
+              """.trim.stripMargin )
           case List( "load"|"l", file ) =>
             reload = command
             load( file )
