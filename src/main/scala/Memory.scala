@@ -228,7 +228,7 @@ abstract class Memory extends Addressable {
 		}
 	}
 	
-	def seqDevice = (regions filter (_.isDevice)).asInstanceOf[Seq[Device]]
+	def seqDevice = (regions filter (_.isDevice)).asInstanceOf[collection.Seq[Device]]
 	
 	def seqROM = regions filter (_.isROM)
 	
