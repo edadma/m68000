@@ -8,7 +8,7 @@ import scala.collection.mutable.ArrayBuffer
 
 object SREC {
 	
-	def write( m: Memory, f: File, header: Seq[Byte] ) {
+	def write( m: Memory, f: File, header: Seq[Byte] ): Unit = {
 		val out = new PrintWriter( f )
 		var s1count = 0
 		
@@ -17,7 +17,7 @@ object SREC {
 			var count = 0
 			val buf = new StringBuilder
 			
-			def add( b: Int ) {
+			def add( b: Int ): Unit = {
 				sum += b
 				count += 1
 				buf append hexByte(b)
@@ -70,11 +70,11 @@ object SREC {
 		var base = 0
 		var segment = 0
 		
-		def header( bytes: Vector[Byte] ) {
+		def header( bytes: Vector[Byte] ): Unit = {
 			
 		}
 		
-		def data( addr: Int, bytes: Vector[Byte] ) {
+		def data( addr: Int, bytes: Vector[Byte] ): Unit = {
 			if (!buf.isEmpty && addr != base + buf.length) {
 				m add ROM( "SREC" + segment, base, buf.toIndexedSeq )
 				segment += 1
@@ -96,7 +96,7 @@ object SREC {
 		startAddr
 	}
 	
-	def apply( s: io.Source, header: Vector[Byte] => Unit, data: (Int, Vector[Byte]) => Unit, start: Int => Unit ) {
+	def apply( s: io.Source, header: Vector[Byte] => Unit, data: (Int, Vector[Byte]) => Unit, start: Int => Unit ): Unit = {
 		var headerSeen = false
 		var count = 0
 		

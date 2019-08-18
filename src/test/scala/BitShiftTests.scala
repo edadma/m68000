@@ -1,10 +1,10 @@
 package xyz.hyperreal.m68k
 
 import org.scalatest._
-import prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
-class BitShiftTests extends FreeSpec with PropertyChecks with Matchers with Testing {
+class BitShiftTests extends FreeSpec with ScalaCheckPropertyChecks with Matchers with Testing {
 	
 	"roxl" in {
     test { cpu =>

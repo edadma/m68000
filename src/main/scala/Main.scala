@@ -60,7 +60,7 @@ object Main extends App {
     while (emu.cpu.isRunning) {}
   }
 
-  def REPL {
+  def REPL: Unit = {
     var line: String = null
     var reload = ""
 
@@ -99,7 +99,7 @@ object Main extends App {
 
     //		def printBreakpoints = out.println( mach.breakpoints map {case (b, l) => hexShort(b) + (if (l != "") "/" + l else "")} mkString " " )
 
-    def runAndWait {
+    def runAndWait: Unit = {
       emu.run( out )
       waitUntilRunning
       waitWhileRunning
@@ -110,7 +110,7 @@ object Main extends App {
     out.println( "Type 'help' for list of commands." )
     out.println
 
-    def interp( command: String ) {
+    def interp( command: String ): Unit = {
       val com = command.trim split "\\s+" toList
 
       try {

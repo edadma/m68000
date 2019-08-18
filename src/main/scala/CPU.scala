@@ -331,7 +331,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
 
   def printWatches( out: PrintStream ) = out.println( watches map {case (addr, list) => hexAddress(addr) + ": " + list.map(hexAddress(_)).mkString(", ")} mkString "\n" )
 
-  def run( out: PrintStream ) {
+  def run( out: PrintStream ): Unit = {
     try {
       running = true
 
@@ -525,7 +525,7 @@ class CPU( private [m68k] val memory: Memory ) extends Addressing {
     }
   }
 
-  def write( data: Int, mode: Int, reg: Int, size: Size ) {
+  def write( data: Int, mode: Int, reg: Int, size: Size ): Unit = {
     mode match {
       case DataRegisterDirect => writeD( data, reg, size )
       case AddressRegisterDirect => writeA( regwrite(data, readA(reg).asInstanceOf[Int], size), reg )

@@ -2,10 +2,10 @@
 package xyz.hyperreal.m68k
 
 import org.scalatest._
-import org.scalatest.prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
-class ExamplesTests extends FreeSpec with PropertyChecks with Matchers {
+class ExamplesTests extends FreeSpec with ScalaCheckPropertyChecks with Matchers {
 
 	"hello" in {
 		Run( "tests/hello" ) shouldBe "Hello world!"

@@ -14,7 +14,7 @@ trait Addressable {
 	
 	def readByte( addr: Int ): Int
 	
-	def writeByte( addr: Int, value: Int )
+	def writeByte( addr: Int, value: Int ): Unit
 	
 	def isRAM = isInstanceOf[RAM]
 	
@@ -29,33 +29,33 @@ trait Addressable {
 		programByte( addr + 1, value>>8 )
 	}
 
-	def programInt( addr: Int, value: Int ) {
+	def programInt( addr: Int, value: Int ) = {
 		programShort( addr, value&0xFFFF )
 		programShort( addr + 2, value>>16 )
 	}
 
-	def programLong( addr: Int, value: Long ) {
+	def programLong( addr: Int, value: Long ) = {
 		programInt( addr, value.asInstanceOf[Int] )
 		programInt( addr + 4, (value>>32).asInstanceOf[Int] )
 	}
 
 	def readShort( addr: Int) = (readByte( addr ) << 8) | (readByte( addr + 1 )&0xFF)
 
-	def writeShort( addr: Int, value: Int ) {
+	def writeShort( addr: Int, value: Int ): Unit = {
 		writeByte( addr, value>>8 )
 		writeByte( addr + 1, value&0xFF )
 	}
 
 	def readInt( addr: Int ) = (readShort( addr )<<16) | (readShort( addr + 2 )&0xFFFF)
 
-	def writeInt( addr: Int, value: Int ) {
+	def writeInt( addr: Int, value: Int ): Unit = {
 		writeShort( addr, value>>16 )
 		writeShort( addr + 2, value&0xFFFF )
 	}
 
 	def readLong( addr: Int ) = (readInt( addr ).asInstanceOf[Long]<<32) | (readInt( addr + 4 )&0xFFFFFFFFL)
 
-	def writeLong( addr: Int, value: Long ) {
+	def writeLong( addr: Int, value: Long ): Unit = {
 		writeInt( addr, (value>>32).asInstanceOf[Int] )
 		writeInt( addr + 4, value.asInstanceOf[Int] )
 	}
@@ -128,9 +128,9 @@ trait Device extends Addressable {
     cpu.resettable( this )
   }
 
-	def init {}
+	def init = {}
 
-	def reset {}
+	def reset = {}
 
 	override def toString = s"$name device: ${hexAddress(start)}-${hexAddress(start + size - 1)}"
 
@@ -163,7 +163,7 @@ abstract class Memory extends Addressable {
 	protected var first: Int = 0
 	protected var end: Int = 0
 
-	def init
+	def init: Unit
 
 	init
 
@@ -217,7 +217,7 @@ abstract class Memory extends Addressable {
 	
 	def rom( addr: Int ) = find( addr, _.isROM )
 	
-	def remove( name: String ) {
+	def remove( name: String ): Unit = {
 		regions.indexWhere( _.name == name ) match {
 			case -1 => sys.error( "not found: " + name )
 			case ind =>
@@ -263,7 +263,7 @@ abstract class Memory extends Addressable {
 		for (Hexdump.Section( name, start, data ) <- Hexdump.read( src ))
 			add( ROM(name, start, data) )
 
-	def add( region: Addressable ) {
+	def add( region: Addressable ): Unit = {
 		regions find (r => r.start <= region.start && region.start < r.start + r.size) match {
 			case Some(r) => sys.error( hexAddress(region.start) + ", " + hexAddress(region.size) + " overlaps " + hexAddress(r.start) + ", " + hexAddress(r.size) )
 			case None =>

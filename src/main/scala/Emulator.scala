@@ -10,7 +10,7 @@ class Emulator {
 
   val mem =
     new Memory {
-      def init {
+      def init: Unit = {
         removeDevices
         regions.clear
         add( new ROM("program", 0, 0xFFFF) )
@@ -44,28 +44,28 @@ class Emulator {
   var dumpcur: Int = 0
   var discur: Int = 0
 
-  def register( name: String, installer: (String, Memory, CPU) => Unit ) {
+  def register( name: String, installer: (String, Memory, CPU) => Unit ) = {
     if (registry contains name)
       sys.error( "device installer already registered: " + name )
 
     registry(name) = installer
   }
 
-  def deregister( name: String ) {
+  def deregister( name: String ): Unit = {
     if (!(registry contains name))
       sys.error( "device installer not registered: " + name )
 
     registry -= name
   }
 
-  def reregister( name: String, installer: (String, Memory, CPU) => Unit ) {
+  def reregister( name: String, installer: (String, Memory, CPU) => Unit ) = {
     if (!(registry contains name))
       sys.error( "device installer not registered: " + name )
 
     registry(name) = installer
   }
 
-  def run( out: PrintStream ) {
+  def run( out: PrintStream ): Unit = {
     cpu.run( out )
     discur = cpu.PC
     cpu.resetSignal
@@ -128,13 +128,13 @@ class Emulator {
     }
   }
 
-  def disassemble( start: Int, lines: Int, out: PrintStream ) {
+  def disassemble( start: Int, lines: Int, out: PrintStream ): Unit = {
     if (start > -1)
       discur = start
 
     val cur = discur
 
-    def disassemble( out: PrintStream ) {
+    def disassemble( out: PrintStream ): Unit = {
       val pc = cpu.PC
 
       for (_ <- 1 to lines) {
@@ -147,13 +147,13 @@ class Emulator {
 
     disassemble(
       new PrintStream( new OutputStream() {
-        def write( b: Int ) {}
+        def write( b: Int ) = {}
       }) )
     discur = cur
     disassemble( out )
   }
 
-  def load( file: String ) {
+  def load( file: String ): Unit = {
     if (cpu.isRunning)
       sys.error( "can't load while running" )
 
