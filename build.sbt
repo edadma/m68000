@@ -2,13 +2,13 @@ name := "m68k"
 
 version := "0.2"
 
-scalaVersion := "2.13.0"
+scalaVersion := "2.13.1"
 
 scalacOptions ++= Seq( "-deprecation", "-feature", "-unchecked", "-language:postfixOps", "-language:implicitConversions", "-language:existentials" )
 
 organization := "xyz.hyperreal"
 
-resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
+resolvers += "Typesafe Repository" at "https://repo.typesafe.com/typesafe/releases/"
 
 resolvers += "Hyperreal Repository" at "https://dl.bintray.com/edadma/maven"
 
