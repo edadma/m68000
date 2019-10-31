@@ -5,8 +5,6 @@ import scala.collection.mutable.HashMap
 
 object MapFileReader extends App {
 
-  println( apply(io.Source.fromFile("test/main.map")) )
-
   lazy val labelRegex = " {16}0x([^ ]+) {16}([^. ]+).*"r
 
   def apply( src: io.Source ): (HashMap[String, Int], HashMap[Int, String]) = {

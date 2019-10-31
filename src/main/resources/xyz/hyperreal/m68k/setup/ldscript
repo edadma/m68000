@@ -1,13 +1,5 @@
-SEARCH_DIR(/home/ed/x-tools/m68k/lib/gcc/m68k-unknown-elf/8.3.0)
-SEARCH_DIR(/home/ed/x-tools/m68k/m68k-unknown-elf/lib)
-
-/*
-SEARCH_DIR(/home/ed/x-tools/m68000/lib/gcc/m68k-unknown-uclinux-uclibc/8.2.0/../../../../m68k-unknown-uclinux-uclibc/lib/)
-SEARCH_DIR(/home/ed/x-tools/m68k-unknown-uclinux-uclibc/m68k-unknown-uclinux-uclibc/sysroot/lib/)
-SEARCH_DIR(/home/ed/x-tools/m68k-unknown-uclinux-uclibc/m68k-unknown-uclinux-uclibc/sysroot/usr/lib/)
-*/
-
-/*OUTPUT_FORMAT(srec)*/
+SEARCH_DIR("=/lib/gcc/m68k-unknown-elf/8.3.0")
+SEARCH_DIR("=/m68k-unknown-elf/lib")
 
 MEMORY
 {
