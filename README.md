@@ -1,13 +1,13 @@
 m68k
 ====
 
-*m68k* is an emulator for the venerable Motorola 68000 microprocessor written in the Scala programming language.
+*m68k* is an emulator for the venerable Motorola 68000 microprocessor written in the Scala programming language.  The emulator can load executables in Motorola S-record format.
+
 
 Building a Toolchain
 --------------------
 
-A complete Gnu cross toolchain for the 68000 can be built using the [crosstool-ng](https://crosstool-ng.github.io/) project.
-Firstly, a number of packages are needed to run crosstool-ng.  If you are using Ubuntu Linux (as I am), then type
+A complete Gnu cross toolchain for the 68000 can be built using the [crosstool-ng](https://crosstool-ng.github.io/) project.  Firstly, a number of packages are needed to run *crosstool-ng*.  If you are using Ubuntu Linux (as I am), then type
 
 ```bash
 sudo apt-get install -y gcc g++ gperf bison flex texinfo help2man make libncurses5-dev \
@@ -15,18 +15,12 @@ sudo apt-get install -y gcc g++ gperf bison flex texinfo help2man make libncurse
                             patch libstdc++6 rsync
 ```
 
-To get an up-to-date toolchain, clone the *crosstool-ng* repository.  Begin by entering a folder where you want to put the repository, then type
+The toolchain will be build using version 1.24.0, but first we need to download and build *crosstool-ng*.  Start by downloading [crosstool-ng v1.24.0](http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-1.24.0.tar.xz) and extract.  The folder where you extract to will be discarded after building and installing *crosstool-ng* so it doesn't matter where you extract to.  This folder will be called `/path/to/crosstool-ng/sources`.
+
+Now you need to decide where you want crosstool-ng to be installed.  I chose to put it in `tools/ct-ng` in my home folder, or `$HOME/tools/ct-ng`.  To build and install type the following:
 
 ```bash
-git clone https://github.com/crosstool-ng/crosstool-ng.git
-cd crosstool-ng
-./bootstrap
-```
-
-Now you need to decide where you want crosstool-ng to be installed.  I chose to put it in `tools/ct-ng` in my home folder.  To build and install type the following where `<you>` is your user name.
-
-```bash
-./configure --prefix=/home/<you>/tools/ct-ng
+./configure --prefix=$HOME/tools/ct-ng
 make
 make install
 ```
@@ -41,10 +35,10 @@ PATH="$HOME/tools/ct-ng/bin:$PATH"
 PATH="$HOME/x-tools/m68k/bin:$PATH"
 ```
 
-Now type (in the home folder)
+Now source the changes to `~./profile` by typing
 
 ```bash
-source .profile
+source ~/.profile
 ```
 
 or log out and log back in.
