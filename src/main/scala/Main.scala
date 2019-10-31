@@ -22,7 +22,7 @@ object Main extends App {
     case "--help" :: _ =>
       println(
         """
-          |Motorola 68000 Emulator v0.1
+          |Motorola 68000 Emulator v0.1.1
           |Usage:  --help      display this help and exit
           |        -l <file>   load hexdump <file> and enter REPL
           |        -le <file>  load hexdump <file> and execute
@@ -106,7 +106,7 @@ object Main extends App {
       registers
     }
 
-    out.println( "Motorola 68000 Emulator v0.1" )
+    out.println( "Motorola 68000 Emulator v0.1.1" )
     out.println( "Type 'help' for list of commands." )
     out.println
 
