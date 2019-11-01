@@ -15,12 +15,12 @@ sudo apt-get install -y gcc g++ gperf bison flex texinfo help2man make libncurse
                         unzip patch libstdc++6 rsync
 ```
 
-The toolchain will be build using version 1.24.0, but first we need to download and build *crosstool-ng*.  Start by downloading [crosstool-ng v1.24.0](http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-1.24.0.tar.xz) and extract.  The folder where you extract to will be discarded after building and installing *crosstool-ng* so it doesn't matter where you extract to.  This folder will be called `/path/to/crosstool-ng/sources`.
+The toolchain will be build using version 1.24.0, but first we need to download and build *crosstool-ng*.  Start by downloading [crosstool-ng v1.24.0](http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-1.24.0.tar.xz) and extract.  The folder where you extract to will be discarded after building and installing *crosstool-ng* so it doesn't matter where you extract to.  This folder will be referred to as `/path/to/crosstool-ng/sources`.
 
 Now you need to decide where you want crosstool-ng to be installed.  I chose to put it in `tools/ct-ng` in my home folder, or `$HOME/tools/ct-ng`.  To build and install type the following:
 
 ```bash
-cd `/path/to/crosstool-ng/sources`
+cd /path/to/crosstool-ng/sources
 ./configure --prefix=$HOME/tools/ct-ng
 make
 make install
