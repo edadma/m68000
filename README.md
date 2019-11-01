@@ -69,7 +69,7 @@ Build the entire toolchain by typing
 ct-ng build
 ```
 
-Crosstool-ng will download all needed components and build the entire cross development toolchain (could take up to an hour).  The toolchain will be installed under `x-tools/m68k`.  The individual tools will be accessible with the prefix `m68k-`, so for example the cross C compiler will be `m68k-gcc`.
+*Crosstool-ng* will download all needed components and build the entire cross development toolchain (could take up to an hour).  The toolchain will be installed under `x-tools/m68k`.  The individual tools will be accessible with the prefix `m68k-`, so for example the cross C compiler will be `m68k-gcc`.
 
 Using the Emulator
 ------------------
