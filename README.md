@@ -76,12 +76,12 @@ Using the Emulator
 
 To test the newly built toolchain and start using the emulator, create a folder where a small 68000 test program can be built and also where the emulator executable can be placed.  I'm assuming that folder is called `m68k` in your home folder.
 
-Downloaded the emulator executable from [here](https://dl.bintray.com/edadma/generic/m68k-0.1.1.jar) and move it to `m68k` (the folder just created).  Now, open two terminals to that folder, one to run the tools and the other to interact with the emulator.
+Downloaded the emulator executable from [here](https://dl.bintray.com/edadma/generic/m68k-0.1.1.jar) and move it to `~/m68k` (the folder just created).  Now, open two terminals to that folder, one to interact with the emulator and the other to run the newly built tools.
 
-In one terminal type
+In the emulator terminal type
 
 ```bash
-cd m68k
+cd ~/m68k
 java -jar m68k-0.1.1.jar
 ```
 
@@ -94,21 +94,22 @@ You should be greeted by
     
 Now type `setup`, and the emulator will generate a number of helpful files that will be needed.
 
-In the other terminal, type
+In the tools terminal, type
 
 ```bash
+cd ~/m68k
 sh gcc main.c
 sh ld main
 ```
 
-The above should create a 68000 executable called `main.srec`.  Don't worry about the "numeric overflow" warnings, resulting from extracting debug data that the emulator can use.
+The above should create a 68000 executable called `main.srec`.  Don't worry about the "numeric overflow" warnings resulting from extracting debug data that the emulator can use.
 
 In the emulator terminal, type
 
     l main
     e
     
-which loads `main.srec` into emulator "ROM" and then executes the program.  You should see
+which loads `main.srec` into emulator "ROM" (`l main`) and then executes the program (`e`).  You should see
 
     sin(1.2)^2 + cos(1.2)^2 = 1
     
@@ -120,6 +121,8 @@ which loads `main.srec` into emulator "ROM" and then executes the program.  You 
     
     >     
 
-The emulator always displays the current state of the processor and disassembles the instruction at the current PC address after executing any code.  This little test program demonstrates that `printf` and math library functions work.
+The emulator always displays the current state of the processor and disassembles the instruction at the current PC address after executing any code.  This little test program demonstrates that `printf()` and math library functions (`sin()`, `cos()` and `pow()`) work.
 
-Type `help` to see all the emulator commands.
+Type `re` to reset the emulated CPU, and then type `u` to disassemble (the *u* stands for unassemble) the program at the beginning of the normal startup code.
+
+Type `help` to see all the different emulator commands.
