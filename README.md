@@ -22,8 +22,7 @@ Now you need to decide where you want crosstool-ng to be installed.  I chose to 
 ```bash
 cd /path/to/crosstool-ng/sources
 ./configure --prefix=$HOME/tools/ct-ng
-make
-make install
+make && make install
 ```
 
 Add the following lines to the end of `.profile` in your home folder so that it's on your executable path:
@@ -44,22 +43,23 @@ source ~/.profile
 
 or log out and log back in.
 
-Create the folder where *crosstool-ng* will store component tarballs.  Type (while still in the home folder):
+Create the folder where *crosstool-ng* will store component tarballs by typing:
 
 ```bash
+cd
 mkdir -p ct-ng/src
 ```
 
 Create a work folder where toolchain builds are done.  Type
 
 ```bash
-mkdir -p ct-ng/m68k
+mkdir ct-ng/m68k
 ```
 
 Copy the file `toolchain/crosstool-ng-newlib/.config` file from the `m68k` repository into the newly created `ct-ng-work/m68k` folder.  Type
 
 ```bash
-cd ct-ng-work/m68k
+cd ct-ng/m68k
 wget https://raw.githubusercontent.com/edadma/m68k/master/toolchain/crosstool-ng-newlib/.config
 ```
 
