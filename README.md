@@ -119,7 +119,7 @@ which loads `main.srec` into emulator "ROM" (`l main`) and then executes the pro
       *             
        77C  4E56 0000                 currentTime:   LINK     A6, #0              116: services.s
     
-    >     
+    >
 
 The emulator always displays the current state of the processor and disassembles the instruction at the current PC address after executing any code.  This little test program demonstrates that `printf()` and math library functions (`sin()`, `cos()` and `pow()`) work.
 
